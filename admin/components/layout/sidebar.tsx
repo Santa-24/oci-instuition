@@ -242,10 +242,10 @@ export function Sidebar() {
       <div className="p-3 border-t border-slate-800/80 bg-slate-950/40">
         <div className="flex items-center gap-3 px-2 py-1.5">
           <div className="h-8 w-8 rounded-full bg-slate-800 border border-indigo-500/40 flex items-center justify-center font-bold text-xs text-indigo-400">
-            RA
+            AD
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-bold text-slate-200 truncate">Prof. R. K. Agrawal</p>
+            <p className="text-xs font-bold text-slate-200 truncate">OCI Administrator</p>
             <p className="text-[10px] text-emerald-400 font-semibold truncate">SUPER_ADMIN</p>
           </div>
         </div>

@@ -269,32 +269,205 @@ export const AcademicService = {
     return true;
   },
 
+  // --- SUBJECTS ---
+  async getSubjects() {
+    const res = await fetch('/api/admin/subjects', { cache: 'no-store' });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.subjects || [];
+  },
+
+  async createSubject(subject: { name: string; code: string; courseId?: string }) {
+    const res = await fetch('/api/admin/subjects', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(subject),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) throw new Error(json.error || 'Failed to create subject');
+    return json.subject;
+  },
+
+  async deleteSubject(id: string) {
+    const res = await fetch(`/api/admin/subjects?id=${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) throw new Error(json.error || 'Failed to delete subject');
+    return true;
+  },
+
+  // --- STUDY MATERIALS ---
+  async getMaterials() {
+    const res = await fetch('/api/admin/materials', { cache: 'no-store' });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.materials || [];
+  },
+
+  async createMaterial(material: { title: string; subject: string; batchId?: string; fileUrl?: string; fileSize?: string; type?: string }) {
+    const res = await fetch('/api/admin/materials', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(material),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) throw new Error(json.error || 'Failed to create material');
+    return json.material;
+  },
+
+  async deleteMaterial(id: string) {
+    const res = await fetch(`/api/admin/materials?id=${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) throw new Error(json.error || 'Failed to delete material');
+    return true;
+  },
+
+  // --- RECORDED CLASSES ---
+  async getRecordedClasses() {
+    const res = await fetch('/api/admin/recorded-classes', { cache: 'no-store' });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.recordings || [];
+  },
+
+  async createRecordedClass(recording: { title: string; subject: string; batchId?: string; videoUrl: string; durationMinutes?: number }) {
+    const res = await fetch('/api/admin/recorded-classes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(recording),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) throw new Error(json.error || 'Failed to create recording');
+    return json.recording;
+  },
+
+  async deleteRecordedClass(id: string) {
+    const res = await fetch(`/api/admin/recorded-classes?id=${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) throw new Error(json.error || 'Failed to delete recording');
+    return true;
+  },
+
+  // --- ASSIGNMENTS ---
+  async getAssignments() {
+    const res = await fetch('/api/admin/assignments', { cache: 'no-store' });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.assignments || [];
+  },
+
+  async createAssignment(assignment: { title: string; subject: string; batchId?: string; description?: string; dueDate?: string }) {
+    const res = await fetch('/api/admin/assignments', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(assignment),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) throw new Error(json.error || 'Failed to create assignment');
+    return json.assignment;
+  },
+
+  async deleteAssignment(id: string) {
+    const res = await fetch(`/api/admin/assignments?id=${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) throw new Error(json.error || 'Failed to delete assignment');
+    return true;
+  },
+
   // --- LIVE CLASSES ---
   async getLiveClasses(): Promise<LiveClass[]> {
-    return [];
+    const res = await fetch('/api/admin/live-classes', { cache: 'no-store' });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.liveClasses || [];
   },
 
   async createLiveClass(liveClass: {
     title: string;
     subject: string;
-    batchId: string;
-    scheduledStart: string;
-    scheduledEnd: string;
+    batchId?: string;
+    scheduledStart?: string;
+    scheduledEnd?: string;
   }): Promise<LiveClass> {
-    return {
-      id: `live_${Date.now()}`,
-      title: liveClass.title,
-      subject: liveClass.subject,
-      courseName: 'General Course',
-      batchId: liveClass.batchId,
-      batchName: 'Active Batch',
-      teacherId: 'fac_default',
-      teacherName: 'OCI Faculty',
-      scheduledStartTime: liveClass.scheduledStart,
-      scheduledEndTime: liveClass.scheduledEnd,
-      status: 'scheduled',
-      jitsiRoomName: `oci_${Date.now()}`,
-    };
+    const res = await fetch('/api/admin/live-classes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(liveClass),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) throw new Error(json.error || 'Failed to create live class');
+    return json.liveClass;
+  },
+
+  async deleteLiveClass(id: string) {
+    const res = await fetch(`/api/admin/live-classes?id=${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) throw new Error(json.error || 'Failed to delete live class');
+    return true;
+  },
+
+  // --- NOTIFICATIONS ---
+  async getNotifications() {
+    const res = await fetch('/api/admin/notifications', { cache: 'no-store' });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.notifications || [];
+  },
+
+  async createNotification(notif: { title: string; body: string; target?: string }) {
+    const res = await fetch('/api/admin/notifications', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(notif),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) throw new Error(json.error || 'Failed to send notification');
+    return json.notification;
+  },
+
+  // --- RESULTS ---
+  async getResults() {
+    const res = await fetch('/api/admin/results', { cache: 'no-store' });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.results || [];
+  },
+
+  async createResult(result: {
+    examId: string;
+    studentId?: string;
+    score: number;
+    totalMarks?: number;
+    accuracyPercentage?: number;
+    airRank?: number;
+    percentile?: number;
+  }) {
+    const res = await fetch('/api/admin/results', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(result),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) throw new Error(json.error || 'Failed to record result');
+    return json.result;
+  },
+
+  async deleteResult(id: string) {
+    const res = await fetch(`/api/admin/results?id=${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) throw new Error(json.error || 'Failed to delete result');
+    return true;
   },
 
   // --- QUESTION BANK ---

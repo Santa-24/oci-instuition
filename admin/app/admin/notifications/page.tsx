@@ -1,141 +1,202 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Modal } from '@/components/ui/modal';
 import { Input } from '@/components/ui/input';
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
-import { Bell, Send, CheckCircle2 } from 'lucide-react';
+import { AcademicService } from '@/lib/services/academic-service';
+import { Bell, Send, RefreshCw } from 'lucide-react';
+
+interface NotificationItem {
+  id: string;
+  title: string;
+  body: string;
+  target: string;
+  sentAt?: string;
+  deliveryCount?: string;
+}
 
 export default function NotificationsAdminPage() {
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSent, setIsSent] = useState(false);
-
-  const [history, setHistory] = useState([
-    {
-      id: 'notif_01',
-      title: 'Gauss Law Lecture 4 is Live Now!',
-      body: 'Dr. H. C. Verma is hosting Electrostatics Lecture 4 in Room Alpha. Tap to join live.',
-      target: 'JEE Alpha Super 30',
-      sentAt: '11 Aug 2026, 10:00 AM',
-      deliveryCount: '42 Delivered',
-    },
-    {
-      id: 'notif_02',
-      title: 'Mock Test #4 Scorecards Published',
-      body: 'Results and All India Rank percentiles are now live. Review your weak areas in the test portal.',
-      target: 'All Students (420)',
-      sentAt: '10 Aug 2026, 06:00 PM',
-      deliveryCount: '418 Delivered',
-    },
-  ]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const [formTitle, setFormTitle] = useState('');
   const [formBody, setFormBody] = useState('');
-  const [formTarget, setFormTarget] = useState('All Students (420)');
+  const [formTarget, setFormTarget] = useState('All Students');
 
-  const handleSend = () => {
-    if (!formTitle.trim()) return;
-    setHistory([
-      {
-        id: `notif_${Date.now()}`,
-        title: formTitle,
-        body: formBody,
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const list = await AcademicService.getNotifications();
+      setNotifications(list);
+    } catch (err: any) {
+      setFeedback({ type: 'error', message: err.message || 'Failed to load notifications' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleSend = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formTitle.trim() || !formBody.trim()) return;
+    setIsSubmitting(true);
+    setFeedback(null);
+
+    try {
+      await AcademicService.createNotification({
+        title: formTitle.trim(),
+        body: formBody.trim(),
         target: formTarget,
-        sentAt: 'Just Now',
-        deliveryCount: 'Broadcasting...',
-      },
-      ...history,
-    ]);
-    setIsSent(true);
-    setTimeout(() => {
-      setIsSent(false);
+      });
+
+      setFeedback({ type: 'success', message: 'Broadcast notification dispatched and recorded in Supabase!' });
       setIsModalOpen(false);
-    }, 1200);
+      setFormTitle('');
+      setFormBody('');
+      fetchData();
+    } catch (err: any) {
+      setFeedback({ type: 'error', message: err.message || 'Failed to send notification' });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-extrabold text-white tracking-tight">Push Notifications Broadcaster</h1>
-          <p className="text-xs text-slate-400 mt-1">Broadcast high-priority push notifications to student and faculty mobile devices.</p>
+      {feedback && (
+        <div
+          className={`p-3 rounded-lg text-xs font-semibold flex items-center justify-between border ${
+            feedback.type === 'success'
+              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+              : 'bg-rose-500/10 border-rose-500/30 text-rose-400'
+          }`}
+        >
+          <span>{feedback.message}</span>
+          <button onClick={() => setFeedback(null)} className="underline ml-4">
+            Dismiss
+          </button>
         </div>
-        <Button size="sm" onClick={() => setIsModalOpen(true)} leftIcon={<Send className="h-4 w-4" />}>
-          Compose Push Broadcast
-        </Button>
+      )}
+
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-extrabold text-white tracking-tight">Broadcast Notifications &amp; Alerts</h1>
+          <p className="text-xs text-slate-400 mt-1">
+            Dispatch urgent push alerts and announcements directly to student mobile apps and portals.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={fetchData}
+            isLoading={isLoading}
+            leftIcon={<RefreshCw className="h-3.5 w-3.5" />}
+          >
+            Refresh
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => setIsModalOpen(true)}
+            leftIcon={<Send className="h-4 w-4" />}
+            className="bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/20"
+          >
+            Send Broadcast
+          </Button>
+        </div>
       </div>
 
       <Card className="p-0 overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Notification Title & Message</TableHead>
-              <TableHead>Target Audience</TableHead>
-              <TableHead>Delivered Count</TableHead>
-              <TableHead>Sent Time</TableHead>
+              <TableHead>Notification Title</TableHead>
+              <TableHead>Message Body</TableHead>
+              <TableHead>Recipient Group</TableHead>
+              <TableHead>Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {history.map((h) => (
-              <TableRow key={h.id}>
-                <TableCell className="max-w-md">
-                  <div className="font-bold text-white flex items-center gap-2">
-                    <Bell className="h-3.5 w-3.5 text-indigo-400" />
-                    <span>{h.title}</span>
-                  </div>
-                  <div className="text-xs text-slate-400 mt-0.5">{h.body}</div>
+            {notifications.map((n) => (
+              <TableRow key={n.id}>
+                <TableCell className="font-bold text-white max-w-xs flex items-center gap-2">
+                  <Bell className="h-4 w-4 text-amber-400 shrink-0" />
+                  <span>{n.title}</span>
                 </TableCell>
-                <TableCell className="text-xs font-semibold text-indigo-400">{h.target}</TableCell>
-                <TableCell className="text-xs font-bold text-emerald-400">{h.deliveryCount}</TableCell>
-                <TableCell className="text-xs text-slate-400">{h.sentAt}</TableCell>
+                <TableCell className="text-xs text-slate-300 max-w-md line-clamp-1">{n.body}</TableCell>
+                <TableCell className="text-xs text-indigo-400 font-semibold">{n.target}</TableCell>
+                <TableCell className="text-xs text-emerald-400 font-bold">{n.deliveryCount}</TableCell>
               </TableRow>
             ))}
+
+            {notifications.length === 0 && !isLoading && (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center py-12 text-xs text-slate-500">
+                  No broadcast notifications logged yet. Click &quot;Send Broadcast&quot; to send an alert.
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </Card>
 
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title="Compose FCM Push Notification"
-      >
-        <div className="space-y-4">
-          <Input label="Notification Title" placeholder="e.g. Schedule Update: Physics Class" value={formTitle} onChange={(e) => setFormTitle(e.target.value)} />
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-300 block">Notification Body Message</label>
+      {/* Broadcast Modal */}
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Broadcast Push Notification">
+        <form onSubmit={handleSend} className="space-y-4">
+          <Input
+            label="Notification Title"
+            placeholder="e.g. Weekly Full-Length Mock Test Starts Tomorrow at 9:00 AM"
+            value={formTitle}
+            onChange={(e) => setFormTitle(e.target.value)}
+            required
+          />
+          <div>
+            <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+              Message Body
+            </label>
             <textarea
               rows={3}
               value={formBody}
               onChange={(e) => setFormBody(e.target.value)}
-              placeholder="Enter message displayed on student mobile lock screens..."
-              className="w-full rounded-md border border-slate-800 bg-slate-950/70 p-3 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+              placeholder="Important notice for all aspirants..."
+              className="w-full p-3 rounded-lg border border-slate-700 bg-slate-800 text-xs text-white focus:outline-none focus:border-indigo-500"
+              required
             />
           </div>
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-300 block">Target Audience</label>
+          <div>
+            <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+              Recipient Target Audience
+            </label>
             <select
               value={formTarget}
               onChange={(e) => setFormTarget(e.target.value)}
-              className="w-full h-10 rounded-md border border-slate-800 bg-slate-950/70 px-3 text-xs text-slate-200"
+              className="w-full h-10 px-3 rounded-lg border border-slate-700 bg-slate-800 text-xs text-white focus:outline-none focus:border-indigo-500"
             >
-              <option value="All Students (420)">All Enrolled Students (420)</option>
-              <option value="JEE Alpha Super 30">JEE Alpha Super 30 (42)</option>
-              <option value="NEET Achievers 2027">NEET Achievers 2027 (48)</option>
-              <option value="Faculty Only">Faculty Only (18)</option>
+              <option value="All Students">All Enrolled Students</option>
+              <option value="SSC Aspirants">SSC CGL / CHSL Batches</option>
+              <option value="Odisha Govt Aspirants">Odisha State Govt Batches</option>
+              <option value="Railway Aspirants">Railway RRB Batches</option>
             </select>
           </div>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" size="sm" onClick={() => setIsModalOpen(false)}>
+
+          <div className="flex justify-end gap-2 pt-4">
+            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
               Cancel
             </Button>
-            <Button size="sm" onClick={handleSend}>
-              {isSent ? 'Sent Successfully!' : 'Broadcast to Devices'}
+            <Button type="submit" isLoading={isSubmitting} className="bg-indigo-600 hover:bg-indigo-500 text-white">
+              Dispatch Notification
             </Button>
           </div>
-        </div>
+        </form>
       </Modal>
     </div>
   );

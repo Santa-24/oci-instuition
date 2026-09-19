@@ -20,9 +20,9 @@ export default function LiveClassesAdminPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [formTitle, setFormTitle] = useState('');
-  const [formSubject, setFormSubject] = useState('Physics');
-  const [formTeacher, setFormTeacher] = useState('Dr. H. C. Verma');
-  const [formBatch, setFormBatch] = useState('batch_alpha');
+  const [formSubject, setFormSubject] = useState('Quantitative Aptitude');
+  const [formTeacher, setFormTeacher] = useState('OCI Faculty Lead');
+  const [formBatch, setFormBatch] = useState('');
 
   const fetchLiveClasses = async () => {
     setIsLoading(true);
@@ -156,7 +156,7 @@ export default function LiveClassesAdminPage() {
         description="Creates Jitsi meeting room and notifies enrolled students"
       >
         <div className="space-y-4">
-          <Input label="Session Title" placeholder="e.g. Physics: Gauss Law Lecture 5" value={formTitle} onChange={(e) => setFormTitle(e.target.value)} />
+          <Input label="Session Title" placeholder="e.g. Quantitative Aptitude — Shortcut Problem Solving" value={formTitle} onChange={(e) => setFormTitle(e.target.value)} />
           <Input label="Subject" value={formSubject} onChange={(e) => setFormSubject(e.target.value)} />
           <div>
             <label className="block text-xs font-semibold text-slate-300 mb-1.5">Target Batch</label>

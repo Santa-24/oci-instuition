@@ -16,31 +16,38 @@ export default function StudentDetailPage() {
   const studentId = params.id as string;
   const [student, setStudent] = useState<Student | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
+  const [notFound, setNotFound] = useState(false);
 
   React.useEffect(() => {
     async function loadStudent() {
       const students = await AcademicService.getStudents();
-      const found = students.find((s) => s.id === studentId) || students[0] || {
-        id: studentId,
-        name: 'Student',
-        rollNo: 'OCI-2026-0042',
-        email: 'student@oci.edu.in',
-        phone: '+91 70081 34567',
-        courseId: 'crs_01',
-        courseName: 'JEE Advanced 2 Year Comprehensive',
-        batchId: 'batch_alpha',
-        batchName: 'JEE Alpha Super 30',
-        admissionDate: '2026-04-05',
-        status: 'active',
-        avgMockScore: 240,
-      };
-      setStudent(found);
+      const found = students.find((s) => s.id === studentId);
+      if (found) {
+        setStudent(found);
+      } else {
+        setNotFound(true);
+      }
     }
     loadStudent();
   }, [studentId]);
 
+  if (notFound) {
+    return (
+      <div className="p-12 text-center space-y-4">
+        <User className="h-10 w-10 text-slate-600 mx-auto" />
+        <h2 className="text-base font-bold text-white">Student Record Not Found</h2>
+        <p className="text-xs text-slate-400">
+          No student with ID &quot;{studentId}&quot; exists in the Supabase database.
+        </p>
+        <Button size="sm" variant="outline" onClick={() => router.push('/admin/students')}>
+          Return to Student Directory
+        </Button>
+      </div>
+    );
+  }
+
   if (!student) {
-    return <div className="p-8 text-center text-xs text-slate-400">Loading student dossier...</div>;
+    return <div className="p-8 text-center text-xs text-slate-400">Loading student dossier from Supabase...</div>;
   }
 
   const tabs = [
@@ -157,28 +164,35 @@ export default function StudentDetailPage() {
       {activeTab === 'academic' && (
         <Card>
           <CardHeader>
-            <CardTitle>Enrolled Subjects & Faculty</CardTitle>
+            <CardTitle>Enrolled Subjects & Faculty Curriculum</CardTitle>
             <CardDescription>Academic courses assigned to {student.name}</CardDescription>
           </CardHeader>
           <div className="space-y-3 text-xs">
             <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800 flex justify-between items-center">
               <div>
-                <p className="font-bold text-white">Physics (Electrostatics & Modern Physics)</p>
-                <p className="text-slate-400 mt-0.5">Faculty: Dr. H. C. Verma • Active Module</p>
+                <p className="font-bold text-white">Quantitative Aptitude (MATH-01)</p>
+                <p className="text-slate-400 mt-0.5">Faculty Lead: Er. R. K. Mohapatra • Active Syllabus</p>
               </div>
               <Badge variant="outline">Enrolled</Badge>
             </div>
             <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800 flex justify-between items-center">
               <div>
-                <p className="font-bold text-white">Chemistry (Organic & Physical Chemistry)</p>
-                <p className="text-slate-400 mt-0.5">Faculty: Dr. O. P. Tandon • Active Module</p>
+                <p className="font-bold text-white">Logical & Analytical Reasoning (REAS-01)</p>
+                <p className="text-slate-400 mt-0.5">Faculty Lead: Prof. Arvind Verma • Active Syllabus</p>
               </div>
               <Badge variant="outline">Enrolled</Badge>
             </div>
             <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800 flex justify-between items-center">
               <div>
-                <p className="font-bold text-white">Mathematics (Calculus & Vectors)</p>
-                <p className="text-slate-400 mt-0.5">Faculty: Prof. Amit M. Agarwal • Active Module</p>
+                <p className="font-bold text-white">General Awareness & Odisha GK (GK-01)</p>
+                <p className="text-slate-400 mt-0.5">Faculty Lead: Dr. S. K. Nayak • Active Syllabus</p>
+              </div>
+              <Badge variant="outline">Enrolled</Badge>
+            </div>
+            <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800 flex justify-between items-center">
+              <div>
+                <p className="font-bold text-white">English Language & Comprehension (ENG-01)</p>
+                <p className="text-slate-400 mt-0.5">Grammar, Vocabulary & Comprehension • Active Syllabus</p>
               </div>
               <Badge variant="outline">Enrolled</Badge>
             </div>
@@ -190,29 +204,12 @@ export default function StudentDetailPage() {
         <Card>
           <CardHeader>
             <CardTitle>Mock Test Performance History</CardTitle>
-            <CardDescription>Simulated CBT examinations attempted</CardDescription>
+            <CardDescription>CBT mock tests and simulated assessments attempted</CardDescription>
           </CardHeader>
-          <div className="space-y-3 text-xs">
-            <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800 flex justify-between items-center">
-              <div>
-                <p className="font-bold text-white">All India JEE Advanced Full Mock #4</p>
-                <p className="text-slate-400 mt-0.5">11 Aug 2026 • Accuracy: 84.5% • Rank: AIR 14</p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-extrabold text-white">248 / 300</p>
-                <Badge variant="success" className="mt-0.5">TOP 1%</Badge>
-              </div>
-            </div>
-            <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800 flex justify-between items-center">
-              <div>
-                <p className="font-bold text-white">All India JEE Advanced Full Mock #3</p>
-                <p className="text-slate-400 mt-0.5">04 Aug 2026 • Accuracy: 81.0% • Rank: AIR 28</p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-extrabold text-white">236 / 300</p>
-                <Badge variant="success" className="mt-0.5">TOP 2%</Badge>
-              </div>
-            </div>
+          <div className="py-8 text-center space-y-2">
+            <Award className="h-8 w-8 text-slate-600 mx-auto" />
+            <p className="text-xs text-slate-400 font-medium">No test evaluations submitted yet.</p>
+            <p className="text-[11px] text-slate-500">CBT scores and percentiles will populate automatically when completed.</p>
           </div>
         </Card>
       )}
@@ -221,21 +218,11 @@ export default function StudentDetailPage() {
         <Card>
           <CardHeader>
             <CardTitle>Recent Activity Stream</CardTitle>
-            <CardDescription>In-app lectures attended, DPP downloads, and doubt questions</CardDescription>
+            <CardDescription>Student live class attendance and download logs</CardDescription>
           </CardHeader>
-          <div className="space-y-2 text-xs">
-            <div className="p-2.5 rounded bg-slate-950/60 border border-slate-800 flex justify-between">
-              <span className="text-slate-300">Downloaded DPP #12: Electrostatics Problems PDF</span>
-              <span className="text-slate-500">11 Aug 2026, 12:45 PM</span>
-            </div>
-            <div className="p-2.5 rounded bg-slate-950/60 border border-slate-800 flex justify-between">
-              <span className="text-slate-300">Completed All India JEE Advanced Full Mock #4</span>
-              <span className="text-slate-500">11 Aug 2026, 12:00 PM</span>
-            </div>
-            <div className="p-2.5 rounded bg-slate-950/60 border border-slate-800 flex justify-between">
-              <span className="text-slate-300">Attended Physics Live Lecture 4 (Gauss Law)</span>
-              <span className="text-slate-500">11 Aug 2026, 10:00 AM</span>
-            </div>
+          <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800 text-xs text-slate-400 flex items-center justify-between">
+            <span>Student account verified and enrolled in {student.batchName}</span>
+            <span className="text-[11px] text-emerald-400 font-semibold">Active Enrollment</span>
           </div>
         </Card>
       )}

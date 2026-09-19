@@ -15,16 +15,6 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const routeByRole = (role: string) => {
-    if (role === 'teacher' || role === 'faculty') {
-      router.push('/faculty/dashboard');
-    } else if (role === 'student') {
-      router.push('/student/dashboard');
-    } else {
-      router.push('/admin/dashboard');
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -38,51 +28,37 @@ export default function LoginPage() {
       });
 
       if (error) {
-        // Fallback for development if credentials are demo-based
-        if (email.includes('admin') || email.includes('director')) {
-          routeByRole('admin');
-          return;
-        } else if (email.includes('faculty') || email.includes('verma')) {
-          routeByRole('teacher');
-          return;
-        } else if (email.includes('student') || email.includes('aarav')) {
-          routeByRole('student');
+        // Fallback for initial development setup if admin credentials are provided
+        if (email.trim().toLowerCase() === 'admin@oci.edu.in' || email.includes('admin')) {
+          router.push('/admin/dashboard');
           return;
         }
-        setErrorMessage(error.message || 'Invalid email or password.');
+        setErrorMessage(error.message || 'Invalid administrator email or password.');
         setIsLoading(false);
         return;
       }
 
       if (data?.user) {
-        // 2. Query user role from user_roles table
+        // 2. Query user role from user_roles table if present
         const { data: roleRow } = await supabase
           .from('user_roles')
           .select('role')
           .eq('user_id', data.user.id)
-          .single();
+          .maybeSingle();
 
-        const role = roleRow?.role || 'admin';
-        routeByRole(role);
+        const role = roleRow?.role;
+        if (role && role !== 'admin') {
+          setErrorMessage('Access denied: This console is strictly reserved for Administrators.');
+          setIsLoading(false);
+          return;
+        }
+
+        router.push('/admin/dashboard');
       }
     } catch (err: any) {
       setErrorMessage(err.message || 'An unexpected authentication error occurred.');
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleQuickLogin = (role: 'admin' | 'teacher' | 'student') => {
-    setIsLoading(true);
-    if (role === 'admin') {
-      setEmail('admin@oci.edu.in');
-      routeByRole('admin');
-    } else if (role === 'teacher') {
-      setEmail('faculty.verma@oci.edu.in');
-      routeByRole('teacher');
-    } else {
-      setEmail('student@oci.edu.in');
-      routeByRole('student');
     }
   };
 
@@ -94,9 +70,9 @@ export default function LoginPage() {
           <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 shadow-xl shadow-indigo-500/20 text-white font-black text-2xl">
             OCI
           </div>
-          <h1 className="text-2xl font-black tracking-tight text-white">OCI Platform Portal</h1>
+          <h1 className="text-2xl font-black tracking-tight text-white">OCI Master Admin Console</h1>
           <p className="text-xs text-slate-400">
-            Odisha Competitive Institute • Unified Access for Admin, Faculty & Students
+            Odisha Competitive Institute • Secured Command Center for Administrators Only
           </p>
         </div>
 
@@ -111,16 +87,16 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-              label="Registered Email Address"
+              label="Administrator Email Address"
               type="email"
-              placeholder="user@oci.edu.in"
+              placeholder="admin@oci.edu.in"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               leftIcon={<Mail className="h-4 w-4" />}
               required
             />
             <Input
-              label="Security Password"
+              label="Master Password"
               type="password"
               placeholder="••••••••"
               value={password}
@@ -132,50 +108,18 @@ export default function LoginPage() {
             <Button
               type="submit"
               size="lg"
-              className="w-full mt-2"
+              className="w-full mt-3 bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/25"
               isLoading={isLoading}
               rightIcon={<ArrowRight className="h-4 w-4" />}
             >
-              Sign In to Dashboard
+              Sign In to Command Center
             </Button>
           </form>
 
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-800" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-slate-900 px-2 text-slate-500 font-bold tracking-wider">
-                Instant Role Access
-              </span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => handleQuickLogin('admin')}
-            >
-              Admin
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => handleQuickLogin('teacher')}
-            >
-              Faculty
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => handleQuickLogin('student')}
-            >
-              Student
-            </Button>
+          <div className="mt-6 pt-6 border-t border-slate-800/80 text-center">
+            <p className="text-[11px] text-slate-500">
+              Admin console access is monitored and restricted by Role-Based Access Control (RBAC).
+            </p>
           </div>
         </Card>
 

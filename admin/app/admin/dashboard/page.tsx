@@ -17,10 +17,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ExamParticipationChart, BatchProgressChart } from '@/components/charts/analytics-charts';
 import { AcademicService } from '@/lib/services/academic-service';
-import { MockExam, EnquiryLead } from '@/lib/types/admin';
+import { MockExam, EnquiryLead, Batch } from '@/lib/types/admin';
 
 export default function AdminDashboardPage() {
   const [exams, setExams] = useState<MockExam[]>([]);
+  const [batches, setBatches] = useState<Batch[]>([]);
   const [enquiries, setEnquiries] = useState<EnquiryLead[]>([]);
   const [studentCount, setStudentCount] = useState(0);
   const [batchCount, setBatchCount] = useState(0);
@@ -33,16 +34,20 @@ export default function AdminDashboardPage() {
     async function loadDashboardData() {
       try {
         setIsLoading(true);
-        const data = await AcademicService.getDashboardMetrics();
-        if (data.success && data.stats) {
-          setStudentCount(data.stats.studentsCount);
-          setBatchCount(data.stats.batchesCount);
-          setCourseCount(data.stats.coursesCount);
-          setEnquiryCount(data.stats.enquiriesCount);
-          setLiveClassCount(data.stats.liveClassesToday);
-          setEnquiries(data.recentEnquiries || []);
-          setExams(data.exams || []);
+        const [metricData, batchList] = await Promise.all([
+          AcademicService.getDashboardMetrics(),
+          AcademicService.getBatches(),
+        ]);
+        if (metricData.success && metricData.stats) {
+          setStudentCount(metricData.stats.studentsCount);
+          setBatchCount(metricData.stats.batchesCount);
+          setCourseCount(metricData.stats.coursesCount);
+          setEnquiryCount(metricData.stats.enquiriesCount);
+          setLiveClassCount(metricData.stats.liveClassesToday);
+          setEnquiries(metricData.recentEnquiries || []);
+          setExams(metricData.exams || []);
         }
+        setBatches(batchList || []);
       } catch (err) {
         console.warn('[Dashboard Load Error]:', err);
       } finally {
@@ -51,6 +56,8 @@ export default function AdminDashboardPage() {
     }
     loadDashboardData();
   }, []);
+
+  const totalAttempts = exams.reduce((acc, e) => acc + (e.attemptCount || 0), 0);
 
   return (
     <div className="space-y-8">
@@ -82,8 +89,8 @@ export default function AdminDashboardPage() {
         <StatsCard
           title="Active Batches"
           value={`${batchCount} Batches`}
-          subtext="Ongoing & Upcoming in Bhadrak"
-          trend={{ value: '100% capacity', isPositive: true }}
+          subtext="Ongoing in Bhadrak campus"
+          trend={{ value: 'Live DB', isPositive: true }}
           icon={<BookOpen className="h-5 w-5" />}
           iconBgColor="bg-emerald-500/15 text-emerald-400"
           glow
@@ -116,10 +123,10 @@ export default function AdminDashboardPage() {
       {/* Analytics Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <ExamParticipationChart />
+          <ExamParticipationChart totalAttempts={totalAttempts} activeExamsCount={exams.length} />
         </div>
         <div>
-          <BatchProgressChart />
+          <BatchProgressChart batches={batches} />
         </div>
       </div>
 

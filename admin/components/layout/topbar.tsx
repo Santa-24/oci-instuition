@@ -28,7 +28,7 @@ export function Topbar() {
         <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
           <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
           <Radio className="h-3.5 w-3.5" />
-          <span>2 Classes Live</span>
+          <span>Supabase DB Live</span>
         </div>
 
         {/* Notifications Icon with Badge */}
@@ -44,7 +44,10 @@ export function Topbar() {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => window.open('/', '_blank')}
+          onClick={() => {
+            const url = process.env.NEXT_PUBLIC_WEBSITE_URL || 'https://oci-instuition.vercel.app';
+            window.open(url, '_blank');
+          }}
           leftIcon={<ExternalLink className="h-3.5 w-3.5" />}
         >
           View Live Site
