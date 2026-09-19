@@ -2,8 +2,8 @@
 # OCI Platform — Root Git Ignore Configuration
 # ==============================================================================
 
-# Exclude Mobile App from Web & Cloud Deployment
-app/
+# Exclude Mobile App from Web & Cloud Deployment (Only Root /app/)
+/app/
 
 # Environment Files & Secrets (Never commit secrets to GitHub)
 .env

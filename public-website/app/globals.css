@@ -1,0 +1,103 @@
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@theme inline {
+  --font-sans: 'Plus Jakarta Sans', sans-serif;
+  --font-serif: 'Merriweather', Georgia, serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --color-canvas-default: #FAF8F5;
+  --color-canvas-subtle: #F3F0EA;
+  --color-canvas-elevated: #FFFFFF;
+  --color-canvas-dark: #0C192E;
+  --color-canvas-dark-elevated: #15253F;
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #475569;
+  --color-text-muted: #64748B;
+  --color-text-inverse: #F8FAFC;
+  --color-text-inverse-muted: #94A3B8;
+  --color-brand-blue: #1D4ED8;
+  --color-brand-blue-hover: #1E40AF;
+  --color-brand-amber: #D97706;
+  --color-brand-amber-light: #F59E0B;
+  --color-brand-amber-surface: #FEF3C7;
+  --color-border-subtle: #E6E2D8;
+  --color-border-medium: #CBD5E1;
+  --color-border-dark: rgba(255, 255, 255, 0.12);
+}
+
+:root {
+  --color-canvas-default: #FAF8F5;
+  --color-canvas-subtle: #F3F0EA;
+  --color-canvas-elevated: #FFFFFF;
+  --color-canvas-dark: #0C192E;
+  --color-canvas-dark-elevated: #15253F;
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #475569;
+  --color-text-muted: #64748B;
+  --color-text-inverse: #F8FAFC;
+  --color-text-inverse-muted: #94A3B8;
+  --color-brand-blue: #1D4ED8;
+  --color-brand-blue-hover: #1E40AF;
+  --color-brand-amber: #D97706;
+  --color-brand-amber-light: #F59E0B;
+  --color-brand-amber-surface: #FEF3C7;
+  --color-border-subtle: #E6E2D8;
+  --color-border-medium: #CBD5E1;
+  --color-border-dark: rgba(255, 255, 255, 0.12);
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: #FAF8F5;
+  color: #0F172A;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+body {
+  margin: 0;
+  background-color: #FAF8F5;
+  color: #0F172A;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #F3F0EA;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Subtle Editorial Watermark Texture */
+.academic-watermark {
+  background-image: radial-gradient(#D97706 0.75px, transparent 0.75px);
+  background-size: 24px 24px;
+}
+
+/* Reduced Motion Handling */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
