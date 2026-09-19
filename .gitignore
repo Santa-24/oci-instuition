@@ -1,0 +1,47 @@
+# ==============================================================================
+# OCI Platform — Root Git Ignore Configuration
+# ==============================================================================
+
+# Exclude Mobile App from Web & Cloud Deployment
+app/
+
+# Environment Files & Secrets (Never commit secrets to GitHub)
+.env
+.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+!.env.example
+!*/.env.example
+!*/.env.local.example
+
+# Node.js Dependencies & Next.js Builds
+node_modules/
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local Databases & Cache
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.db
+
+# IDE & Operating System Artifacts
+.DS_Store
+Thumbs.db
+*.pem
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
