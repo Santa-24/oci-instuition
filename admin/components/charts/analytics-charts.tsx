@@ -1,59 +1,82 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription } from '../ui/card';
-import { Batch } from '@/lib/types/admin';
-import { BookOpen, HelpCircle } from 'lucide-react';
+import { EmptyState } from '../ui/empty-state';
+import { Batch, MockExam } from '@/lib/types/admin';
+import { BookOpen, HelpCircle, Layers, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { cn } from '@/lib/utils/cn';
 
 interface BatchProgressChartProps {
   batches?: Batch[];
+  onCreateBatch?: () => void;
 }
 
-export function BatchProgressChart({ batches = [] }: BatchProgressChartProps) {
-  const colors = [
-    'bg-emerald-500',
-    'bg-indigo-500',
-    'bg-amber-500',
-    'bg-sky-500',
-    'bg-purple-500',
-  ];
-
+export function BatchProgressChart({ batches = [], onCreateBatch }: BatchProgressChartProps) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Batch Curriculum & Capacity</CardTitle>
-        <CardDescription>Live enrolled batches in Bhadrak campus</CardDescription>
+    <Card className="flex flex-col h-full">
+      <CardHeader className="flex flex-row items-center justify-between pb-3">
+        <div>
+          <CardTitle>Cohort Seat Capacity & Rosters</CardTitle>
+          <CardDescription>Live enrolled aspirants vs classroom limits in Bhadrak campus</CardDescription>
+        </div>
+        <Link
+          href="/admin/batches"
+          className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
+        >
+          <span>All Batches</span>
+          <ArrowRight className="h-3 w-3" />
+        </Link>
       </CardHeader>
-      <div className="space-y-4 pt-2">
-        {batches.map((b, index) => {
-          const color = colors[index % colors.length];
-          const capacityPercent = b.capacity ? Math.min(100, Math.round((b.enrolledCount / b.capacity) * 100)) : 100;
+
+      <div className="flex-1 p-2 space-y-4">
+        {batches.slice(0, 5).map((b, index) => {
+          const capacity = b.capacity || 60;
+          const enrolled = b.enrolledCount || 0;
+          const percent = Math.min(100, Math.round((enrolled / capacity) * 100));
+
           return (
-            <div key={b.id || b.name} className="space-y-1.5">
-              <div className="flex justify-between text-xs font-semibold">
-                <span className="text-slate-200 truncate max-w-[200px]">{b.name}</span>
-                <span className="text-white font-bold">{b.enrolledCount} / {b.capacity} Seats</span>
+            <div key={b.id || index} className="p-3 rounded-xl border border-border bg-canvas-subtle/50 space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-bold text-foreground truncate max-w-[220px]">{b.name}</span>
+                <span className="font-mono font-bold text-foreground tabular-nums">
+                  {enrolled} / {capacity} <span className="text-[10px] text-muted-foreground font-normal">Seats</span>
+                </span>
               </div>
-              <div className="h-2.5 w-full bg-slate-800 rounded-full overflow-hidden">
+
+              {/* Precise Capacity Rail */}
+              <div className="h-2 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
                 <div
-                  style={{ width: `${Math.max(10, capacityPercent)}%` }}
-                  className={`h-full ${color} rounded-full transition-all duration-700`}
+                  style={{ width: `${Math.max(4, percent)}%` }}
+                  className={cn(
+                    'h-full rounded-full transition-all duration-500',
+                    percent >= 90
+                      ? 'bg-rose-500'
+                      : percent >= 70
+                      ? 'bg-amber-500'
+                      : 'bg-blue-600'
+                  )}
                 />
               </div>
-              <div className="flex justify-between text-[10px] text-slate-400">
-                <span>{b.schedule || 'Scheduled'}</span>
-                <span className="capitalize text-emerald-400 font-semibold">{b.status || 'Active'}</span>
+
+              <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                <span className="truncate">{b.roomName || 'Campus Lecture Hall'} • {b.schedule || 'Scheduled'}</span>
+                <span className="font-bold text-foreground">{percent}% Capacity</span>
               </div>
             </div>
           );
         })}
 
         {batches.length === 0 && (
-          <div className="py-8 text-center space-y-2">
-            <BookOpen className="h-8 w-8 text-slate-600 mx-auto" />
-            <p className="text-xs text-slate-400 font-medium">No active batches found in Supabase.</p>
-            <p className="text-[11px] text-slate-500">Create a batch under Education &gt; Batches.</p>
-          </div>
+          <EmptyState
+            icon={<Layers className="h-5 w-5 text-muted-foreground" />}
+            title="No Active Batches Configured"
+            description="Create your first academic cohort with designated classroom and capacity limits."
+            actionLabel="Create Cohort Batch"
+            onAction={onCreateBatch || (() => { window.location.href = '/admin/batches'; })}
+            compact
+          />
         )}
       </div>
     </Card>
@@ -61,50 +84,66 @@ export function BatchProgressChart({ batches = [] }: BatchProgressChartProps) {
 }
 
 interface ExamParticipationChartProps {
+  exams?: MockExam[];
   totalAttempts?: number;
-  activeExamsCount?: number;
+  onScheduleExam?: () => void;
 }
 
-export function ExamParticipationChart({ totalAttempts = 0, activeExamsCount = 0 }: ExamParticipationChartProps) {
-  const months = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'];
+export function ExamParticipationChart({
+  exams = [],
+  totalAttempts = 0,
+  onScheduleExam,
+}: ExamParticipationChartProps) {
+  const publishedExams = exams.filter((e) => e.isPublished);
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
+    <Card className="flex flex-col h-full">
+      <CardHeader className="flex flex-row items-center justify-between pb-3">
         <div>
-          <CardTitle>Mock Exam Attempts & Participation (2026)</CardTitle>
-          <CardDescription>Monthly completed student tests across active batches</CardDescription>
+          <CardTitle>CBT Examination Series & Participation</CardTitle>
+          <CardDescription>Live computer-based simulation tests across academic streams</CardDescription>
         </div>
-        <span className="text-xs font-bold text-slate-400 bg-slate-800/80 px-2.5 py-1 rounded-full border border-slate-700">
-          {totalAttempts > 0 ? `${totalAttempts} Total Attempts` : 'Live Supabase Assessment'}
+        <span className="text-[11px] font-bold text-muted-foreground px-2.5 py-1 rounded-full bg-canvas-subtle border border-border">
+          {totalAttempts > 0 ? `${totalAttempts} Verified Submissions` : 'Real-Time Database Sync'}
         </span>
       </CardHeader>
-      
-      {totalAttempts > 0 ? (
-        <div className="h-48 flex items-end justify-between gap-4 pt-6 px-2">
-          {months.map((month) => (
-            <div key={month} className="flex-1 flex flex-col items-center gap-2 group">
-              <div className="w-full bg-slate-800/80 rounded-t-lg relative overflow-hidden flex items-end h-32">
-                <div
-                  style={{ height: '20%' }}
-                  className="w-full bg-gradient-to-t from-indigo-700 to-indigo-500 rounded-t-lg group-hover:from-indigo-600 group-hover:to-indigo-400 transition-all duration-500"
-                />
+
+      <div className="flex-1 p-2">
+        {publishedExams.length > 0 ? (
+          <div className="space-y-3">
+            {publishedExams.slice(0, 4).map((exam) => (
+              <div
+                key={exam.id}
+                className="p-3 rounded-xl border border-border bg-canvas-subtle/50 flex items-center justify-between gap-4"
+              >
+                <div className="min-w-0 space-y-1">
+                  <p className="text-xs font-bold text-foreground truncate">{exam.title}</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {exam.courseName} • {exam.durationMinutes} mins • {exam.totalMarks} Marks
+                  </p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="text-xs font-extrabold text-foreground tabular-nums">
+                    {exam.attemptCount || 0} Attempts
+                  </p>
+                  <span className="inline-block mt-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                    Active Assessment
+                  </span>
+                </div>
               </div>
-              <span className="text-xs font-semibold text-slate-400">{month}</span>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="h-48 flex flex-col items-center justify-center text-center p-6 space-y-2">
-          <HelpCircle className="h-8 w-8 text-slate-600" />
-          <p className="text-xs font-semibold text-slate-300">0 Mock Test Attempts Logged</p>
-          <p className="text-[11px] text-slate-500 max-w-sm">
-            {activeExamsCount > 0
-              ? `${activeExamsCount} CBT exam(s) published in Supabase. Real student attempts will chart dynamically here once taken.`
-              : 'No mock exams or attempts recorded yet. Published mock tests will evaluate here in real time.'}
-          </p>
-        </div>
-      )}
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            icon={<HelpCircle className="h-5 w-5 text-muted-foreground" />}
+            title="No CBT Mock Tests Published"
+            description="Author full mock examinations or practice drills with negative marking weights."
+            actionLabel="Schedule CBT Exam"
+            onAction={onScheduleExam || (() => { window.location.href = '/admin/mock-exams'; })}
+            compact
+          />
+        )}
+      </div>
     </Card>
   );
 }

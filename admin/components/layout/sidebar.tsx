@@ -5,19 +5,24 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
-  Globe,
+  Users,
   GraduationCap,
-  Video,
+  BookOpen,
+  Calendar,
   FileText,
   HelpCircle,
   Bell,
-  Image as ImageIcon,
+  Smartphone,
   BarChart3,
+  Globe,
   Settings,
   ChevronDown,
   ChevronRight,
-  Shield,
-  Smartphone,
+  ShieldCheck,
+  Layers,
+  Image as ImageIcon,
+  Clock,
+  Radio,
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 
@@ -26,227 +31,362 @@ interface NavSubItem {
   href: string;
 }
 
-interface NavSection {
-  title: string;
-  icon: React.ReactNode;
-  href?: string;
-  items?: NavSubItem[];
+interface NavGroup {
+  groupTitle: string;
+  items: {
+    title: string;
+    icon: React.ReactNode;
+    href?: string;
+    subItems?: NavSubItem[];
+    badge?: string;
+    isCms?: boolean;
+  }[];
 }
 
-const navSections: NavSection[] = [
+const navGroups: NavGroup[] = [
   {
-    title: 'Dashboard',
-    icon: <LayoutDashboard className="h-4 w-4" />,
-    href: '/admin/dashboard',
-  },
-  {
-    title: 'WEBSITE CMS',
-    icon: <Globe className="h-4 w-4" />,
+    groupTitle: 'COMMAND',
     items: [
-      { title: 'Homepage', href: '/admin/website/homepage' },
-      { title: 'About OCI', href: '/admin/website/about' },
-      { title: 'Vision & Mission', href: '/admin/website/vision' },
-      { title: 'Director Message', href: '/admin/website/director' },
-      { title: 'Why OCI', href: '/admin/website/why-oci' },
-      { title: 'Examinations', href: '/admin/website/examinations' },
-      { title: 'App Showcase', href: '/admin/website/app-showcase' },
-      { title: 'Success Stories', href: '/admin/website/success-stories' },
-      { title: 'Faculty Profiles', href: '/admin/website/faculty' },
-      { title: 'Testimonials', href: '/admin/website/testimonials' },
-      { title: 'Gallery', href: '/admin/website/gallery' },
-      { title: 'FAQs', href: '/admin/website/faqs' },
-      { title: 'SEO Settings', href: '/admin/website/seo' },
+      {
+        title: 'Dashboard',
+        icon: <LayoutDashboard className="h-4 w-4" />,
+        href: '/admin/dashboard',
+      },
     ],
   },
   {
-    title: 'EDUCATION',
-    icon: <GraduationCap className="h-4 w-4" />,
+    groupTitle: 'PEOPLE',
     items: [
-      { title: 'Students', href: '/admin/students' },
-      { title: 'Teachers', href: '/admin/teachers' },
-      { title: 'Courses', href: '/admin/courses' },
-      { title: 'Subjects', href: '/admin/subjects' },
-      { title: 'Batches', href: '/admin/batches' },
+      {
+        title: 'Students Directory',
+        icon: <Users className="h-4 w-4" />,
+        href: '/admin/students',
+      },
+      {
+        title: 'Faculty Mentors',
+        icon: <GraduationCap className="h-4 w-4" />,
+        href: '/admin/teachers',
+      },
     ],
   },
   {
-    title: 'LIVE LEARNING',
-    icon: <Video className="h-4 w-4" />,
+    groupTitle: 'ACADEMICS',
     items: [
-      { title: 'Live Classes', href: '/admin/live-classes' },
-      { title: 'Recorded Classes', href: '/admin/recorded-classes' },
-      { title: 'Study Materials', href: '/admin/materials' },
+      {
+        title: 'Courses & Streams',
+        icon: <BookOpen className="h-4 w-4" />,
+        href: '/admin/courses',
+      },
+      {
+        title: 'Subjects & Modules',
+        icon: <Layers className="h-4 w-4" />,
+        href: '/admin/subjects',
+      },
+      {
+        title: 'Cohorts & Batches',
+        icon: <Clock className="h-4 w-4" />,
+        href: '/admin/batches',
+      },
     ],
   },
   {
-    title: 'ASSIGNMENTS',
-    icon: <FileText className="h-4 w-4" />,
+    groupTitle: 'CLASSROOM',
     items: [
-      { title: 'Assignments', href: '/admin/assignments' },
+      {
+        title: 'Live Classes (Jitsi)',
+        icon: <Radio className="h-4 w-4" />,
+        href: '/admin/live-classes',
+      },
+      {
+        title: 'Recorded Archives',
+        icon: <Calendar className="h-4 w-4" />,
+        href: '/admin/recorded-classes',
+      },
+      {
+        title: 'Attendance Register',
+        icon: <ShieldCheck className="h-4 w-4" />,
+        href: '/admin/attendance',
+      },
     ],
   },
   {
-    title: 'EXAMINATION',
-    icon: <HelpCircle className="h-4 w-4" />,
+    groupTitle: 'LEARNING',
     items: [
-      { title: 'Question Bank', href: '/admin/question-bank' },
-      { title: 'Practice Tests', href: '/admin/practice-tests' },
-      { title: 'Mock Exams', href: '/admin/mock-exams' },
-      { title: 'Results & AIR', href: '/admin/results' },
+      {
+        title: 'Study Materials',
+        icon: <FileText className="h-4 w-4" />,
+        href: '/admin/materials',
+      },
+      {
+        title: 'Assignments',
+        icon: <FileText className="h-4 w-4" />,
+        href: '/admin/assignments',
+      },
     ],
   },
   {
-    title: 'COMMUNICATION',
-    icon: <Bell className="h-4 w-4" />,
+    groupTitle: 'EXAMINATION',
     items: [
-      { title: 'Push Notifications', href: '/admin/notifications' },
-      { title: 'Announcements', href: '/admin/announcements' },
-      { title: 'Enquiries / Leads', href: '/admin/enquiries' },
+      {
+        title: 'Question Bank',
+        icon: <HelpCircle className="h-4 w-4" />,
+        href: '/admin/question-bank',
+      },
+      {
+        title: 'Practice Tests',
+        icon: <HelpCircle className="h-4 w-4" />,
+        href: '/admin/practice-tests',
+      },
+      {
+        title: 'Mock Exams (CBT)',
+        icon: <HelpCircle className="h-4 w-4" />,
+        href: '/admin/mock-exams',
+      },
+      {
+        title: 'Results & Rankings',
+        icon: <BarChart3 className="h-4 w-4" />,
+        href: '/admin/results',
+      },
     ],
   },
   {
-    title: 'APP RELEASES',
-    icon: <Smartphone className="h-4 w-4" />,
-    href: '/admin/app-releases',
-  },
-  {
-    title: 'MEDIA',
-    icon: <ImageIcon className="h-4 w-4" />,
-    href: '/admin/media',
-  },
-  {
-    title: 'ANALYTICS',
-    icon: <BarChart3 className="h-4 w-4" />,
-    href: '/admin/analytics',
-  },
-  {
-    title: 'SETTINGS',
-    icon: <Settings className="h-4 w-4" />,
+    groupTitle: 'COMMUNICATION',
     items: [
-      { title: 'General Info', href: '/admin/settings/general' },
-      { title: 'Contact Settings', href: '/admin/settings/contact' },
-      { title: 'Social Links', href: '/admin/settings/social' },
-      { title: 'Administrators', href: '/admin/settings/administrators' },
-      { title: 'Roles & Permissions', href: '/admin/settings/roles' },
-      { title: 'Audit Logs', href: '/admin/settings/audit-logs' },
+      {
+        title: 'Campus Bulletins',
+        icon: <Bell className="h-4 w-4" />,
+        href: '/admin/announcements',
+      },
+      {
+        title: 'Push Notifications',
+        icon: <Bell className="h-4 w-4" />,
+        href: '/admin/notifications',
+      },
+      {
+        title: 'Admissions CRM Leads',
+        icon: <Users className="h-4 w-4" />,
+        href: '/admin/enquiries',
+      },
+    ],
+  },
+  {
+    groupTitle: 'RELEASES & ASSETS',
+    items: [
+      {
+        title: 'Android APK Releases',
+        icon: <Smartphone className="h-4 w-4" />,
+        href: '/admin/app-releases',
+      },
+      {
+        title: 'Media Library',
+        icon: <ImageIcon className="h-4 w-4" />,
+        href: '/admin/media',
+      },
+    ],
+  },
+  {
+    groupTitle: 'INSIGHTS',
+    items: [
+      {
+        title: 'Institutional Analytics',
+        icon: <BarChart3 className="h-4 w-4" />,
+        href: '/admin/analytics',
+      },
+    ],
+  },
+  {
+    groupTitle: 'WEBSITE CMS',
+    items: [
+      {
+        title: 'Public Portal Sandbox',
+        icon: <Globe className="h-4 w-4 text-amber-400" />,
+        isCms: true,
+        subItems: [
+          { title: 'Homepage Hero & Trust', href: '/admin/website/homepage' },
+          { title: 'About Institutional Story', href: '/admin/website/about' },
+          { title: 'Vision & Mission Tenets', href: '/admin/website/vision' },
+          { title: 'Director Message', href: '/admin/website/director' },
+          { title: 'Why OCI Pedagogical Rail', href: '/admin/website/why-oci' },
+          { title: 'Examinations Catalog', href: '/admin/website/examinations' },
+          { title: 'App Showcase Features', href: '/admin/website/app-showcase' },
+          { title: 'Selection Success Stories', href: '/admin/website/success-stories' },
+          { title: 'Public Faculty Profiles', href: '/admin/website/faculty' },
+          { title: 'Verified Testimonials', href: '/admin/website/testimonials' },
+          { title: 'Campus Gallery', href: '/admin/website/gallery' },
+          { title: 'Admissions FAQs', href: '/admin/website/faqs' },
+          { title: 'SEO & Social Graph', href: '/admin/website/seo' },
+        ],
+      },
+    ],
+  },
+  {
+    groupTitle: 'SYSTEM',
+    items: [
+      {
+        title: 'System Settings',
+        icon: <Settings className="h-4 w-4" />,
+        subItems: [
+          { title: 'General Institution', href: '/admin/settings/general' },
+          { title: 'Campus Contact Info', href: '/admin/settings/contact' },
+          { title: 'Official Social Media', href: '/admin/settings/social' },
+          { title: 'Staff Accounts', href: '/admin/settings/administrators' },
+          { title: 'Roles & RBAC Matrix', href: '/admin/settings/roles' },
+          { title: 'Immutable Audit Logs', href: '/admin/settings/audit-logs' },
+        ],
+      },
     ],
   },
 ];
 
-export function Sidebar() {
+export function Sidebar({ className }: { className?: string }) {
   const pathname = usePathname();
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
-    'WEBSITE CMS': true,
-    EDUCATION: true,
-    'FEES & PAYMENTS': true,
-    'LIVE LEARNING': true,
+  const [openSubMenus, setOpenSubMenus] = useState<Record<string, boolean>>({
+    'Public Portal Sandbox': pathname.startsWith('/admin/website'),
+    'System Settings': pathname.startsWith('/admin/settings'),
   });
 
-  const toggleSection = (title: string) => {
-    setOpenSections((prev) => ({
+  const toggleSubMenu = (title: string) => {
+    setOpenSubMenus((prev) => ({
       ...prev,
       [title]: !prev[title],
     }));
   };
 
   return (
-    <aside className="w-64 bg-[#0B0F19] border-r border-slate-800/80 flex flex-col h-screen sticky top-0 select-none z-30">
-      {/* Brand Header */}
-      <div className="h-16 flex items-center px-4 border-b border-slate-800/80 gap-3">
-        <img
-          src="/oci-logo.svg"
-          alt="OCI Logo"
-          className="h-10 w-10 shrink-0 drop-shadow-md rounded-full bg-white/10 p-0.5"
-        />
-        <div>
-          <h1 className="text-sm font-extrabold text-white tracking-wider flex items-center gap-1.5">
-            OCI ADMIN
-            <Shield className="h-3 w-3 text-indigo-400" />
+    <aside
+      className={cn(
+        'w-64 bg-slate-900 border-r border-slate-800 text-slate-200 flex flex-col h-screen sticky top-0 select-none z-30 shrink-0 shadow-subtle',
+        className
+      )}
+    >
+      {/* Institutional Crest Header */}
+      <div className="h-16 flex items-center px-4 border-b border-slate-800 gap-3 bg-slate-950/40">
+        <div className="h-9 w-9 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black text-sm shadow-sm tracking-wider">
+          OCI
+        </div>
+        <div className="min-w-0">
+          <h1 className="text-xs font-black text-white tracking-wider truncate flex items-center gap-1.5">
+            MASTER ADMIN
+            <ShieldCheck className="h-3 w-3 text-blue-400 shrink-0" />
           </h1>
-          <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">
-            Command Center
+          <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider truncate">
+            Nayabazar, Bhadrak
           </p>
         </div>
       </div>
 
-      {/* Navigation Tree */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-        {navSections.map((section) => {
-          if (section.href) {
-            const isActive = pathname === section.href;
-            return (
-              <Link
-                key={section.title}
-                href={section.href}
-                className={cn(
-                  'flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-all',
-                  isActive
-                    ? 'bg-indigo-600 text-white shadow-sm'
-                    : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
-                )}
-              >
-                {section.icon}
-                <span>{section.title}</span>
-              </Link>
-            );
-          }
+      {/* Domain Navigation Tree */}
+      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-4">
+        {navGroups.map((group) => (
+          <div key={group.groupTitle} className="space-y-1">
+            <h4 className="px-2.5 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">
+              {group.groupTitle}
+            </h4>
 
-          const isOpen = openSections[section.title] ?? false;
-          const isSectionActive = section.items?.some((item) => pathname === item.href);
+            <div className="space-y-0.5">
+              {group.items.map((item) => {
+                if (item.href) {
+                  const isActive = pathname === item.href || (item.href !== '/admin/dashboard' && pathname.startsWith(item.href));
+                  return (
+                    <Link
+                      key={item.title}
+                      href={item.href}
+                      className={cn(
+                        'flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-semibold transition-all group',
+                        isActive
+                          ? 'bg-blue-600 text-white shadow-sm font-bold'
+                          : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                      )}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <span
+                          className={cn(
+                            'shrink-0',
+                            isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'
+                          )}
+                        >
+                          {item.icon}
+                        </span>
+                        <span className="truncate">{item.title}</span>
+                      </div>
+                      {item.badge && (
+                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                          {item.badge}
+                        </span>
+                      )}
+                    </Link>
+                  );
+                }
 
-          return (
-            <div key={section.title} className="pt-1">
-              <button
-                onClick={() => toggleSection(section.title)}
-                className={cn(
-                  'w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold transition-colors',
-                  isSectionActive
-                    ? 'text-indigo-400 bg-indigo-500/10'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                )}
-              >
-                <div className="flex items-center gap-3">
-                  {section.icon}
-                  <span className="tracking-wide text-[11px] uppercase">{section.title}</span>
-                </div>
-                {isOpen ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
-              </button>
+                const isOpen = openSubMenus[item.title] ?? false;
+                const isGroupActive = item.subItems?.some((sub) => pathname === sub.href);
 
-              {isOpen && section.items && (
-                <div className="ml-7 pl-2 border-l border-slate-800 my-1 space-y-0.5">
-                  {section.items.map((sub) => {
-                    const isSubActive = pathname === sub.href;
-                    return (
-                      <Link
-                        key={sub.href}
-                        href={sub.href}
-                        className={cn(
-                          'block px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors',
-                          isSubActive
-                            ? 'text-white bg-indigo-600 font-semibold'
-                            : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/50'
+                return (
+                  <div key={item.title} className="space-y-0.5">
+                    <button
+                      type="button"
+                      onClick={() => toggleSubMenu(item.title)}
+                      className={cn(
+                        'w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-semibold transition-colors group',
+                        isGroupActive
+                          ? 'text-white bg-slate-800/80'
+                          : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                      )}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <span className={cn('shrink-0', item.isCms ? 'text-amber-400' : 'text-slate-400')}>
+                          {item.icon}
+                        </span>
+                        <span className="truncate">{item.title}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        {item.isCms && (
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                            CMS
+                          </span>
                         )}
-                      >
-                        {sub.title}
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
+                        {isOpen ? <ChevronDown className="h-3 w-3 text-slate-400" /> : <ChevronRight className="h-3 w-3 text-slate-400" />}
+                      </div>
+                    </button>
+
+                    {isOpen && item.subItems && (
+                      <div className="ml-5 pl-2.5 border-l border-slate-800 space-y-0.5 my-1">
+                        {item.subItems.map((sub) => {
+                          const isSubActive = pathname === sub.href;
+                          return (
+                            <Link
+                              key={sub.href}
+                              href={sub.href}
+                              className={cn(
+                                'block px-2 py-1.5 rounded-md text-[11px] font-medium transition-colors truncate',
+                                isSubActive
+                                  ? 'bg-blue-600 text-white font-bold'
+                                  : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                              )}
+                            >
+                              {sub.title}
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
-          );
-        })}
+          </div>
+        ))}
       </nav>
 
-      {/* Footer Identity */}
-      <div className="p-3 border-t border-slate-800/80 bg-slate-950/40">
-        <div className="flex items-center gap-3 px-2 py-1.5">
-          <div className="h-8 w-8 rounded-full bg-slate-800 border border-indigo-500/40 flex items-center justify-center font-bold text-xs text-indigo-400">
+      {/* Footer Operator Badge */}
+      <div className="p-3 border-t border-slate-800 bg-slate-950/60">
+        <div className="flex items-center gap-2.5 px-2 py-1">
+          <div className="h-7 w-7 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center font-extrabold text-[11px] text-blue-400">
             AD
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-bold text-slate-200 truncate">OCI Administrator</p>
-            <p className="text-[10px] text-emerald-400 font-semibold truncate">SUPER_ADMIN</p>
+            <p className="text-xs font-bold text-white truncate">Master Administrator</p>
+            <p className="text-[10px] text-emerald-400 font-semibold truncate">Active Supabase Session</p>
           </div>
         </div>
       </div>

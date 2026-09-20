@@ -3,7 +3,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'OCI Master Admin — Operational Command Center',
-  description: 'Central management system for Odisha Competitive Institute (OCI) website, education, finance, live learning, and analytics.',
+  description: 'Central operations and academic management command center for Odisha Competitive Institute (OCI).',
   icons: {
     icon: '/oci-logo.svg',
     shortcut: '/favicon.ico',
@@ -17,8 +17,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className="bg-[#090D16] text-slate-100 min-h-screen">
+    <html lang="en">
+      <body className="min-h-screen bg-canvas text-foreground antialiased">
         {children}
       </body>
     </html>

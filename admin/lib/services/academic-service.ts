@@ -504,6 +504,60 @@ export const AcademicService = {
     };
   },
 
+  // --- ATTENDANCE ---
+  async getAttendance(params?: { liveClassId?: string; batchId?: string }) {
+    const query = new URLSearchParams();
+    if (params?.liveClassId) query.set('liveClassId', params.liveClassId);
+    if (params?.batchId) query.set('batchId', params.batchId);
+    const res = await fetch(`/api/admin/attendance?${query.toString()}`, { cache: 'no-store' });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.attendance || [];
+  },
+
+  async markAttendance(data: { studentId: string; liveClassId?: string; status: 'present' | 'absent' | 'late' }) {
+    const res = await fetch('/api/admin/attendance', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) throw new Error(json.error || 'Failed to mark attendance');
+    return json.attendance;
+  },
+
+  async deleteAttendance(id: string) {
+    const res = await fetch(`/api/admin/attendance?id=${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) throw new Error(json.error || 'Failed to delete attendance record');
+    return true;
+  },
+
+  // --- SETTINGS ---
+  async getSettings(key: string, defaultFallback: any = null) {
+    try {
+      const res = await fetch(`/api/admin/settings?key=${encodeURIComponent(key)}`, { cache: 'no-store' });
+      if (!res.ok) return defaultFallback;
+      const json = await res.json();
+      return json.data || defaultFallback;
+    } catch {
+      return defaultFallback;
+    }
+  },
+
+  async saveSettings(key: string, content: any) {
+    const res = await fetch('/api/admin/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key, content }),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) throw new Error(json.error || 'Failed to save settings');
+    return json.data;
+  },
+
   // --- AUDIT LOGS ---
   async getAuditLogs(): Promise<AuditLog[]> {
     return [];

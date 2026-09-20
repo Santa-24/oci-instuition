@@ -3,13 +3,25 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
+import { StatusBadge } from '@/components/ui/status-badge';
+import { EmptyState } from '@/components/ui/empty-state';
+import { PageHeader } from '@/components/ui/page-header';
 import { Modal } from '@/components/ui/modal';
 import { Input } from '@/components/ui/input';
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
+import { ConfirmationModal } from '@/components/ui/confirmation-modal';
 import { AcademicService } from '@/lib/services/academic-service';
 import { Batch, Course } from '@/lib/types/admin';
-import { Plus, RefreshCw, Trash2, Users } from 'lucide-react';
+import {
+  Layers,
+  Plus,
+  RefreshCw,
+  Trash2,
+  Clock,
+  MapPin,
+  Users,
+} from 'lucide-react';
+import { cn } from '@/lib/utils/cn';
 
 export default function BatchesAdminPage() {
   const [batches, setBatches] = useState<Batch[]>([]);
@@ -17,8 +29,10 @@ export default function BatchesAdminPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [batchToDelete, setBatchToDelete] = useState<Batch | null>(null);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
+  // Form State
   const [formName, setFormName] = useState('');
   const [formCourseId, setFormCourseId] = useState('');
   const [formSchedule, setFormSchedule] = useState('Mon-Fri 08:00 AM - 01:30 PM');
@@ -49,14 +63,15 @@ export default function BatchesAdminPage() {
     fetchBatches();
   }, []);
 
-  const handleCreateBatch = async () => {
+  const handleCreateBatch = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!formName.trim()) {
       setFeedback({ type: 'error', message: 'Batch name is required.' });
       return;
     }
     const targetCourseId = formCourseId || courses[0]?.id;
     if (!targetCourseId) {
-      setFeedback({ type: 'error', message: 'Please create a course before creating batches.' });
+      setFeedback({ type: 'error', message: 'Please create an academic course before creating cohort batches.' });
       return;
     }
 
@@ -73,7 +88,7 @@ export default function BatchesAdminPage() {
       await fetchBatches();
       setFormName('');
       setIsModalOpen(false);
-      setFeedback({ type: 'success', message: 'Batch created successfully!' });
+      setFeedback({ type: 'success', message: 'Cohort batch created successfully!' });
     } catch (err: any) {
       console.error('Failed to create batch:', err);
       setFeedback({ type: 'error', message: err.message || 'Failed to create batch' });
@@ -82,12 +97,13 @@ export default function BatchesAdminPage() {
     }
   };
 
-  const handleDeleteBatch = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to delete batch "${name}"?`)) return;
+  const confirmDeleteBatch = async () => {
+    if (!batchToDelete) return;
     try {
-      await AcademicService.deleteBatch(id);
-      setBatches((prev) => prev.filter((b) => b.id !== id));
-      setFeedback({ type: 'success', message: `Batch "${name}" deleted.` });
+      await AcademicService.deleteBatch(batchToDelete.id);
+      setBatches((prev) => prev.filter((b) => b.id !== batchToDelete.id));
+      setFeedback({ type: 'success', message: `Batch "${batchToDelete.name}" deleted.` });
+      setBatchToDelete(null);
     } catch (err: any) {
       console.error('Failed to delete batch:', err);
       setFeedback({ type: 'error', message: err.message || 'Failed to delete batch' });
@@ -96,109 +112,167 @@ export default function BatchesAdminPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-extrabold text-white tracking-tight">Batches & Rosters</h1>
-          <p className="text-xs text-slate-400 mt-1">Manage batch capacity, timetable schedules, and classroom assignments.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Badge variant="success">LIVE DATABASE</Badge>
-          <Button size="sm" variant="outline" onClick={fetchBatches} disabled={isLoading} leftIcon={<RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />}>
-            Refresh
-          </Button>
-          <Button size="sm" onClick={() => setIsModalOpen(true)} leftIcon={<Plus className="h-4 w-4" />}>
-            Create New Batch
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Cohort Batches & Timetable Rosters"
+        description="Active classroom cohorts, lecture hall allocations, timetable schedules, and seat limits in Bhadrak campus."
+        badge={
+          <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200 dark:border-blue-800 tabular-nums">
+            {batches.length} Active Batches
+          </span>
+        }
+      >
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={fetchBatches}
+          disabled={isLoading}
+          leftIcon={<RefreshCw className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`} />}
+          className="text-xs"
+        >
+          Refresh
+        </Button>
+        <Button
+          size="sm"
+          variant="primary"
+          onClick={() => setIsModalOpen(true)}
+          leftIcon={<Plus className="h-3.5 w-3.5" />}
+          className="text-xs"
+        >
+          Create Cohort Batch
+        </Button>
+      </PageHeader>
 
+      {/* Feedback Banner */}
       {feedback && (
-        <div className={`p-3 rounded-lg text-xs font-semibold flex items-center justify-between ${
-          feedback.type === 'success' ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-300' : 'bg-rose-500/10 border border-rose-500/30 text-rose-300'
-        }`}>
+        <div
+          className={`p-3 rounded-xl text-xs font-semibold flex items-center justify-between border ${
+            feedback.type === 'success'
+              ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800'
+              : 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800'
+          }`}
+        >
           <span>{feedback.message}</span>
-          <button onClick={() => setFeedback(null)} className="hover:opacity-75 font-bold ml-2">×</button>
+          <button onClick={() => setFeedback(null)} className="font-bold ml-2">×</button>
         </div>
       )}
 
+      {/* Batches Table */}
       <Card className="p-0 overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Batch Name & Course</TableHead>
-              <TableHead>Schedule & Room</TableHead>
-              <TableHead>Lead Faculty</TableHead>
-              <TableHead>Capacity / Enrolled</TableHead>
+              <TableHead>Cohort Batch Name</TableHead>
+              <TableHead>Course Track</TableHead>
+              <TableHead>Timetable Schedule</TableHead>
+              <TableHead>Lecture Hall</TableHead>
+              <TableHead>Seat Capacity Meter</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-xs text-slate-400">
-                  <RefreshCw className="h-4 w-4 animate-spin inline mr-2 text-indigo-400" />
-                  Loading batches from database...
-                </TableCell>
-              </TableRow>
-            ) : batches.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-xs text-slate-400">
-                  No batches configured in database. Click &ldquo;Create New Batch&rdquo; to add one.
-                </TableCell>
-              </TableRow>
-            ) : (
-              batches.map((b) => (
+            {batches.map((b) => {
+              const capacity = b.capacity || 60;
+              const enrolled = b.enrolledCount || 0;
+              const percent = Math.min(100, Math.round((enrolled / capacity) * 100));
+
+              return (
                 <TableRow key={b.id}>
                   <TableCell>
-                    <div className="font-bold text-white">{b.name}</div>
-                    <div className="text-xs text-indigo-400">{b.courseName}</div>
+                    <p className="font-bold text-foreground text-xs">{b.name}</p>
                   </TableCell>
-                  <TableCell className="text-xs text-slate-300">
-                    <div>{b.schedule}</div>
-                    <div className="text-slate-400">{b.roomName}</div>
+                  <TableCell className="text-xs font-semibold text-primary">
+                    {b.courseName || 'General Track'}
                   </TableCell>
-                  <TableCell className="text-xs font-semibold text-slate-300">{b.teacherName || 'Not Assigned'}</TableCell>
-                  <TableCell className="text-xs font-bold text-slate-200">
-                    {b.enrolledCount} / {b.capacity} Students
+                  <TableCell className="text-xs text-muted-foreground font-medium">
+                    <span className="flex items-center gap-1.5">
+                      <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                      {b.schedule}
+                    </span>
                   </TableCell>
-                  <TableCell>
-                    <Badge variant={b.status === 'ongoing' ? 'success' : 'outline'}>{b.status.toUpperCase()}</Badge>
+                  <TableCell className="text-xs text-foreground font-medium">
+                    <span className="flex items-center gap-1.5">
+                      <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                      {b.roomName}
+                    </span>
                   </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-rose-400 hover:text-rose-300 hover:bg-rose-500/10"
-                        onClick={() => handleDeleteBatch(b.id, b.name)}
-                        title="Delete Batch"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                  <TableCell className="min-w-[140px]">
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[11px] font-bold text-foreground tabular-nums">
+                        <span>{enrolled} Enrolled</span>
+                        <span className="text-muted-foreground font-normal">{capacity} Limit</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-canvas-muted rounded-full overflow-hidden">
+                        <div
+                          style={{ width: `${Math.max(4, percent)}%` }}
+                          className={cn(
+                            'h-full rounded-full transition-all duration-500',
+                            percent >= 90 ? 'bg-rose-500' : percent >= 70 ? 'bg-amber-500' : 'bg-blue-600'
+                          )}
+                        />
+                      </div>
                     </div>
                   </TableCell>
+                  <TableCell>
+                    <StatusBadge status={b.status || 'active'} />
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setBatchToDelete(b)}
+                      title="Delete Batch"
+                      className="h-8 w-8 p-0 text-muted-foreground hover:text-rose-600"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </TableCell>
                 </TableRow>
-              ))
+              );
+            })}
+
+            {batches.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={7} className="py-12 text-center">
+                  <EmptyState
+                    icon={<Layers className="h-6 w-6 text-muted-foreground" />}
+                    title="No Cohort Batches Scheduled"
+                    description="Setup classroom batches for upcoming examination terms with defined seat limits."
+                    actionLabel="Create First Batch"
+                    onAction={() => setIsModalOpen(true)}
+                    compact
+                  />
+                </TableCell>
+              </TableRow>
             )}
           </TableBody>
         </Table>
       </Card>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create New Batch">
-        <div className="space-y-4">
+      {/* Create Batch Modal */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Create Cohort Batch Roster"
+        description="Allocates classroom hall, schedule timing, and seat enrollment threshold."
+      >
+        <form onSubmit={handleCreateBatch} className="space-y-4">
           <Input
-            label="Batch Name"
-            placeholder="e.g. OSSC CGL Target Batch 2026"
+            label="Cohort Batch Title"
+            placeholder="e.g. Combined Central & State Morning Batch 2026-A"
             value={formName}
             onChange={(e) => setFormName(e.target.value)}
+            required
           />
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">Select Course</label>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-foreground block">
+              Associated Academic Course Track
+            </label>
             <select
               value={formCourseId}
               onChange={(e) => setFormCourseId(e.target.value)}
-              className="w-full h-10 rounded-md border border-slate-800 bg-slate-950 px-3 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="h-9 w-full rounded-lg border border-border bg-surface px-3 text-xs font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/20 shadow-subtle"
             >
               {courses.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -207,35 +281,66 @@ export default function BatchesAdminPage() {
               ))}
             </select>
           </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Input
+              label="Timetable Schedule Window"
+              placeholder="Mon-Fri 08:00 AM - 01:30 PM"
+              value={formSchedule}
+              onChange={(e) => setFormSchedule(e.target.value)}
+              required
+            />
+            <Input
+              label="Assigned Classroom / Hall"
+              placeholder="Hall A (Smart Classroom)"
+              value={formRoom}
+              onChange={(e) => setFormRoom(e.target.value)}
+              required
+            />
+          </div>
+
           <Input
-            label="Timetable Schedule"
-            placeholder="Mon-Fri 08:00 AM - 01:30 PM"
-            value={formSchedule}
-            onChange={(e) => setFormSchedule(e.target.value)}
-          />
-          <Input
-            label="Classroom / Hall"
-            placeholder="Hall A (Smart Classroom)"
-            value={formRoom}
-            onChange={(e) => setFormRoom(e.target.value)}
-          />
-          <Input
-            label="Student Capacity"
+            label="Seat Enrollment Capacity Limit"
             type="number"
+            min="10"
+            max="120"
             placeholder="60"
             value={formCapacity}
             onChange={(e) => setFormCapacity(e.target.value)}
+            required
           />
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" size="sm" onClick={() => setIsModalOpen(false)}>
+
+          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-border">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsModalOpen(false)}
+            >
               Cancel
             </Button>
-            <Button size="sm" onClick={handleCreateBatch} disabled={isSubmitting}>
-              {isSubmitting ? 'Creating...' : 'Create Batch'}
+            <Button
+              type="submit"
+              variant="primary"
+              size="sm"
+              isLoading={isSubmitting}
+            >
+              Save & Schedule Batch
             </Button>
           </div>
-        </div>
+        </form>
       </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={Boolean(batchToDelete)}
+        onClose={() => setBatchToDelete(null)}
+        onConfirm={confirmDeleteBatch}
+        title="Delete Cohort Batch"
+        message="Are you sure you want to delete this cohort batch? Enrolled students will need to be reassigned."
+        entityName={batchToDelete?.name}
+        confirmLabel="Delete Batch"
+      />
     </div>
   );
 }

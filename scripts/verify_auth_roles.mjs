@@ -131,7 +131,7 @@ async function runAuthVerification() {
     const { error: rErr } = await adminClient.from('user_roles').upsert({
       user_id: teacherUserId,
       role: 'teacher'
-    });
+    }, { onConflict: 'user_id' });
     if (rErr) throw new Error(`Teacher user_roles upsert failed: ${rErr.message}`);
 
     const { error: tErr } = await adminClient.from('teachers').upsert({

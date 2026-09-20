@@ -4,24 +4,46 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Modal } from '@/components/ui/modal';
-import { Input } from '@/components/ui/input';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
+import { StatusBadge } from '@/components/ui/status-badge';
+import { EmptyState } from '@/components/ui/empty-state';
+import { PageHeader } from '@/components/ui/page-header';
+import { Modal } from '@/components/ui/modal';
+import { Drawer } from '@/components/ui/drawer';
+import { Input } from '@/components/ui/input';
+import { ConfirmationModal } from '@/components/ui/confirmation-modal';
 import { AcademicService } from '@/lib/services/academic-service';
 import { Student, Batch } from '@/lib/types/admin';
-import { Plus, Search, Eye, RefreshCw, Trash2 } from 'lucide-react';
+import {
+  Users,
+  Plus,
+  Search,
+  Eye,
+  RefreshCw,
+  Trash2,
+  Phone,
+  Mail,
+  Layers,
+  ArrowUpRight,
+  ShieldCheck,
+  Calendar,
+} from 'lucide-react';
 
 export default function StudentsAdminPage() {
-  const [search, setSearch] = useState('');
-  const [selectedBatch, setSelectedBatch] = useState('ALL');
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [students, setStudents] = useState<Student[]>([]);
   const [batches, setBatches] = useState<Batch[]>([]);
+  const [search, setSearch] = useState('');
+  const [selectedBatch, setSelectedBatch] = useState('ALL');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
+  // Modals & Drawers
+  const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false);
+  const [selectedStudentForDrawer, setSelectedStudentForDrawer] = useState<Student | null>(null);
+  const [studentToDelete, setStudentToDelete] = useState<Student | null>(null);
+
+  // Form State
   const [formName, setFormName] = useState('');
   const [formRoll, setFormRoll] = useState('');
   const [formEmail, setFormEmail] = useState('');
@@ -52,7 +74,7 @@ export default function StudentsAdminPage() {
     fetchData();
   }, []);
 
-  const filtered = students.filter((s) => {
+  const filteredStudents = students.filter((s) => {
     const matchesSearch =
       s.name.toLowerCase().includes(search.toLowerCase()) ||
       s.rollNo.toLowerCase().includes(search.toLowerCase()) ||
@@ -64,7 +86,8 @@ export default function StudentsAdminPage() {
     return matchesSearch && matchesBatch;
   });
 
-  const handleEnroll = async () => {
+  const handleEnroll = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!formName.trim() || !formRoll.trim()) {
       setFeedback({ type: 'error', message: 'Full name and Roll number are required.' });
       return;
@@ -84,8 +107,8 @@ export default function StudentsAdminPage() {
       setFormRoll('');
       setFormEmail('');
       setFormPhone('');
-      setIsModalOpen(false);
-      setFeedback({ type: 'success', message: 'Student enrolled successfully!' });
+      setIsEnrollModalOpen(false);
+      setFeedback({ type: 'success', message: 'Student enrolled successfully into Supabase!' });
     } catch (err: any) {
       console.error('Failed to enroll student:', err);
       setFeedback({ type: 'error', message: err.message || 'Failed to enroll student' });
@@ -94,12 +117,16 @@ export default function StudentsAdminPage() {
     }
   };
 
-  const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to remove student record for "${name}"?`)) return;
+  const confirmDeleteStudent = async () => {
+    if (!studentToDelete) return;
     try {
-      await AcademicService.deleteStudent(id);
-      setStudents((prev) => prev.filter((s) => s.id !== id));
-      setFeedback({ type: 'success', message: `Student "${name}" removed.` });
+      await AcademicService.deleteStudent(studentToDelete.id);
+      setStudents((prev) => prev.filter((s) => s.id !== studentToDelete.id));
+      if (selectedStudentForDrawer?.id === studentToDelete.id) {
+        setSelectedStudentForDrawer(null);
+      }
+      setFeedback({ type: 'success', message: `Student record "${studentToDelete.name}" removed.` });
+      setStudentToDelete(null);
     } catch (err: any) {
       console.error('Failed to delete student:', err);
       setFeedback({ type: 'error', message: err.message || 'Failed to delete student' });
@@ -108,148 +135,315 @@ export default function StudentsAdminPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-extrabold text-white tracking-tight">Student Directory</h1>
-          <p className="text-xs text-slate-400 mt-1">Manage OCI competitive aspirants, enrollments, batch assignments, and performance.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Badge variant="success">LIVE DATABASE</Badge>
-          <Button size="sm" variant="outline" onClick={fetchData} disabled={isLoading} leftIcon={<RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />}>
-            Refresh
-          </Button>
-          <Button size="sm" onClick={() => setIsModalOpen(true)} leftIcon={<Plus className="h-4 w-4" />}>
-            Enroll New Student
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Student Aspirant Directory"
+        description="Enrolled candidates, competitive examination streams, cohort allocations, and academic dossiers."
+        badge={
+          <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200 dark:border-blue-800 tabular-nums">
+            {students.length} Registered
+          </span>
+        }
+      >
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={fetchData}
+          disabled={isLoading}
+          leftIcon={<RefreshCw className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`} />}
+          className="text-xs"
+        >
+          Refresh
+        </Button>
+        <Button
+          size="sm"
+          variant="primary"
+          onClick={() => setIsEnrollModalOpen(true)}
+          leftIcon={<Plus className="h-3.5 w-3.5" />}
+          className="text-xs"
+        >
+          Enroll Aspirant
+        </Button>
+      </PageHeader>
 
+      {/* Filter & Search Bar */}
+      <Card className="p-4">
+        <div className="flex flex-col sm:flex-row items-center gap-3">
+          <div className="relative flex-1 w-full">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search by student name, roll number, or registered email..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="h-9 w-full rounded-lg border border-border bg-surface pl-9 pr-3 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 shadow-subtle"
+            />
+          </div>
+
+          <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
+            <Layers className="h-4 w-4 text-muted-foreground hidden sm:inline" />
+            <select
+              value={selectedBatch}
+              onChange={(e) => setSelectedBatch(e.target.value)}
+              className="h-9 px-3 rounded-lg border border-border bg-surface text-xs font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/20 shadow-subtle"
+            >
+              <option value="ALL">All Cohort Batches</option>
+              {batches.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </Card>
+
+      {/* Feedback Banner */}
       {feedback && (
-        <div className={`p-3 rounded-lg text-xs font-semibold flex items-center justify-between ${
-          feedback.type === 'success' ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-300' : 'bg-rose-500/10 border border-rose-500/30 text-rose-300'
-        }`}>
+        <div
+          className={`p-3 rounded-xl text-xs font-semibold flex items-center justify-between border ${
+            feedback.type === 'success'
+              ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800'
+              : 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800'
+          }`}
+        >
           <span>{feedback.message}</span>
-          <button onClick={() => setFeedback(null)} className="hover:opacity-75 font-bold ml-2">×</button>
+          <button onClick={() => setFeedback(null)} className="font-bold ml-2">×</button>
         </div>
       )}
 
-      {/* Filter & Search Bar */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="flex-1">
-          <Input
-            placeholder="Search by aspirant name, roll number, or email..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            leftIcon={<Search className="h-4 w-4" />}
-          />
-        </div>
-        <select
-          value={selectedBatch}
-          onChange={(e) => setSelectedBatch(e.target.value)}
-          className="h-10 rounded-md border border-slate-800 bg-slate-950/70 px-3 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        >
-          <option value="ALL">All Batches</option>
-          {batches.map((b) => (
-            <option key={b.id} value={b.id}>
-              {b.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
+      {/* Table-First Directory */}
       <Card className="p-0 overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Student Name & Roll No</TableHead>
-              <TableHead>Batch</TableHead>
+              <TableHead>Roll Number</TableHead>
+              <TableHead>Candidate Identity</TableHead>
+              <TableHead>Contact & Phone</TableHead>
+              <TableHead>Batch Cohort</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Avg Mock Score</TableHead>
-              <TableHead>Admission Date</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-xs text-slate-400">
-                  <RefreshCw className="h-4 w-4 animate-spin inline mr-2 text-indigo-400" />
-                  Loading students from database...
+            {filteredStudents.map((s) => (
+              <TableRow key={s.id}>
+                <TableCell className="font-mono font-bold text-xs text-foreground">
+                  {s.rollNo}
                 </TableCell>
-              </TableRow>
-            ) : filtered.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-xs text-slate-400">
-                  No students found. Click &ldquo;Enroll New Student&rdquo; to add aspirants to the institute.
+                <TableCell>
+                  <div className="space-y-0.5">
+                    <p className="font-bold text-foreground text-xs">{s.name}</p>
+                    <p className="text-[11px] text-muted-foreground">{s.email}</p>
+                  </div>
                 </TableCell>
-              </TableRow>
-            ) : (
-              filtered.map((s) => (
-                <TableRow key={s.id}>
-                  <TableCell>
-                    <div className="font-bold text-white">{s.name}</div>
-                    <div className="text-xs text-slate-400">{s.rollNo} • {s.phone}</div>
-                  </TableCell>
-                  <TableCell className="text-xs text-indigo-400 font-semibold">{s.batchName || 'General / Unassigned'}</TableCell>
-                  <TableCell>
-                    <span className="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
-                      Enrolled
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-xs font-bold text-slate-200">
-                    {s.avgMockScore > 0 ? `${s.avgMockScore} pts` : 'No tests yet'}
-                  </TableCell>
-                  <TableCell className="text-xs text-slate-400">{s.admissionDate || 'Today'}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
+                <TableCell className="text-xs text-muted-foreground font-medium">
+                  {s.phone || 'N/A'}
+                </TableCell>
+                <TableCell className="text-xs font-semibold text-foreground">
+                  {s.batchName || 'General Roster'}
+                </TableCell>
+                <TableCell>
+                  <StatusBadge status={s.status || 'active'} />
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="inline-flex items-center gap-1">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setSelectedStudentForDrawer(s)}
+                      title="Quick Inspect"
+                      className="h-8 w-8 p-0"
+                    >
+                      <Eye className="h-3.5 w-3.5" />
+                    </Button>
+                    <Link href={`/admin/students/${s.id}`}>
                       <Button
-                        variant="ghost"
                         size="sm"
-                        onClick={() => handleDelete(s.id, s.name)}
-                        className="text-rose-400 hover:text-rose-300 hover:bg-rose-500/10"
-                        title="Delete Student"
+                        variant="ghost"
+                        title="Open Full Dossier"
+                        className="h-8 w-8 p-0 text-primary"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <ArrowUpRight className="h-3.5 w-3.5" />
                       </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
+                    </Link>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setStudentToDelete(s)}
+                      title="Remove Student Record"
+                      className="h-8 w-8 p-0 text-muted-foreground hover:text-rose-600"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+
+            {filteredStudents.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={6} className="py-12 text-center">
+                  <EmptyState
+                    icon={<Users className="h-6 w-6 text-muted-foreground" />}
+                    title={search ? 'No Matching Student Records' : 'No Students Enrolled Yet'}
+                    description={
+                      search
+                        ? 'Try modifying your search keywords or clearing batch cohort filters.'
+                        : 'Enroll candidate aspirants to assign them to batches and timetable rosters.'
+                    }
+                    actionLabel={search ? undefined : 'Enroll First Student'}
+                    onAction={search ? undefined : () => setIsEnrollModalOpen(true)}
+                    compact
+                  />
+                </TableCell>
+              </TableRow>
             )}
           </TableBody>
         </Table>
       </Card>
 
-      {/* Enroll Modal */}
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Enroll New Aspirant">
-        <div className="space-y-4">
-          <Input label="Student Full Name" placeholder="e.g. Subham Dash" value={formName} onChange={(e) => setFormName(e.target.value)} />
-          <Input label="Roll Number" placeholder="e.g. OCI-2026-855" value={formRoll} onChange={(e) => setFormRoll(e.target.value)} />
-          <Input label="Email Address" placeholder="e.g. subham@gmail.com" value={formEmail} onChange={(e) => setFormEmail(e.target.value)} />
-          <Input label="Phone Number" placeholder="+91 98765 00000" value={formPhone} onChange={(e) => setFormPhone(e.target.value)} />
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">Assign Batch (Optional)</label>
+      {/* Contextual Student Detail Drawer */}
+      <Drawer
+        isOpen={Boolean(selectedStudentForDrawer)}
+        onClose={() => setSelectedStudentForDrawer(null)}
+        title={selectedStudentForDrawer?.name || 'Student Record'}
+        description={`Roll Number: ${selectedStudentForDrawer?.rollNo || ''}`}
+        width="md"
+      >
+        {selectedStudentForDrawer && (
+          <div className="space-y-6 text-xs">
+            {/* Quick Profile Summary */}
+            <div className="p-4 rounded-xl border border-border bg-canvas-subtle/50 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-muted-foreground uppercase text-[10px]">Academic Standing</span>
+                <StatusBadge status={selectedStudentForDrawer.status || 'active'} />
+              </div>
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <div>
+                  <p className="text-[10px] text-muted-foreground">Assigned Cohort</p>
+                  <p className="font-bold text-foreground text-xs mt-0.5">{selectedStudentForDrawer.batchName || 'Unassigned'}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-muted-foreground">Registered Phone</p>
+                  <p className="font-bold text-foreground text-xs mt-0.5">{selectedStudentForDrawer.phone}</p>
+                </div>
+                <div className="col-span-2">
+                  <p className="text-[10px] text-muted-foreground">Official Email Address</p>
+                  <p className="font-mono font-semibold text-foreground text-xs mt-0.5">{selectedStudentForDrawer.email}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="flex items-center gap-2.5 pt-2 border-t border-border">
+              <Link href={`/admin/students/${selectedStudentForDrawer.id}`} className="flex-1">
+                <Button variant="primary" size="sm" className="w-full text-xs" rightIcon={<ArrowUpRight className="h-3.5 w-3.5" />}>
+                  Open Full Academic Dossier
+                </Button>
+              </Link>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => {
+                  setStudentToDelete(selectedStudentForDrawer);
+                  setSelectedStudentForDrawer(null);
+                }}
+                leftIcon={<Trash2 className="h-3.5 w-3.5" />}
+                className="text-xs"
+              >
+                Delete
+              </Button>
+            </div>
+          </div>
+        )}
+      </Drawer>
+
+      {/* Enrollment Modal */}
+      <Modal
+        isOpen={isEnrollModalOpen}
+        onClose={() => setIsEnrollModalOpen(false)}
+        title="Enroll New Student Aspirant"
+        description="Provisions student profile, assigns academic roll number, and maps cohort roster."
+      >
+        <form onSubmit={handleEnroll} className="space-y-4">
+          <Input
+            label="Student Full Name"
+            placeholder="e.g. Subhashree Mohapatra"
+            value={formName}
+            onChange={(e) => setFormName(e.target.value)}
+            required
+          />
+          <Input
+            label="Roll Number"
+            placeholder="e.g. OCI-2026-0104"
+            value={formRoll}
+            onChange={(e) => setFormRoll(e.target.value)}
+            required
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Input
+              label="Contact Phone Number"
+              placeholder="+91 94371 23456"
+              value={formPhone}
+              onChange={(e) => setFormPhone(e.target.value)}
+            />
+            <Input
+              label="Email Address"
+              placeholder="candidate@gmail.com"
+              value={formEmail}
+              onChange={(e) => setFormEmail(e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-foreground block">
+              Assign Cohort Batch
+            </label>
             <select
               value={formBatch}
               onChange={(e) => setFormBatch(e.target.value)}
-              className="w-full h-10 rounded-md border border-slate-800 bg-slate-950 px-3 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="h-9 w-full rounded-lg border border-border bg-surface px-3 text-xs font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/20 shadow-subtle"
             >
-              <option value="">-- No Batch (General Admission) --</option>
+              <option value="">No Batch Assigned Yet</option>
               {batches.map((b) => (
                 <option key={b.id} value={b.id}>
-                  {b.name} ({b.courseName})
+                  {b.name} ({b.enrolledCount || 0}/{b.capacity || 60} Seats)
                 </option>
               ))}
             </select>
           </div>
-          <div className="pt-2 flex justify-end gap-3">
-            <Button variant="ghost" size="sm" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-            <Button size="sm" onClick={handleEnroll} disabled={isSubmitting}>
-              {isSubmitting ? 'Saving...' : 'Save Enrollment'}
+
+          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-border">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsEnrollModalOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              size="sm"
+              isLoading={isSubmitting}
+            >
+              Save & Enroll Aspirant
             </Button>
           </div>
-        </div>
+        </form>
       </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={Boolean(studentToDelete)}
+        onClose={() => setStudentToDelete(null)}
+        onConfirm={confirmDeleteStudent}
+        title="Remove Student Record"
+        message="Are you sure you want to permanently remove this student record from the institution database?"
+        entityName={studentToDelete ? `${studentToDelete.name} (${studentToDelete.rollNo})` : undefined}
+        confirmLabel="Delete Student"
+      />
     </div>
   );
 }

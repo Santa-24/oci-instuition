@@ -1,14 +1,29 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs } from '@/components/ui/tabs';
+import { StatusBadge } from '@/components/ui/status-badge';
+import { PageHeader } from '@/components/ui/page-header';
+import { EmptyState } from '@/components/ui/empty-state';
 import { AcademicService } from '@/lib/services/academic-service';
 import { Student } from '@/lib/types/admin';
-import { ArrowLeft, User, Phone, Mail, GraduationCap, CheckCircle2, Shield, Award, BookOpen } from 'lucide-react';
+import {
+  ArrowLeft,
+  User,
+  Phone,
+  Mail,
+  GraduationCap,
+  ShieldCheck,
+  Award,
+  BookOpen,
+  Calendar,
+  Layers,
+  HelpCircle,
+  Clock,
+} from 'lucide-react';
 
 export default function StudentDetailPage() {
   const params = useParams();
@@ -16,16 +31,24 @@ export default function StudentDetailPage() {
   const studentId = params.id as string;
   const [student, setStudent] = useState<Student | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
+  const [isLoading, setIsLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     async function loadStudent() {
-      const students = await AcademicService.getStudents();
-      const found = students.find((s) => s.id === studentId);
-      if (found) {
-        setStudent(found);
-      } else {
-        setNotFound(true);
+      setIsLoading(true);
+      try {
+        const students = await AcademicService.getStudents();
+        const found = students.find((s) => s.id === studentId);
+        if (found) {
+          setStudent(found);
+        } else {
+          setNotFound(true);
+        }
+      } catch (err) {
+        console.error('Failed to load student dossier:', err);
+      } finally {
+        setIsLoading(false);
       }
     }
     loadStudent();
@@ -33,197 +56,188 @@ export default function StudentDetailPage() {
 
   if (notFound) {
     return (
-      <div className="p-12 text-center space-y-4">
-        <User className="h-10 w-10 text-slate-600 mx-auto" />
-        <h2 className="text-base font-bold text-white">Student Record Not Found</h2>
-        <p className="text-xs text-slate-400">
-          No student with ID &quot;{studentId}&quot; exists in the Supabase database.
-        </p>
-        <Button size="sm" variant="outline" onClick={() => router.push('/admin/students')}>
-          Return to Student Directory
-        </Button>
+      <div className="py-16 text-center space-y-4">
+        <EmptyState
+          icon={<User className="h-8 w-8 text-muted-foreground" />}
+          title="Student Record Not Found"
+          description={`No candidate with identifier "${studentId}" exists in the institution database.`}
+          actionLabel="Return to Student Directory"
+          onAction={() => router.push('/admin/students')}
+        />
       </div>
     );
   }
 
-  if (!student) {
-    return <div className="p-8 text-center text-xs text-slate-400">Loading student dossier from Supabase...</div>;
+  if (isLoading || !student) {
+    return (
+      <div className="py-20 text-center space-y-3">
+        <div className="h-6 w-6 border-2 border-primary border-t-transparent animate-spin rounded-full mx-auto" />
+        <p className="text-xs font-semibold text-muted-foreground">Loading student academic dossier...</p>
+      </div>
+    );
   }
 
   const tabs = [
-    { id: 'overview', label: 'Overview' },
-    { id: 'academic', label: 'Academic & Batches' },
-    { id: 'exams', label: 'Exams & Scorecards' },
-    { id: 'activity', label: 'Activity Logs' },
+    { id: 'overview', label: 'Overview & Profile' },
+    { id: 'academic', label: 'Cohort & Curriculum' },
+    { id: 'exams', label: 'CBT Exam Results' },
+    { id: 'attendance', label: 'Attendance Record' },
   ];
 
   return (
     <div className="space-y-6">
-      {/* Top Bar with Back Button */}
       <div className="flex items-center justify-between">
-        <button
-          onClick={() => router.back()}
-          className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white transition-colors"
+        <Link
+          href="/admin/students"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
-          <span>Back to Students</span>
-        </button>
-        <Badge variant={student.status === 'active' ? 'success' : 'destructive'}>
-          {student.status.toUpperCase()}
-        </Badge>
+          <span>Back to Students Directory</span>
+        </Link>
+        <StatusBadge status={student.status || 'active'} />
       </div>
 
-      {/* Student Profile Hero Card */}
-      <Card glow className="p-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      {/* Student Dossier Hero Card */}
+      <Card className="p-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
           <div className="flex items-center gap-4">
-            <div className="h-16 w-16 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-indigo-500/20">
+            <div className="h-16 w-16 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-black text-2xl shadow-subtle shrink-0">
               {student.name[0]}
             </div>
-            <div>
-              <h2 className="text-xl font-extrabold text-white">{student.name}</h2>
-              <p className="text-xs text-indigo-400 font-semibold mt-0.5">
-                Roll No: {student.rollNo} • {student.batchName}
-              </p>
-              <div className="flex items-center gap-4 mt-2 text-xs text-slate-400">
-                <span className="flex items-center gap-1">
-                  <Phone className="h-3.5 w-3.5 text-slate-500" />
+            <div className="space-y-1">
+              <h2 className="text-xl font-black text-foreground tracking-tight">{student.name}</h2>
+              <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+                <span className="font-mono bg-canvas-subtle px-2 py-0.5 rounded border border-border">
+                  {student.rollNo}
+                </span>
+                <span>•</span>
+                <span className="text-foreground">{student.batchName || 'General Roster'}</span>
+              </div>
+              <div className="flex items-center gap-4 pt-1 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1.5">
+                  <Phone className="h-3.5 w-3.5" />
                   {student.phone}
                 </span>
-                <span className="flex items-center gap-1">
-                  <Mail className="h-3.5 w-3.5 text-slate-500" />
+                <span className="flex items-center gap-1.5">
+                  <Mail className="h-3.5 w-3.5" />
                   {student.email}
                 </span>
               </div>
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-xs text-slate-400">Enrollment Status</p>
-            <p className="text-xl font-black text-emerald-400">Active</p>
-            <p className="text-xs text-indigo-400 font-bold mt-0.5">Avg Mock Score: {student.avgMockScore} pts</p>
+
+          <div className="text-left sm:text-right space-y-1 sm:border-l border-border sm:pl-6">
+            <p className="text-[10px] font-extrabold uppercase tracking-wider text-muted-foreground">
+              Institutional Status
+            </p>
+            <p className="text-sm font-bold text-foreground">Verified Enrolled Aspirant</p>
+            <p className="text-[11px] text-muted-foreground">Nayabazar, Bhadrak Campus</p>
           </div>
         </div>
       </Card>
 
-      {/* Tabs Navigation */}
-      <Tabs items={tabs} activeTab={activeTab} onChange={setActiveTab} />
+      {/* Navigation Tabs */}
+      <div className="flex items-center gap-1 border-b border-border pb-px overflow-x-auto">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`px-4 py-2 text-xs font-bold transition-all border-b-2 whitespace-nowrap ${
+              activeTab === tab.id
+                ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
 
       {/* Tab Panels */}
       {activeTab === 'overview' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Enrollment Summary</CardTitle>
-            </CardHeader>
-            <div className="space-y-3 text-xs">
-              <div className="flex justify-between py-1.5 border-b border-slate-800">
-                <span className="text-slate-400">Enrolled Program</span>
-                <span className="font-bold text-white">{student.courseName}</span>
-              </div>
-              <div className="flex justify-between py-1.5 border-b border-slate-800">
-                <span className="text-slate-400">Batch Code</span>
-                <span className="font-bold text-white">{student.batchName}</span>
-              </div>
-              <div className="flex justify-between py-1.5 border-b border-slate-800">
-                <span className="text-slate-400">Admission Date</span>
-                <span className="font-bold text-white">{student.admissionDate}</span>
-              </div>
-              <div className="flex justify-between py-1.5">
-                <span className="text-slate-400">Status</span>
-                <span className="font-bold text-emerald-400">Verified & Enrolled</span>
-              </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="p-5 space-y-3">
+            <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+              Enrolled Cohort
+            </h4>
+            <div className="space-y-1">
+              <p className="text-base font-bold text-foreground">{student.batchName || 'General Cohort'}</p>
+              <p className="text-xs text-muted-foreground">Classroom Schedule: Mon - Fri 08:00 AM - 01:30 PM</p>
             </div>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Academic Standing</CardTitle>
-            </CardHeader>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 rounded-lg bg-slate-950/60 border border-slate-800">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded bg-emerald-500/10 text-emerald-400">
-                    <CheckCircle2 className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-white">Curriculum Standing</p>
-                    <p className="text-[11px] text-slate-400">Consistent learner</p>
-                  </div>
-                </div>
-                <span className="text-sm font-black text-emerald-400">Good Standing</span>
-              </div>
-              <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
-                <p className="text-xs text-slate-400">Latest JEE Mock Score</p>
-                <p className="text-lg font-black text-white mt-0.5">{student.avgMockScore} / 300 (AIR 14)</p>
-              </div>
+          <Card className="p-5 space-y-3">
+            <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+              Target Examination Stream
+            </h4>
+            <div className="space-y-1">
+              <p className="text-base font-bold text-foreground">Central & State Combined</p>
+              <p className="text-xs text-muted-foreground">SSC CGL, OSSC CGL, Railway NTPC</p>
             </div>
+          </Card>
+
+          <Card className="p-5 space-y-3">
+            <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+              System Verification
+            </h4>
+            <div className="flex items-center gap-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+              <ShieldCheck className="h-4 w-4" />
+              <span>RBAC Role: Student Account</span>
+            </div>
+            <p className="text-[11px] text-muted-foreground">Synced to Supabase public.students & user_roles.</p>
           </Card>
         </div>
       )}
 
       {activeTab === 'academic' && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Enrolled Subjects & Faculty Curriculum</CardTitle>
-            <CardDescription>Academic courses assigned to {student.name}</CardDescription>
+        <Card className="p-6 space-y-4">
+          <CardHeader className="p-0 border-none mb-0">
+            <CardTitle>Academic Curriculum Tracking</CardTitle>
+            <CardDescription>Enrolled courses, active batch timetable, and classroom allocation</CardDescription>
           </CardHeader>
-          <div className="space-y-3 text-xs">
-            <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800 flex justify-between items-center">
-              <div>
-                <p className="font-bold text-white">Quantitative Aptitude (MATH-01)</p>
-                <p className="text-slate-400 mt-0.5">Faculty Lead: Er. R. K. Mohapatra • Active Syllabus</p>
-              </div>
-              <Badge variant="outline">Enrolled</Badge>
+          <div className="p-4 rounded-xl border border-border bg-canvas-subtle/50 space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-bold text-foreground">Cohort Batch: {student.batchName || 'Assigned Roster'}</span>
+              <StatusBadge status="active" />
             </div>
-            <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800 flex justify-between items-center">
-              <div>
-                <p className="font-bold text-white">Logical & Analytical Reasoning (REAS-01)</p>
-                <p className="text-slate-400 mt-0.5">Faculty Lead: Prof. Arvind Verma • Active Syllabus</p>
-              </div>
-              <Badge variant="outline">Enrolled</Badge>
-            </div>
-            <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800 flex justify-between items-center">
-              <div>
-                <p className="font-bold text-white">General Awareness & Odisha GK (GK-01)</p>
-                <p className="text-slate-400 mt-0.5">Faculty Lead: Dr. S. K. Nayak • Active Syllabus</p>
-              </div>
-              <Badge variant="outline">Enrolled</Badge>
-            </div>
-            <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800 flex justify-between items-center">
-              <div>
-                <p className="font-bold text-white">English Language & Comprehension (ENG-01)</p>
-                <p className="text-slate-400 mt-0.5">Grammar, Vocabulary & Comprehension • Active Syllabus</p>
-              </div>
-              <Badge variant="outline">Enrolled</Badge>
-            </div>
+            <p className="text-xs text-muted-foreground">
+              Classroom Hall A (Smart Classroom) • Daily 08:00 AM - 01:30 PM
+            </p>
           </div>
         </Card>
       )}
 
       {activeTab === 'exams' && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Mock Test Performance History</CardTitle>
-            <CardDescription>CBT mock tests and simulated assessments attempted</CardDescription>
+        <Card className="p-6 space-y-4">
+          <CardHeader className="p-0 border-none mb-0">
+            <CardTitle>CBT Mock Examination History</CardTitle>
+            <CardDescription>Simulated computer-based examinations, scores, accuracy, and AIR ranks</CardDescription>
           </CardHeader>
-          <div className="py-8 text-center space-y-2">
-            <Award className="h-8 w-8 text-slate-600 mx-auto" />
-            <p className="text-xs text-slate-400 font-medium">No test evaluations submitted yet.</p>
-            <p className="text-[11px] text-slate-500">CBT scores and percentiles will populate automatically when completed.</p>
-          </div>
+          <EmptyState
+            icon={<HelpCircle className="h-6 w-6 text-muted-foreground" />}
+            title="No CBT Exam Attempts Logged"
+            description="Scorecards and All India Ranks will chart dynamically here as the candidate completes scheduled mock tests in the student portal."
+            actionLabel="View CBT Exams Series"
+            onAction={() => router.push('/admin/mock-exams')}
+            compact
+          />
         </Card>
       )}
 
-      {activeTab === 'activity' && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity Stream</CardTitle>
-            <CardDescription>Student live class attendance and download logs</CardDescription>
+      {activeTab === 'attendance' && (
+        <Card className="p-6 space-y-4">
+          <CardHeader className="p-0 border-none mb-0">
+            <CardTitle>Classroom Attendance Logs</CardTitle>
+            <CardDescription>Daily physical classroom and live lecture presence records</CardDescription>
           </CardHeader>
-          <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800 text-xs text-slate-400 flex items-center justify-between">
-            <span>Student account verified and enrolled in {student.batchName}</span>
-            <span className="text-[11px] text-emerald-400 font-semibold">Active Enrollment</span>
-          </div>
+          <EmptyState
+            icon={<Calendar className="h-6 w-6 text-muted-foreground" />}
+            title="Attendance Records In Synced Register"
+            description="Regularity percentages and daily timestamps can be audited and marked from the central Attendance Register."
+            actionLabel="Open Attendance Register"
+            onAction={() => router.push('/admin/attendance')}
+            compact
+          />
         </Card>
       )}
     </div>

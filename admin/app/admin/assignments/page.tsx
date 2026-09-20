@@ -4,12 +4,23 @@ import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
+import { EmptyState } from '@/components/ui/empty-state';
+import { PageHeader } from '@/components/ui/page-header';
 import { Modal } from '@/components/ui/modal';
 import { Input } from '@/components/ui/input';
+import { ConfirmationModal } from '@/components/ui/confirmation-modal';
 import { AcademicService } from '@/lib/services/academic-service';
 import { Batch } from '@/lib/types/admin';
-import { Plus, ClipboardList, Trash2, RefreshCw } from 'lucide-react';
+import { formatDateTime } from '@/lib/utils/formatters';
+import {
+  FileText,
+  Plus,
+  RefreshCw,
+  Trash2,
+  Clock,
+  Calendar,
+} from 'lucide-react';
 
 interface AssignmentItem {
   id: string;
@@ -29,10 +40,11 @@ export default function AssignmentsAdminPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<AssignmentItem | null>(null);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const [formTitle, setFormTitle] = useState('');
-  const [formSubject, setFormSubject] = useState('');
+  const [formSubject, setFormSubject] = useState('Quantitative Aptitude');
   const [formBatchId, setFormBatchId] = useState('');
   const [formDescription, setFormDescription] = useState('');
   const [formDueDate, setFormDueDate] = useState('');
@@ -62,25 +74,23 @@ export default function AssignmentsAdminPage() {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formTitle.trim() || !formSubject.trim()) return;
+    if (!formTitle.trim()) return;
     setIsSubmitting(true);
     setFeedback(null);
-
     try {
       await AcademicService.createAssignment({
         title: formTitle.trim(),
         subject: formSubject.trim(),
         batchId: formBatchId || undefined,
-        description: formDescription.trim() || undefined,
+        description: formDescription.trim(),
         dueDate: formDueDate || undefined,
       });
-
-      setFeedback({ type: 'success', message: 'Assignment created successfully in Supabase!' });
-      setIsModalOpen(false);
+      await fetchData();
       setFormTitle('');
-      setFormSubject('');
       setFormDescription('');
-      fetchData();
+      setFormDueDate('');
+      setIsModalOpen(false);
+      setFeedback({ type: 'success', message: 'Homework assignment published!' });
     } catch (err: any) {
       setFeedback({ type: 'error', message: err.message || 'Failed to create assignment' });
     } finally {
@@ -88,12 +98,13 @@ export default function AssignmentsAdminPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this assignment?')) return;
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
     try {
-      await AcademicService.deleteAssignment(id);
-      setAssignments((prev) => prev.filter((a) => a.id !== id));
-      setFeedback({ type: 'success', message: 'Assignment deleted from Supabase.' });
+      await AcademicService.deleteAssignment(itemToDelete.id);
+      setAssignments((prev) => prev.filter((a) => a.id !== itemToDelete.id));
+      setFeedback({ type: 'success', message: `Assignment "${itemToDelete.title}" removed.` });
+      setItemToDelete(null);
     } catch (err: any) {
       setFeedback({ type: 'error', message: err.message || 'Failed to delete assignment' });
     }
@@ -101,80 +112,94 @@ export default function AssignmentsAdminPage() {
 
   return (
     <div className="space-y-6">
+      <PageHeader
+        title="Student Assignments & Problem Sets"
+        description="Homework question sets, submission deadlines, and topic-wise self-evaluation tasks."
+        badge={
+          <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200 dark:border-blue-800 tabular-nums">
+            {assignments.length} Problem Sets
+          </span>
+        }
+      >
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={fetchData}
+          disabled={isLoading}
+          leftIcon={<RefreshCw className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`} />}
+          className="text-xs"
+        >
+          Refresh
+        </Button>
+        <Button
+          size="sm"
+          variant="primary"
+          onClick={() => setIsModalOpen(true)}
+          leftIcon={<Plus className="h-3.5 w-3.5" />}
+          className="text-xs"
+        >
+          Publish Assignment
+        </Button>
+      </PageHeader>
+
+      {/* Feedback Banner */}
       {feedback && (
         <div
-          className={`p-3 rounded-lg text-xs font-semibold flex items-center justify-between border ${
+          className={`p-3 rounded-xl text-xs font-semibold flex items-center justify-between border ${
             feedback.type === 'success'
-              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-              : 'bg-rose-500/10 border-rose-500/30 text-rose-400'
+              ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800'
+              : 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800'
           }`}
         >
           <span>{feedback.message}</span>
-          <button onClick={() => setFeedback(null)} className="underline ml-4">
-            Dismiss
-          </button>
+          <button onClick={() => setFeedback(null)} className="font-bold ml-2">×</button>
         </div>
       )}
 
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-extrabold text-white tracking-tight">Assignments &amp; Submissions</h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Create homework assignments, set due dates, and monitor student work in Supabase.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={fetchData}
-            isLoading={isLoading}
-            leftIcon={<RefreshCw className="h-3.5 w-3.5" />}
-          >
-            Refresh
-          </Button>
-          <Button
-            size="sm"
-            onClick={() => setIsModalOpen(true)}
-            leftIcon={<Plus className="h-4 w-4" />}
-            className="bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/20"
-          >
-            Create Assignment
-          </Button>
-        </div>
-      </div>
-
+      {/* Table */}
       <Card className="p-0 overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Assignment Title</TableHead>
-              <TableHead>Subject</TableHead>
-              <TableHead>Target Batch</TableHead>
+              <TableHead>Subject Discipline</TableHead>
+              <TableHead>Cohort Batch</TableHead>
+              <TableHead>Submission Deadline</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {assignments.map((asg) => (
-              <TableRow key={asg.id}>
-                <TableCell className="font-bold text-white max-w-md flex items-center gap-2">
-                  <ClipboardList className="h-4 w-4 text-indigo-400" />
-                  <span>{asg.title}</span>
-                </TableCell>
-                <TableCell className="text-xs text-indigo-400 font-semibold">{asg.subject}</TableCell>
-                <TableCell className="text-xs text-slate-300">{asg.batchName}</TableCell>
+            {assignments.map((a) => (
+              <TableRow key={a.id}>
                 <TableCell>
-                  <Badge variant={asg.status === 'active' ? 'success' : 'outline'}>
-                    {asg.status.toUpperCase()}
-                  </Badge>
+                  <div className="space-y-0.5">
+                    <p className="font-bold text-foreground text-xs">{a.title}</p>
+                    <p className="text-[11px] text-muted-foreground line-clamp-1">{a.description || 'No special instructions'}</p>
+                  </div>
+                </TableCell>
+                <TableCell className="text-xs font-semibold text-primary">
+                  {a.subject}
+                </TableCell>
+                <TableCell className="text-xs text-muted-foreground font-medium">
+                  {a.batchName || 'Open Distribution'}
+                </TableCell>
+                <TableCell className="text-xs text-muted-foreground font-medium">
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                    {a.dueDate ? formatDateTime(a.dueDate) : 'Open Ended'}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <StatusBadge status={a.status || 'active'} />
                 </TableCell>
                 <TableCell className="text-right">
                   <Button
-                    variant="ghost"
                     size="sm"
-                    onClick={() => handleDelete(asg.id)}
-                    className="text-slate-500 hover:text-rose-400"
+                    variant="ghost"
+                    onClick={() => setItemToDelete(a)}
+                    title="Remove Assignment"
+                    className="h-8 w-8 p-0 text-muted-foreground hover:text-rose-600"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
@@ -182,10 +207,17 @@ export default function AssignmentsAdminPage() {
               </TableRow>
             ))}
 
-            {assignments.length === 0 && !isLoading && (
+            {assignments.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-12 text-xs text-slate-500">
-                  No assignments created yet. Click &quot;Create Assignment&quot; to assign tasks to active batches.
+                <TableCell colSpan={6} className="py-12 text-center">
+                  <EmptyState
+                    icon={<FileText className="h-6 w-6 text-muted-foreground" />}
+                    title="No Problem Sets Assigned"
+                    description="Distribute daily homework problem sets, practice questions, and deadline evaluations."
+                    actionLabel="Create First Assignment"
+                    onAction={() => setIsModalOpen(true)}
+                    compact
+                  />
                 </TableCell>
               </TableRow>
             )}
@@ -193,33 +225,48 @@ export default function AssignmentsAdminPage() {
         </Table>
       </Card>
 
-      {/* Create Assignment Modal */}
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create New Batch Assignment">
+      {/* Modal */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Distribute Assignment Problem Set"
+        description="Publishes homework questions to student portals with evaluation timeline."
+      >
         <form onSubmit={handleCreate} className="space-y-4">
           <Input
             label="Assignment Title"
-            placeholder="e.g. Weekly Speed Arithmetic Problem Set #01"
+            placeholder="e.g. Daily Practice Sheet #14: Time, Speed & Distance"
             value={formTitle}
             onChange={(e) => setFormTitle(e.target.value)}
             required
           />
-          <Input
-            label="Subject"
-            placeholder="e.g. Quantitative Aptitude"
-            value={formSubject}
-            onChange={(e) => setFormSubject(e.target.value)}
-            required
-          />
-          <div>
-            <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
-              Target Batch
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Input
+              label="Subject / Topic"
+              placeholder="Quantitative Aptitude"
+              value={formSubject}
+              onChange={(e) => setFormSubject(e.target.value)}
+              required
+            />
+            <Input
+              label="Submission Due Date & Time"
+              type="datetime-local"
+              value={formDueDate}
+              onChange={(e) => setFormDueDate(e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-foreground block">
+              Cohort Batch
             </label>
             <select
               value={formBatchId}
               onChange={(e) => setFormBatchId(e.target.value)}
-              className="w-full h-10 px-3 rounded-lg border border-slate-700 bg-slate-800 text-xs text-white focus:outline-none focus:border-indigo-500"
+              className="h-9 w-full rounded-lg border border-border bg-surface px-3 text-xs font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/20 shadow-subtle"
             >
-              <option value="">All Batches</option>
+              <option value="">Open to All Enrolled Aspirants</option>
               {batches.map((b) => (
                 <option key={b.id} value={b.id}>
                   {b.name}
@@ -227,29 +274,45 @@ export default function AssignmentsAdminPage() {
               ))}
             </select>
           </div>
-          <div>
-            <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
-              Assignment Instructions / Description
-            </label>
-            <textarea
-              rows={3}
-              value={formDescription}
-              onChange={(e) => setFormDescription(e.target.value)}
-              placeholder="Detailed instructions for students..."
-              className="w-full p-3 rounded-lg border border-slate-700 bg-slate-800 text-xs text-white focus:outline-none focus:border-indigo-500"
-            />
-          </div>
 
-          <div className="flex justify-end gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
+          <Input
+            label="Instructions & Evaluation Criteria"
+            placeholder="Solve all 25 MCQs. Rough work must be submitted in class."
+            value={formDescription}
+            onChange={(e) => setFormDescription(e.target.value)}
+          />
+
+          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-border">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsModalOpen(false)}
+            >
               Cancel
             </Button>
-            <Button type="submit" isLoading={isSubmitting} className="bg-indigo-600 hover:bg-indigo-500 text-white">
-              Create Assignment in DB
+            <Button
+              type="submit"
+              variant="primary"
+              size="sm"
+              isLoading={isSubmitting}
+            >
+              Publish Assignment
             </Button>
           </div>
         </form>
       </Modal>
+
+      {/* Delete Confirmation */}
+      <ConfirmationModal
+        isOpen={Boolean(itemToDelete)}
+        onClose={() => setItemToDelete(null)}
+        onConfirm={confirmDelete}
+        title="Remove Assignment"
+        message="Are you sure you want to remove this homework assignment?"
+        entityName={itemToDelete?.title}
+        confirmLabel="Delete Assignment"
+      />
     </div>
   );
 }

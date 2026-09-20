@@ -46,21 +46,22 @@ export function Modal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-150 select-none">
       <div
         className={cn(
-          'relative w-full rounded-xl border border-slate-800 bg-slate-900 p-6 shadow-2xl duration-200 animate-in zoom-in-95',
+          'relative w-full rounded-2xl border border-border bg-surface p-6 shadow-command duration-150 animate-in zoom-in-95',
           maxWidths[maxWidth]
         )}
       >
-        <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-          <div>
-            {title && <h2 className="text-lg font-bold text-white tracking-tight">{title}</h2>}
-            {description && <p className="text-xs text-slate-400 mt-0.5">{description}</p>}
+        <div className="flex items-start justify-between pb-4 border-b border-border">
+          <div className="space-y-0.5">
+            {title && <h2 className="text-base font-bold text-foreground tracking-tight">{title}</h2>}
+            {description && <p className="text-xs text-muted-foreground leading-normal">{description}</p>}
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
+            className="rounded-lg p-1.5 text-muted-foreground hover:bg-canvas-subtle hover:text-foreground transition-colors"
           >
             <X className="h-4 w-4" />
           </button>

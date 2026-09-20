@@ -55,6 +55,7 @@ export interface Course {
   description: string;
   isActive: boolean;
   batchesCount: number;
+  batchCount?: number;
   enrolledStudentsCount: number;
 }
 
@@ -94,8 +95,10 @@ export interface LiveClass {
   teacherId: string;
   teacherName: string;
   scheduledStartTime: string;
+  scheduledStart?: string;
   scheduledEndTime: string;
   jitsiRoomName: string;
+  roomUrl?: string;
   status: 'scheduled' | 'live' | 'completed' | 'cancelled';
   attendeeCount?: number;
 }

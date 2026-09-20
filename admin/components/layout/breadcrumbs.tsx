@@ -12,10 +12,13 @@ export function Breadcrumbs() {
   if (segments.length <= 1) return null;
 
   return (
-    <div className="flex items-center space-x-2 text-xs text-slate-400 mb-6">
-      <Link href="/admin/dashboard" className="hover:text-white flex items-center gap-1 transition-colors">
+    <nav className="flex items-center space-x-2 text-xs text-muted-foreground select-none">
+      <Link
+        href="/admin/dashboard"
+        className="hover:text-foreground flex items-center gap-1 transition-colors font-medium"
+      >
         <Home className="h-3.5 w-3.5" />
-        <span>Admin</span>
+        <span>Command Center</span>
       </Link>
       {segments.slice(1).map((seg, idx) => {
         const href = `/${segments.slice(0, idx + 2).join('/')}`;
@@ -24,17 +27,17 @@ export function Breadcrumbs() {
 
         return (
           <React.Fragment key={href}>
-            <ChevronRight className="h-3.5 w-3.5 text-slate-600" />
+            <ChevronRight className="h-3 w-3 text-muted-foreground/60 shrink-0" />
             {isLast ? (
-              <span className="font-semibold text-slate-200">{formatted}</span>
+              <span className="font-bold text-foreground truncate">{formatted}</span>
             ) : (
-              <Link href={href} className="hover:text-white transition-colors">
+              <Link href={href} className="hover:text-foreground transition-colors font-medium truncate">
                 {formatted}
               </Link>
             )}
           </React.Fragment>
         );
       })}
-    </div>
+    </nav>
   );
 }
