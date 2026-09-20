@@ -149,7 +149,7 @@ All administrative actions execute server-side using the `SUPABASE_SERVICE_ROLE_
   - `why-oci`: Pedagogical framework, 4-stage progression rail.
   - `testimonials`: Verified student reviews.
   - `success-stories`: Rank achievements and competitive selection results.
-  - `faqs`: Common student and parent admissions inquiries.
+  - `faqs`: Common student admissions inquiries.
 
 ---
 

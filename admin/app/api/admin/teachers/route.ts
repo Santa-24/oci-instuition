@@ -41,34 +41,62 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { name, employeeId, email, phone, subject, qualification, experienceYears, bio, publishToWebsite } = body;
+    const { name, employeeId, email, phone, subject, qualification, experienceYears, bio, publishToWebsite, password } = body;
 
     if (!name || !employeeId || !subject) {
       return NextResponse.json({ success: false, error: 'Name, Employee ID, and Subject are required' }, { status: 400 });
     }
 
-    const teacherUuid = crypto.randomUUID();
-    const teacherEmail = email?.trim() || `faculty_${Date.now()}@oci.org.in`;
+    const teacherEmail = email?.trim().toLowerCase() || `faculty_${Date.now()}@oci.edu.in`;
+    const tempPassword = password || 'Faculty@123';
 
-    // 1. Create Profile
-    await supabaseAdmin.from('profiles').insert({
+    // 1. Create real Supabase Auth user for faculty
+    let teacherUuid: string;
+    const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
+      email: teacherEmail,
+      password: tempPassword,
+      email_confirm: true,
+      user_metadata: {
+        full_name: name.trim(),
+        role: 'teacher',
+      },
+    });
+
+    if (authError || !authUser?.user) {
+      // If user already exists in auth, find their ID
+      const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
+      const existing = existingUsers?.users?.find((u) => u.email?.toLowerCase() === teacherEmail.toLowerCase());
+      if (existing) {
+        teacherUuid = existing.id;
+      } else {
+        teacherUuid = crypto.randomUUID();
+      }
+    } else {
+      teacherUuid = authUser.user.id;
+    }
+
+    // 2. Upsert Profile
+    await supabaseAdmin.from('profiles').upsert({
       id: teacherUuid,
       full_name: name.trim(),
       email: teacherEmail,
       phone: phone?.trim() || null,
-    });
-
-    // 2. Assign Role
-    await supabaseAdmin.from('user_roles').insert({
-      id: crypto.randomUUID(),
-      user_id: teacherUuid,
       role: 'teacher',
     });
 
-    // 3. Create Teacher
+    // 3. Upsert Role
+    await supabaseAdmin.from('user_roles').upsert(
+      {
+        user_id: teacherUuid,
+        role: 'teacher',
+      },
+      { onConflict: 'user_id' }
+    );
+
+    // 4. Create Teacher Record
     const { data: teacher, error } = await supabaseAdmin
       .from('teachers')
-      .insert({
+      .upsert({
         id: teacherUuid,
         employee_id: employeeId.trim().toUpperCase(),
         subject: subject.trim(),
@@ -81,20 +109,6 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (error) throw error;
-
-    // 4. Optionally sync with website_faculty
-    if (publishToWebsite !== false) {
-      await supabaseAdmin.from('website_faculty').insert({
-        id: teacherUuid,
-        name: name.trim(),
-        subject: subject.trim(),
-        qualification: qualification?.trim() || 'Master Degree / Specialist',
-        experience_years: `${experienceYears || 5}+ Years`,
-        biography: bio?.trim() || 'Dedicated academic mentor preparing students for competitive examinations.',
-        display_order: 10,
-        is_published: true,
-      });
-    }
 
     return NextResponse.json({ success: true, teacher });
   } catch (error: any) {
@@ -112,8 +126,14 @@ export async function DELETE(req: NextRequest) {
     }
 
     await supabaseAdmin.from('teachers').delete().eq('id', id);
-    await supabaseAdmin.from('website_faculty').delete().eq('id', id);
+    await supabaseAdmin.from('user_roles').delete().eq('user_id', id);
     await supabaseAdmin.from('profiles').delete().eq('id', id);
+
+    try {
+      await supabaseAdmin.auth.admin.deleteUser(id);
+    } catch (_) {
+      // Ignored if auth user not found
+    }
 
     return NextResponse.json({ success: true, message: 'Teacher deleted successfully' });
   } catch (error: any) {

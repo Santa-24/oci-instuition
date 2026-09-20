@@ -10,7 +10,7 @@ import { getCmsSection, saveCmsSection } from '@/lib/supabase/cms-service';
 
 const initialDirector = {
   title: 'A Message From Our Director',
-  salutation: 'Dear Students and Parents,',
+  salutation: 'Dear Students and Aspirants,',
   content: [
     'Odisha Competitive Institute (OCI) was founded with a singular focus: to make quality competitive exam preparation structured, transparent, and genuinely student-centric.',
     'We understand that competitive examinations test not only your knowledge, but also your speed, accuracy, and mental endurance. Our faculty and academic systems are designed to support you at every stage of this journey.',

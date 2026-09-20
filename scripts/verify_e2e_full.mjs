@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '../admin/node_modules/@supabase/supabase-js/dist/index.mjs';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://utrusmludikyvxbmpicg.supabase.co';
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY || '';
@@ -25,7 +25,7 @@ async function runE2E() {
   if (rErr) throw new Error('Failed to read public app versions: ' + rErr.message);
   console.log(`  ✓ Read ${publicReleases.length} active Android release(s). Latest: v${publicReleases[0]?.version_name || 'N/A'}`);
 
-  const { data: publicNotices, error: nErr } = await anonClient.from('announcements').select('id, title, is_active').eq('is_active', true);
+  const { data: publicNotices, error: nErr } = await anonClient.from('announcements').select('id, title, content');
   if (nErr) throw new Error('Failed to read public announcements: ' + nErr.message);
   console.log(`  ✓ Read ${publicNotices.length} active announcements for public website.`);
 
@@ -79,9 +79,6 @@ async function runE2E() {
     id: testNoticeId,
     title: 'E2E Flash Notice: Special Sunday Marathon Class',
     content: 'All aspirants are invited to Hall A for Reasoning speed drills.',
-    audience: 'all',
-    priority: 'urgent',
-    is_active: true,
   }).select().single();
   if (noticeErr) throw new Error('Failed to create announcement: ' + noticeErr.message);
   console.log(`  ✓ Created flash announcement: "${createdNotice.title}"`);

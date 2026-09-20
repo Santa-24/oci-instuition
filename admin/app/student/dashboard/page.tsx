@@ -4,18 +4,15 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { StatsCard } from '@/components/ui/stats-card';
 import { supabase } from '@/lib/supabase/client';
 import {
   Video,
   BookOpen,
   FileText,
-  HelpCircle,
   Award,
   ArrowRight,
   Radio,
-  Download,
   CheckCircle2,
 } from 'lucide-react';
 
@@ -23,10 +20,23 @@ export default function StudentDashboardPage() {
   const [liveClasses, setLiveClasses] = useState<any[]>([]);
   const [materials, setMaterials] = useState<any[]>([]);
   const [exams, setExams] = useState<any[]>([]);
+  const [studentName, setStudentName] = useState('Student Aspirant');
 
   useEffect(() => {
     async function loadStudentData() {
       try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', session.user.id)
+            .maybeSingle();
+          if (profile?.full_name) {
+            setStudentName(profile.full_name);
+          }
+        }
+
         const [liveRes, matRes, examRes] = await Promise.all([
           supabase.from('live_classes').select('*').limit(3),
           supabase.from('study_materials').select('*').limit(3),
@@ -48,48 +58,50 @@ export default function StudentDashboardPage() {
       <div className="rounded-2xl bg-gradient-to-r from-indigo-900/60 via-slate-900 to-indigo-950/50 border border-indigo-500/20 p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <span className="text-[11px] font-bold text-indigo-400 uppercase tracking-wider">Aspirant Dashboard</span>
-          <h1 className="text-2xl font-black text-white mt-1">Welcome back, Aarav!</h1>
+          <h1 className="text-2xl font-black text-white mt-1">Welcome, {studentName}</h1>
           <p className="text-xs text-slate-300 mt-1 max-w-xl">
-            Keep up your consistency. Your next live classroom lecture on Quantitative Aptitude starts today at 10:00 AM.
+            {liveClasses.length > 0
+              ? `You have ${liveClasses.length} live interactive class session(s) available.`
+              : 'Your assigned classes and study materials will appear here once scheduled by the institute.'}
           </p>
         </div>
-        <Link href="/student/classes">
-          <Button size="sm" variant="destructive" leftIcon={<Radio className="h-3.5 w-3.5 animate-pulse" />}>
-            Join Live Class
-          </Button>
-        </Link>
+        {liveClasses.length > 0 && (
+          <Link href="/student/classes">
+            <Button size="sm" variant="destructive" leftIcon={<Radio className="h-3.5 w-3.5 animate-pulse" />}>
+              Join Live Class
+            </Button>
+          </Link>
+        )}
       </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatsCard
-          title="Lectures Completed"
-          value="22 Lectures"
-          subtext="Consistent Active Learner"
-          trend={{ value: 'Top 5% batch consistency', isPositive: true }}
+          title="Scheduled Classes"
+          value={`${liveClasses.length} Sessions`}
+          subtext="Interactive Classroom"
           icon={<CheckCircle2 className="h-5 w-5" />}
           iconBgColor="bg-emerald-500/15 text-emerald-400"
           glow
         />
         <StatsCard
-          title="Latest Mock Score"
-          value="240 / 300"
-          subtext="All India Rank: AIR 14"
-          trend={{ value: '+18 pts increase', isPositive: true }}
+          title="Available Exams"
+          value={`${exams.length} Tests`}
+          subtext="Active Computer-Based Tests"
           icon={<Award className="h-5 w-5" />}
           iconBgColor="bg-indigo-500/15 text-indigo-400"
         />
         <StatsCard
-          title="Enrolled Subjects"
-          value="4 Subjects"
-          subtext="Math, Reasoning, English, GK"
+          title="Curriculum Subjects"
+          value="Academic Program"
+          subtext="Enrolled Course Modules"
           icon={<BookOpen className="h-5 w-5" />}
           iconBgColor="bg-amber-500/15 text-amber-400"
         />
         <StatsCard
           title="Study Notes"
-          value="18 Documents"
-          subtext="DPPs & Formula sheets"
+          value={`${materials.length} Documents`}
+          subtext="High-Yield Notes & DPPs"
           icon={<FileText className="h-5 w-5" />}
           iconBgColor="bg-blue-500/15 text-blue-400"
         />
@@ -125,7 +137,7 @@ export default function StudentDashboardPage() {
               </div>
             ))}
             {liveClasses.length === 0 && (
-              <div className="py-4 text-xs text-slate-500 text-center">No active lectures right now.</div>
+              <div className="py-8 text-xs text-slate-500 text-center">No active lectures right now.</div>
             )}
           </div>
         </Card>
@@ -148,58 +160,21 @@ export default function StudentDashboardPage() {
               <div key={mat.id} className="py-3 flex items-center justify-between">
                 <div>
                   <p className="text-xs font-bold text-white">{mat.title}</p>
-                  <p className="text-[11px] text-slate-400 mt-0.5">{mat.subject} • {mat.type || 'PDF'}</p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">{mat.subject} • {mat.type || 'PDF Document'}</p>
                 </div>
-                <a href={mat.file_url || '#'} target="_blank" rel="noopener noreferrer">
-                  <Button size="sm" variant="secondary" leftIcon={<Download className="h-3.5 w-3.5" />}>
-                    Download
+                <a href={mat.file_url} target="_blank" rel="noopener noreferrer">
+                  <Button size="sm" variant="ghost">
+                    View
                   </Button>
                 </a>
               </div>
             ))}
             {materials.length === 0 && (
-              <div className="py-4 text-xs text-slate-500 text-center">No new study materials uploaded.</div>
+              <div className="py-8 text-xs text-slate-500 text-center">No study materials uploaded yet.</div>
             )}
           </div>
         </Card>
       </div>
-
-      {/* Available CBT Tests */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-3">
-          <div>
-            <CardTitle>Assigned CBT Mock Test Series</CardTitle>
-            <CardDescription>Timed examination simulator with negative marking and instant scorecard</CardDescription>
-          </div>
-          <Link href="/student/exams">
-            <Button variant="ghost" size="sm" rightIcon={<ArrowRight className="h-3.5 w-3.5" />}>
-              Test Series
-            </Button>
-          </Link>
-        </CardHeader>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {exams.map((exam) => (
-            <div key={exam.id} className="p-4 rounded-xl border border-slate-800 bg-slate-900/50 flex flex-col justify-between space-y-3">
-              <div>
-                <div className="flex items-center justify-between">
-                  <Badge variant="primary">LIVE CBT</Badge>
-                  <span className="text-[11px] text-slate-400 font-mono">{exam.duration_minutes} Minutes</span>
-                </div>
-                <h3 className="text-sm font-bold text-white mt-2">{exam.title}</h3>
-                <p className="text-xs text-slate-400 mt-1">Total Marks: {exam.total_marks} • Single Attempt</p>
-              </div>
-              <Link href="/student/exams">
-                <Button size="sm" className="w-full" rightIcon={<ArrowRight className="h-3.5 w-3.5" />}>
-                  Start CBT Mock Test
-                </Button>
-              </Link>
-            </div>
-          ))}
-          {exams.length === 0 && (
-            <div className="col-span-2 py-6 text-center text-xs text-slate-500">No active CBT mock tests published.</div>
-          )}
-        </div>
-      </Card>
     </div>
   );
 }

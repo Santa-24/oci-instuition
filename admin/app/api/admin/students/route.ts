@@ -52,35 +52,61 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { name, rollNo, email, phone, batchId, status } = body;
+    const { name, rollNo, email, phone, batchId, status, password } = body;
 
     if (!name || !rollNo) {
       return NextResponse.json({ success: false, error: 'Student name and Roll No are required' }, { status: 400 });
     }
 
-    const studentUuid = crypto.randomUUID();
-    const userEmail = email?.trim() || `student_${Date.now()}@oci.org.in`;
+    const userEmail = email?.trim().toLowerCase() || `student_${Date.now()}@oci.edu.in`;
+    const tempPassword = password || 'Student@123';
 
-    // 1. Create Profile
-    const { error: pErr } = await supabaseAdmin.from('profiles').insert({
+    let studentUuid: string;
+    const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
+      email: userEmail,
+      password: tempPassword,
+      email_confirm: true,
+      user_metadata: {
+        full_name: name.trim(),
+        role: 'student',
+      },
+    });
+
+    if (authError || !authUser?.user) {
+      const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
+      const existing = existingUsers?.users?.find((u) => u.email?.toLowerCase() === userEmail.toLowerCase());
+      if (existing) {
+        studentUuid = existing.id;
+      } else {
+        studentUuid = crypto.randomUUID();
+      }
+    } else {
+      studentUuid = authUser.user.id;
+    }
+
+    // 1. Upsert Profile
+    const { error: pErr } = await supabaseAdmin.from('profiles').upsert({
       id: studentUuid,
       full_name: name.trim(),
       email: userEmail,
       phone: phone?.trim() || null,
+      role: 'student',
     });
     if (pErr) throw pErr;
 
     // 2. Assign Role
-    await supabaseAdmin.from('user_roles').insert({
-      id: crypto.randomUUID(),
-      user_id: studentUuid,
-      role: 'student',
-    });
+    await supabaseAdmin.from('user_roles').upsert(
+      {
+        user_id: studentUuid,
+        role: 'student',
+      },
+      { onConflict: 'user_id' }
+    );
 
     // 3. Create Student Entry
     const { data: student, error: sErr } = await supabaseAdmin
       .from('students')
-      .insert({
+      .upsert({
         id: studentUuid,
         roll_no: rollNo.trim().toUpperCase(),
         batch_id: batchId || null,
@@ -147,9 +173,15 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Student ID is required' }, { status: 400 });
     }
 
-    // Cascade deletes student, roles, and profiles
     await supabaseAdmin.from('students').delete().eq('id', id);
+    await supabaseAdmin.from('user_roles').delete().eq('user_id', id);
     await supabaseAdmin.from('profiles').delete().eq('id', id);
+
+    try {
+      await supabaseAdmin.auth.admin.deleteUser(id);
+    } catch (_) {
+      // Ignored if auth user not found
+    }
 
     return NextResponse.json({ success: true, message: 'Student removed successfully' });
   } catch (error: any) {

@@ -57,7 +57,11 @@ export function Topbar() {
 
         {/* Log Out */}
         <button
-          onClick={() => router.push('/login')}
+          onClick={async () => {
+            const { supabase } = await import('@/lib/supabase/client');
+            await supabase.auth.signOut();
+            router.push('/login');
+          }}
           className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-rose-400 transition-colors"
         >
           <LogOut className="h-3.5 w-3.5" />

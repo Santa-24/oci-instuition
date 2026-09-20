@@ -40,17 +40,17 @@ Every table in the PostgreSQL database has Row Level Security enabled (`ALTER TA
 
 ### Summary of Access Control Matrix
 
-| Table Category | Tables | Public Access | Student Access | Faculty Access | Parent Access | Admin Access |
-|---|---|---|---|---|---|---|
-| **Identity & Access** | `profiles`, `user_roles` | None | Self only (Read) | Self only (Read) | Self only (Read) | Full (Read/Write) |
-| **Academic Structure**| `courses`, `subjects`, `batches` | Active courses (Read) | Enrolled batches (Read) | Assigned batches (Read) | Linked student batches (Read) | Full (Read/Write) |
-| **Student Roster** | `students` | None | Self only (Read) | Assigned batch students (Read) | Linked child only (Read) | Full (Read/Write) |
-| **Examinations** | `exams`, `questions` | None | Published batch exams (Read/Submit) | Author / assigned batch (Read/Write) | Linked child exam reports (Read) | Full (Read/Write) |
-| **Exam Results** | `exam_results` | None | Own results only (Read) | Assigned batch results (Read) | Linked child results (Read) | Full (Read/Write) |
-| **Attendance** | `attendance`, `live_classes` | None | Own attendance / enrolled class | Assigned batch attendance (Write) | Linked child attendance (Read) | Full (Read/Write) |
-| **Learning Materials**| `study_materials`, `recorded_classes` | None | Enrolled batch materials (Read) | Own uploaded materials (Read/Write) | None | Full (Read/Write) |
-| **Website Content** | `website_content`, `testimonials`, `faqs` | Published items (Read) | Read | Read | Read | Full (Read/Write) |
-| **Security & Audits**| `audit_logs` | None | None | None | None | Full (Read/Write) |
+| Table Category | Tables | Public Access | Student Access | Faculty Access | Admin Access |
+|---|---|---|---|---|---|
+| **Identity & Access** | `profiles`, `user_roles` | None | Self only (Read) | Self only (Read) | Full (Read/Write) |
+| **Academic Structure**| `courses`, `subjects`, `batches` | Active courses (Read) | Enrolled batches (Read) | Assigned batches (Read) | Full (Read/Write) |
+| **Student Roster** | `students` | None | Self only (Read) | Assigned batch students (Read) | Full (Read/Write) |
+| **Examinations** | `exams`, `questions` | None | Published batch exams (Read/Submit) | Author / assigned batch (Read/Write) | Full (Read/Write) |
+| **Exam Results** | `exam_results` | None | Own results only (Read) | Assigned batch results (Read) | Full (Read/Write) |
+| **Attendance** | `attendance`, `live_classes` | None | Own attendance / enrolled class | Assigned batch attendance (Write) | Full (Read/Write) |
+| **Learning Materials**| `study_materials`, `recorded_classes` | None | Enrolled batch materials (Read) | Own uploaded materials (Read/Write) | Full (Read/Write) |
+| **Website Content** | `website_content`, `testimonials`, `faqs` | Published items (Read) | Read | Read | Full (Read/Write) |
+| **Security & Audits**| `audit_logs` | None | None | None | Full (Read/Write) |
 
 ---
 

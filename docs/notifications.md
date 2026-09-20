@@ -60,7 +60,7 @@ Active Web Browser     Student Mobile App / Browser Web Push
 | Exam Results & AIR Published | Enrolled Candidates | `RESULT` | Opens scorecard and ranking |
 | New Study Notes Uploaded | Batch Students | `MATERIAL` | Opens `/student/materials` |
 | Live Lecture Commencing | Batch Students | `CLASS` | Launches live Jitsi video room |
-| Low Attendance Warning | Student & Parent | `ATTENDANCE` | Opens attendance ledger |
+| Low Attendance Warning | Enrolled Student | `ATTENDANCE` | Opens attendance ledger |
 
 ---
 

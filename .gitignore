@@ -2,8 +2,19 @@
 # OCI Platform — Root Git Ignore Configuration
 # ==============================================================================
 
-# Exclude Mobile App from Web & Cloud Deployment (Only Root /app/)
-/app/
+# Flutter Mobile App Build Artifacts
+app/.dart_tool/
+app/.flutter-plugins
+app/.flutter-plugins-dependencies
+app/.packages
+app/.pub-cache/
+app/.pub/
+app/build/
+app/android/.gradle/
+app/android/local.properties
+app/android/app/build/
+app/ios/.symlinks/
+app/ios/Pods/
 
 # Environment Files & Secrets (Never commit secrets to GitHub)
 .env

@@ -33,7 +33,6 @@ User enters credentials (email/password or OTP)
 | `admin` | Institute Director & Academic Administrators | `/admin/*` | Full read/write access to courses, batches, faculty, students, question bank, financial records, audit logs, and website CMS. |
 | `teacher` | Subject Faculty & Academic Mentors | `/faculty/*` | Host live classrooms, author exam questions, mark live session attendance, upload study notes, and evaluate student assignments. |
 | `student` | Enrolled Institute Candidates | `/student/*` | Access enrolled batch syllabus, join live video classes, download notes, take CBT mock tests, view scorecards/AIR, and review attendance records. |
-| `parent` | Guardians of Enrolled Students | `/parent/*` | View linked student attendance compliance and CBT test progress reports. |
 
 ---
 

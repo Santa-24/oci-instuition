@@ -4,32 +4,54 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { StatsCard } from '@/components/ui/stats-card';
 import { supabase } from '@/lib/supabase/client';
 import {
   Video,
-  BookOpen,
   FileText,
   HelpCircle,
   Users,
   ArrowRight,
   Radio,
   Plus,
-  CalendarCheck,
 } from 'lucide-react';
 
 export default function FacultyDashboardPage() {
   const [classes, setClasses] = useState<any[]>([]);
   const [materialsCount, setMaterialsCount] = useState(0);
-  const [studentCount, setStudentCount] = useState(40);
+  const [studentCount, setStudentCount] = useState(0);
+  const [batchesCount, setBatchesCount] = useState(0);
+  const [facultyName, setFacultyName] = useState('Faculty Member');
 
   useEffect(() => {
     async function load() {
-      const { data: cls } = await supabase.from('live_classes').select('*').limit(3);
-      const { count } = await supabase.from('study_materials').select('*', { count: 'exact', head: true });
-      if (cls) setClasses(cls);
-      if (count !== null) setMaterialsCount(count);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', session.user.id)
+            .maybeSingle();
+          if (profile?.full_name) {
+            setFacultyName(profile.full_name);
+          }
+        }
+
+        const [clsRes, matRes, stdRes, batchRes] = await Promise.all([
+          supabase.from('live_classes').select('*').order('scheduled_start', { ascending: false }).limit(5),
+          supabase.from('study_materials').select('*', { count: 'exact', head: true }),
+          supabase.from('students').select('*', { count: 'exact', head: true }),
+          supabase.from('batches').select('*', { count: 'exact', head: true }),
+        ]);
+
+        if (clsRes.data) setClasses(clsRes.data);
+        if (matRes.count !== null) setMaterialsCount(matRes.count);
+        if (stdRes.count !== null) setStudentCount(stdRes.count);
+        if (batchRes.count !== null) setBatchesCount(batchRes.count);
+      } catch (err) {
+        console.warn('[Faculty Dashboard Load Error]:', err);
+      }
     }
     load();
   }, []);
@@ -39,9 +61,11 @@ export default function FacultyDashboardPage() {
       <div className="rounded-2xl bg-gradient-to-r from-emerald-950/50 via-slate-900 to-indigo-950/40 border border-emerald-500/20 p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">Faculty Command</span>
-          <h1 className="text-2xl font-black text-white mt-1">Hello, Prof. Verma</h1>
+          <h1 className="text-2xl font-black text-white mt-1">Hello, {facultyName}</h1>
           <p className="text-xs text-slate-300 mt-1 max-w-xl">
-            You have 1 live interactive lecture scheduled today for SSC Pinnacle Morning Super 40.
+            {classes.length > 0
+              ? `You have ${classes.length} live interactive lecture(s) in your active teaching schedule.`
+              : 'No live lectures currently scheduled. Schedule a session or upload lesson materials below.'}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -62,7 +86,7 @@ export default function FacultyDashboardPage() {
         <StatsCard
           title="Assigned Students"
           value={String(studentCount)}
-          subtext="SSC Pinnacle Morning Batch"
+          subtext="Active Enrolled Aspirants"
           icon={<Users className="h-5 w-5" />}
           iconBgColor="bg-indigo-500/15 text-indigo-400"
           glow
@@ -70,21 +94,21 @@ export default function FacultyDashboardPage() {
         <StatsCard
           title="Live Classes"
           value={`${classes.length} Scheduled`}
-          subtext="This Academic Week"
+          subtext="Live Classroom Sessions"
           icon={<Video className="h-5 w-5" />}
           iconBgColor="bg-rose-500/15 text-rose-400"
         />
         <StatsCard
           title="Uploaded Materials"
-          value={`${materialsCount || 12} Notes`}
-          subtext="DPPs & Formula sheets"
+          value={`${materialsCount} Notes`}
+          subtext="Study PDFs & DPPs"
           icon={<FileText className="h-5 w-5" />}
           iconBgColor="bg-amber-500/15 text-amber-400"
         />
         <StatsCard
           title="Active Batches"
-          value="4 Batches"
-          subtext="OPSC & SSC Focus"
+          value={`${batchesCount} Batches`}
+          subtext="Academic Offerings"
           icon={<Users className="h-5 w-5" />}
           iconBgColor="bg-emerald-500/15 text-emerald-400"
         />
@@ -118,7 +142,7 @@ export default function FacultyDashboardPage() {
               </div>
             ))}
             {classes.length === 0 && (
-              <p className="py-4 text-xs text-slate-500 text-center">No classes scheduled.</p>
+              <p className="py-8 text-xs text-slate-500 text-center">No classes currently scheduled.</p>
             )}
           </div>
         </Card>

@@ -33,7 +33,7 @@ PUBLIC WEBSITE    MOBILE APP     MASTER ADMIN
 |---|---|---|
 | **Command Center** | `/admin/dashboard` | Real-time KPIs (students, live classes, attendance, exams) |
 | **Website CMS (13 Views)** | `/admin/website/*` | Controls Homepage, About, Vision (Eng/Odia), Director, Why OCI, Exams, App Showcase, Success Stories, Faculty, Testimonials, Gallery, FAQs, SEO |
-| **Education** | `/admin/students`, `/admin/teachers`, `/admin/parents`, `/admin/courses`, `/admin/subjects`, `/admin/batches` | Academic curriculum, student/parent rosters, faculty assignments |
+| **Education** | `/admin/students`, `/admin/teachers`, `/admin/courses`, `/admin/subjects`, `/admin/batches` | Academic curriculum, student rosters, faculty assignments |
 | **Live Learning** | `/admin/live-classes`, `/admin/recorded-classes`, `/admin/materials`, `/admin/attendance` | Jitsi live session scheduling, lecture archives, PDF notes, attendance audits |
 | **Assignments** | `/admin/assignments` | Homework distribution and submission grading |
 | **Examination** | `/admin/question-bank`, `/admin/practice-tests`, `/admin/mock-exams`, `/admin/results` | MCQ pool, timed CBT mock exam publishing, scorecards & AIR rankings |

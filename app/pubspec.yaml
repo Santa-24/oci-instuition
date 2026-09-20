@@ -1,0 +1,51 @@
+name: intuition_mobile
+description: "Intuition Coaching Institute - Commercial EdTech Mobile Platform for Students and Faculty"
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State Management & Routing
+  flutter_riverpod: ^2.5.1
+  go_router: ^14.2.0
+
+  # Supabase Backend, Realtime & Auth
+  supabase_flutter: ^2.5.6
+
+  # HTTP Client & REST Integration
+  dio: ^5.4.3+1
+
+  # Environment & Config
+  flutter_dotenv: ^5.1.0
+
+  # UI, Styling & Typography
+  google_fonts: ^6.2.1
+  flutter_animate: ^4.5.0
+  shimmer: ^3.0.0
+  cached_network_image: ^3.3.1
+
+  # Analytics & Charts
+  fl_chart: ^0.68.0
+
+  # Utilities & Local Persistence
+  intl: ^0.19.0
+  shared_preferences: ^2.2.3
+  lucide_icons_flutter: ^3.1.20
+  url_launcher: ^6.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - .env
+    - .env.example

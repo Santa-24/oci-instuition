@@ -1,27 +1,29 @@
 -- ==============================================================================
--- ODISHA COMPETITIVE INSTITUTE (OCI) — COMPLETE PLATFORM MASTER SCHEMA & SEED
+-- ODISHA COMPETITIVE INSTITUTE (OCI) — ALL-IN-ONE MASTER DATABASE SCHEMA
 -- ==============================================================================
--- Single All-in-One SQL Script for Supabase Console (SQL Editor)
--- Includes:
---   1. Extensions & Trigger Functions
---   2. User Profiles & RBAC Roles (Admin, Teacher, Student)
---   3. Academic Core (Courses, Subjects, Batches, Faculty, Students)
---   4. Classroom Engine (Live Classes, Video Archive, Jitsi Integration)
---   5. Learning Resources (Study Materials, Video Archive)
---   6. Examination & Assessment (Question Bank, CBT Exams, Scorecards & AIR)
---   7. Student Work (Assignments & Submissions)
---   8. Public Website CMS (Dynamic JSONB Store, Faculty, Reviews, Success Stories, FAQs, Gallery)
---   9. Communications & Leads (Admissions Enquiries, Notifications, Device Tokens, Notice Board)
---  10. Mobile Application Versioning & Distribution (Android APK v1.0.0, Code 1)
---  11. Row Level Security (RLS) Policies (100% table coverage, idempotent)
---  12. Stored Procedures / RPCs (get_public_website_bundle, upsert_website_section, calculate_exam_air_rankings, get_latest_app_version)
---  13. Supabase Storage Buckets (avatars, course-thumbnails, study-materials, assignments, media-library, app-releases)
---  14. Realtime Replication Publications
---  15. Complete Production Seed Data (Academic, CMS, Exams, Faculty, Notice Board & App Release)
+-- Target Environment: Supabase PostgreSQL (SQL Editor / Migration Engine)
+--
+-- This single comprehensive file includes:
+--   1. PostgreSQL Extensions & Utility Timestamp Triggers
+--   2. User Profiles & RBAC (Role-Based Access Control)
+--   3. Server-Authoritative Auth Trigger (Hardened Role Isolation & Auto-Provisioning)
+--   4. Academic Architecture (Courses, Subjects, Batches, Students, Teachers)
+--   5. Classroom & Attendance Engine (Live Classes, Attendance Tracking)
+--   6. Learning Resources (Study Materials, Video Archive)
+--   7. Examination Engine & AIR Ranking (Questions Bank, CBT Exams, Scorecards)
+--   8. Assignments & Homework Submissions
+--   9. Public Website CMS (Key-Value Store with GIN Index, Faculty, Testimonials, FAQs, Gallery)
+--  10. Communications & Leads (Enquiries, Notifications, Push Device Tokens, Announcements)
+--  11. Mobile App Versioning & APK Distribution (Android APK Releases)
+--  12. Row Level Security (RLS) Policies (100% Coverage, Anti-IDOR Hardening)
+--  13. Database RPC Stored Procedures
+--  14. Storage Buckets & Storage Security Policies
+--  15. Realtime Replication Publications (Safe Idempotent Setup)
+--  16. Production Master Seed Data (Catalog, CBT Questions, CMS, App Release)
 -- ==============================================================================
 
 -- ------------------------------------------------------------------------------
--- 1. EXTENSIONS & HELPER TRIGGERS
+-- 1. EXTENSIONS & UTILITY TRIGGERS
 -- ------------------------------------------------------------------------------
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
@@ -35,7 +37,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- ------------------------------------------------------------------------------
--- 2. USER PROFILES & ROLES
+-- 2. USER PROFILES & RBAC ROLES
 -- ------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.profiles (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -50,10 +52,34 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 CREATE TABLE IF NOT EXISTS public.user_roles (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-    role TEXT NOT NULL CHECK (role IN ('student', 'teacher', 'admin')),
+    role TEXT NOT NULL CHECK (role IN ('student', 'teacher', 'admin', 'superadmin')),
     created_at TIMESTAMPTZ DEFAULT NOW(),
-    UNIQUE (user_id, role)
+    CONSTRAINT user_roles_user_id_unique UNIQUE (user_id)
 );
+
+DO $$
+BEGIN
+    -- Delete duplicates if any before enforcing single unique role per user
+    DELETE FROM public.user_roles a USING public.user_roles b
+    WHERE a.ctid < b.ctid AND a.user_id = b.user_id;
+
+    -- Drop older compound key if exists
+    ALTER TABLE public.user_roles DROP CONSTRAINT IF EXISTS user_roles_user_id_role_key;
+
+    -- Ensure unique constraint on user_id exists
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint 
+        WHERE conname = 'user_roles_user_id_unique' 
+          AND conrelid = 'public.user_roles'::regclass
+    ) THEN
+        ALTER TABLE public.user_roles ADD CONSTRAINT user_roles_user_id_unique UNIQUE (user_id);
+    END IF;
+EXCEPTION
+    WHEN OTHERS THEN
+        NULL;
+END $$;
+
+CREATE UNIQUE INDEX IF NOT EXISTS user_roles_user_id_unique_idx ON public.user_roles (user_id);
 
 CREATE INDEX IF NOT EXISTS idx_user_roles_user_id ON public.user_roles(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_roles_role ON public.user_roles(role);
@@ -64,7 +90,7 @@ RETURNS BOOLEAN AS $$
 BEGIN
     RETURN EXISTS (
         SELECT 1 FROM public.user_roles
-        WHERE user_id = auth.uid() AND role = 'admin'
+        WHERE user_id = auth.uid() AND role IN ('admin', 'superadmin')
     );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -74,7 +100,7 @@ RETURNS BOOLEAN AS $$
 BEGIN
     RETURN EXISTS (
         SELECT 1 FROM public.user_roles
-        WHERE user_id = auth.uid() AND role = 'teacher'
+        WHERE user_id = auth.uid() AND role IN ('teacher', 'admin', 'superadmin')
     );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -90,7 +116,94 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- ------------------------------------------------------------------------------
--- 3. ACADEMIC STRUCTURE (COURSES, SUBJECTS, BATCHES)
+-- 3. SERVER-AUTHORITATIVE AUTH TRIGGER (HARDENED ROLE ISOLATION)
+-- ------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    assigned_role text;
+    raw_role text;
+    user_full_name text;
+    user_phone text;
+    generated_roll text;
+    current_year text;
+BEGIN
+    user_full_name := COALESCE(NEW.raw_user_meta_data->>'full_name', 'Student Aspirant');
+    user_phone := NEW.raw_user_meta_data->>'phone';
+    raw_role := LOWER(COALESCE(NEW.raw_user_meta_data->>'role', 'student'));
+    current_year := TO_CHAR(NOW(), 'YYYY');
+
+    -- SECURITY: Role isolation enforcement.
+    -- Public self-signups can NEVER elevate to 'teacher' or 'admin'.
+    -- 'teacher' and 'admin' accounts can ONLY be provisioned by admin service role.
+    IF raw_role = 'teacher' OR raw_role = 'faculty' THEN
+        IF (NEW.raw_app_meta_data->>'provider' = 'admin') OR (auth.role() = 'service_role') THEN
+            assigned_role := 'teacher';
+        ELSE
+            assigned_role := 'student';
+        END IF;
+    ELSIF raw_role = 'admin' OR raw_role = 'superadmin' THEN
+        IF auth.role() = 'service_role' THEN
+            assigned_role := 'admin';
+        ELSE
+            assigned_role := 'student';
+        END IF;
+    ELSE
+        assigned_role := 'student';
+    END IF;
+
+    -- 1. Upsert Profile
+    INSERT INTO public.profiles (id, email, full_name, phone, created_at, updated_at)
+    VALUES (NEW.id, NEW.email, user_full_name, user_phone, NOW(), NOW())
+    ON CONFLICT (id) DO UPDATE SET
+        email = EXCLUDED.email,
+        full_name = EXCLUDED.full_name,
+        phone = COALESCE(EXCLUDED.phone, public.profiles.phone),
+        updated_at = NOW();
+
+    -- 2. Upsert Role in user_roles (idempotent, supports any constraint state)
+    DELETE FROM public.user_roles WHERE user_id = NEW.id;
+    INSERT INTO public.user_roles (id, user_id, role, created_at)
+    VALUES (gen_random_uuid(), NEW.id, assigned_role, NOW());
+
+    -- 3. If Student, ensure record in students table with official roll number
+    IF assigned_role = 'student' THEN
+        generated_roll := 'OCI-' || current_year || '-' || LPAD(FLOOR(1000 + RANDOM() * 8999)::text, 4, '0');
+        INSERT INTO public.students (id, roll_no, status, admission_date, created_at, updated_at)
+        VALUES (NEW.id, generated_roll, 'active', CURRENT_DATE, NOW(), NOW())
+        ON CONFLICT (id) DO NOTHING;
+    END IF;
+
+    -- 4. If Teacher/Faculty, ensure record in teachers table
+    IF assigned_role = 'teacher' THEN
+        INSERT INTO public.teachers (id, employee_id, subject, status, created_at, updated_at)
+        VALUES (
+            NEW.id,
+            'FAC-' || LPAD(FLOOR(100 + RANDOM() * 899)::text, 3, '0'),
+            COALESCE(NEW.raw_user_meta_data->>'subject', 'General Studies'),
+            'active',
+            NOW(),
+            NOW()
+        )
+        ON CONFLICT (id) DO NOTHING;
+    END IF;
+
+    RETURN NEW;
+END;
+$$;
+
+-- Idempotent Trigger Setup on auth.users
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+    AFTER INSERT ON auth.users
+    FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- ------------------------------------------------------------------------------
+-- 4. ACADEMIC STRUCTURE (COURSES, SUBJECTS, BATCHES, STUDENTS, TEACHERS)
 -- ------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.courses (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -124,44 +237,39 @@ CREATE TABLE IF NOT EXISTS public.batches (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- ------------------------------------------------------------------------------
--- 4. STUDENTS, TEACHERS, PARENTS
--- ------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.students (
     id UUID PRIMARY KEY REFERENCES public.profiles(id) ON DELETE CASCADE,
     roll_no TEXT UNIQUE NOT NULL,
     batch_id UUID REFERENCES public.batches(id) ON DELETE SET NULL,
     admission_date DATE DEFAULT CURRENT_DATE,
     status TEXT DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'suspended')),
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+ALTER TABLE public.students ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
 
 CREATE TABLE IF NOT EXISTS public.teachers (
     id UUID PRIMARY KEY REFERENCES public.profiles(id) ON DELETE CASCADE,
     employee_id TEXT UNIQUE NOT NULL,
     subject TEXT NOT NULL,
+    designation TEXT DEFAULT 'Faculty',
     qualification TEXT,
     experience_years INT DEFAULT 0,
     bio TEXT,
     status TEXT DEFAULT 'active' CHECK (status IN ('active', 'on_leave', 'inactive')),
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS public.parents (
-    id UUID PRIMARY KEY REFERENCES public.profiles(id) ON DELETE CASCADE,
-    occupation TEXT,
-    address TEXT,
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
+ALTER TABLE public.teachers ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
 
-CREATE TABLE IF NOT EXISTS public.parent_students (
-    parent_id UUID REFERENCES public.parents(id) ON DELETE CASCADE,
-    student_id UUID REFERENCES public.students(id) ON DELETE CASCADE,
-    PRIMARY KEY (parent_id, student_id)
-);
+-- Drop legacy parents portal tables (Parents portal removed from platform)
+DROP TABLE IF EXISTS public.parent_students CASCADE;
+DROP TABLE IF EXISTS public.parents CASCADE;
 
 -- ------------------------------------------------------------------------------
--- 5. LIVE CLASSES & ATTENDANCE
+-- 5. LIVE CLASSES & ATTENDANCE ENGINE
 -- ------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.live_classes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -186,7 +294,7 @@ CREATE TABLE IF NOT EXISTS public.attendance (
 );
 
 -- ------------------------------------------------------------------------------
--- 6. STUDY MATERIALS & RECORDINGS
+-- 6. LEARNING RESOURCES & VIDEO ARCHIVE
 -- ------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.study_materials (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -212,7 +320,7 @@ CREATE TABLE IF NOT EXISTS public.recorded_classes (
 );
 
 -- ------------------------------------------------------------------------------
--- 7. EXAMS, QUESTION BANK & SCORECARDS
+-- 7. EXAMINATIONS, QUESTION BANK & AIR RANKING
 -- ------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.questions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -253,6 +361,21 @@ CREATE TABLE IF NOT EXISTS public.exam_results (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE (exam_id, student_id)
 );
+
+CREATE OR REPLACE FUNCTION public.calculate_exam_air_rankings(p_exam_id UUID)
+RETURNS VOID AS $$
+BEGIN
+    WITH ranked AS (
+        SELECT id, DENSE_RANK() OVER (ORDER BY score DESC, accuracy_percentage DESC, submitted_at ASC) as rnk
+        FROM public.exam_results
+        WHERE exam_id = p_exam_id
+    )
+    UPDATE public.exam_results er
+    SET air_rank = ranked.rnk
+    FROM ranked
+    WHERE er.id = ranked.id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- ------------------------------------------------------------------------------
 -- 8. ASSIGNMENTS & HOMEWORK SUBMISSIONS
@@ -352,6 +475,9 @@ CREATE TABLE IF NOT EXISTS public.website_gallery (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- ------------------------------------------------------------------------------
+-- 10. COMMUNICATIONS, LEADS, NOTICES & AUDIT LOGS
+-- ------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.enquiries (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL,
@@ -369,9 +495,6 @@ CREATE TABLE IF NOT EXISTS public.enquiries (
 CREATE INDEX IF NOT EXISTS idx_enquiries_status ON public.enquiries(status);
 CREATE INDEX IF NOT EXISTS idx_enquiries_created_at ON public.enquiries(created_at DESC);
 
--- ------------------------------------------------------------------------------
--- 10. NOTIFICATIONS, FCM DEVICE TOKENS & NOTICE BOARD
--- ------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.notifications (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
@@ -438,11 +561,41 @@ CREATE TABLE IF NOT EXISTS public.app_versions (
     CONSTRAINT unique_platform_version_code UNIQUE (platform, version_code)
 );
 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_app_versions_platform_code ON public.app_versions (platform, version_code);
+
 CREATE INDEX IF NOT EXISTS idx_app_versions_lookup 
 ON public.app_versions(platform, is_active, version_code DESC);
 
+CREATE OR REPLACE FUNCTION public.get_latest_app_version(p_platform VARCHAR DEFAULT 'android')
+RETURNS TABLE (
+    version_name VARCHAR,
+    version_code INTEGER,
+    apk_url TEXT,
+    release_notes JSONB,
+    is_mandatory BOOLEAN,
+    minimum_supported_version VARCHAR,
+    file_size_bytes BIGINT,
+    checksum_sha256 VARCHAR,
+    released_at TIMESTAMPTZ
+) LANGUAGE sql STABLE SECURITY DEFINER AS $$
+    SELECT 
+        v.version_name,
+        v.version_code,
+        v.apk_url,
+        v.release_notes,
+        v.is_mandatory,
+        v.minimum_supported_version,
+        v.file_size_bytes,
+        v.checksum_sha256,
+        v.released_at
+    FROM public.app_versions v
+    WHERE v.platform = p_platform AND v.is_active = true
+    ORDER BY v.version_code DESC
+    LIMIT 1;
+$$;
+
 -- ------------------------------------------------------------------------------
--- 12. ROW LEVEL SECURITY (RLS) POLICIES (IDEMPOTENT)
+-- 12. ROW LEVEL SECURITY (RLS) POLICIES (HARDENED & IDEMPOTENT)
 -- ------------------------------------------------------------------------------
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
@@ -451,8 +604,6 @@ ALTER TABLE public.subjects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.batches ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.students ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.teachers ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.parents ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.parent_students ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.live_classes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.attendance ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.study_materials ENABLE ROW LEVEL SECURITY;
@@ -475,20 +626,21 @@ ALTER TABLE public.announcements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.audit_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.app_versions ENABLE ROW LEVEL SECURITY;
 
--- 12.1 Profiles
+-- 12.1 Profiles: Read & Update Own Profile
 DROP POLICY IF EXISTS "Allow users read own profile or admin/service" ON public.profiles;
 CREATE POLICY "Allow users read own profile or admin/service" ON public.profiles
     FOR SELECT USING (auth.uid() = id OR public.is_admin() OR auth.role() = 'service_role');
 
 DROP POLICY IF EXISTS "Allow users update own profile or admin/service" ON public.profiles;
 CREATE POLICY "Allow users update own profile or admin/service" ON public.profiles
-    FOR UPDATE USING (auth.uid() = id OR public.is_admin() OR auth.role() = 'service_role');
+    FOR UPDATE USING (auth.uid() = id OR public.is_admin() OR auth.role() = 'service_role')
+    WITH CHECK (auth.uid() = id OR public.is_admin() OR auth.role() = 'service_role');
 
 DROP POLICY IF EXISTS "Allow admin/service insert profiles" ON public.profiles;
 CREATE POLICY "Allow admin/service insert profiles" ON public.profiles
     FOR INSERT WITH CHECK (auth.uid() = id OR public.is_admin() OR auth.role() = 'service_role');
 
--- 12.2 User Roles
+-- 12.2 User Roles: Immutable for Clients, Governed by Service Role & Admin
 DROP POLICY IF EXISTS "Allow users read own roles or admin/service" ON public.user_roles;
 CREATE POLICY "Allow users read own roles or admin/service" ON public.user_roles
     FOR SELECT USING (auth.uid() = user_id OR public.is_admin() OR auth.role() = 'service_role');
@@ -497,7 +649,7 @@ DROP POLICY IF EXISTS "Allow admin/service manage roles" ON public.user_roles;
 CREATE POLICY "Allow admin/service manage roles" ON public.user_roles
     FOR ALL USING (public.is_admin() OR auth.role() = 'service_role');
 
--- 12.3 Academic Master Data
+-- 12.3 Academic Master Data (Courses, Subjects, Batches)
 DROP POLICY IF EXISTS "Allow authenticated read courses" ON public.courses;
 CREATE POLICY "Allow authenticated read courses" ON public.courses FOR SELECT USING (true);
 DROP POLICY IF EXISTS "Allow admin manage courses" ON public.courses;
@@ -554,7 +706,7 @@ DROP POLICY IF EXISTS "Allow teacher and admin manage recorded_classes" ON publi
 CREATE POLICY "Allow teacher and admin manage recorded_classes" ON public.recorded_classes
     FOR ALL USING (public.is_teacher() OR public.is_admin() OR auth.role() = 'service_role');
 
--- 12.7 Exams, Questions & Results
+-- 12.7 Exams, Question Bank & Anti-IDOR Scorecard Isolation
 DROP POLICY IF EXISTS "Allow read published exams" ON public.exams;
 CREATE POLICY "Allow read published exams" ON public.exams
     FOR SELECT USING (is_published = true OR public.is_teacher() OR public.is_admin() OR auth.role() = 'service_role');
@@ -569,14 +721,16 @@ CREATE POLICY "Allow teacher and admin manage questions" ON public.questions
 DROP POLICY IF EXISTS "Allow student read own results" ON public.exam_results;
 CREATE POLICY "Allow student read own results" ON public.exam_results
     FOR SELECT USING (student_id = auth.uid() OR public.is_teacher() OR public.is_admin() OR auth.role() = 'service_role');
+
 DROP POLICY IF EXISTS "Allow insert own result or service role" ON public.exam_results;
 CREATE POLICY "Allow insert own result or service role" ON public.exam_results
     FOR INSERT WITH CHECK (student_id = auth.uid() OR public.is_admin() OR auth.role() = 'service_role');
+
 DROP POLICY IF EXISTS "Allow admin manage results" ON public.exam_results;
 CREATE POLICY "Allow admin manage results" ON public.exam_results
     FOR ALL USING (public.is_admin() OR auth.role() = 'service_role');
 
--- 12.8 Assignments
+-- 12.8 Assignments & Anti-IDOR Submissions Isolation
 DROP POLICY IF EXISTS "Allow read assignments" ON public.assignments;
 CREATE POLICY "Allow read assignments" ON public.assignments FOR SELECT USING (true);
 DROP POLICY IF EXISTS "Allow teacher and admin manage assignments" ON public.assignments;
@@ -586,9 +740,11 @@ CREATE POLICY "Allow teacher and admin manage assignments" ON public.assignments
 DROP POLICY IF EXISTS "Allow student read own submission" ON public.assignment_submissions;
 CREATE POLICY "Allow student read own submission" ON public.assignment_submissions
     FOR SELECT USING (student_id = auth.uid() OR public.is_teacher() OR public.is_admin() OR auth.role() = 'service_role');
+
 DROP POLICY IF EXISTS "Allow student insert own submission" ON public.assignment_submissions;
 CREATE POLICY "Allow student insert own submission" ON public.assignment_submissions
-    FOR INSERT WITH CHECK (student_id = auth.uid());
+    FOR INSERT WITH CHECK (student_id = auth.uid() OR auth.role() = 'service_role');
+
 DROP POLICY IF EXISTS "Allow teacher and admin manage submissions" ON public.assignment_submissions;
 CREATE POLICY "Allow teacher and admin manage submissions" ON public.assignment_submissions
     FOR ALL USING (public.is_teacher() OR public.is_admin() OR auth.role() = 'service_role');
@@ -630,7 +786,7 @@ CREATE POLICY "Allow public insert enquiries" ON public.enquiries FOR INSERT WIT
 DROP POLICY IF EXISTS "Allow admin manage enquiries" ON public.enquiries;
 CREATE POLICY "Allow admin manage enquiries" ON public.enquiries FOR ALL USING (public.is_admin() OR auth.role() = 'service_role');
 
--- 12.10 Notifications & Tokens
+-- 12.10 Notifications, Device Tokens & Announcements
 DROP POLICY IF EXISTS "Allow users read own notifications" ON public.notifications;
 CREATE POLICY "Allow users read own notifications" ON public.notifications
     FOR SELECT USING (user_id = auth.uid() OR user_id IS NULL OR public.is_admin() OR auth.role() = 'service_role');
@@ -666,7 +822,7 @@ CREATE POLICY "Admins full management for app_versions" ON public.app_versions
     WITH CHECK (public.is_admin() OR auth.role() = 'service_role');
 
 -- ------------------------------------------------------------------------------
--- 13. RPC STORED PROCEDURES
+-- 13. RPC STORED PROCEDURES (PUBLIC WEBSITE CMS)
 -- ------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION public.get_public_website_bundle()
 RETURNS JSONB AS $$
@@ -705,51 +861,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-CREATE OR REPLACE FUNCTION public.calculate_exam_air_rankings(p_exam_id UUID)
-RETURNS VOID AS $$
-BEGIN
-    WITH ranked AS (
-        SELECT id, DENSE_RANK() OVER (ORDER BY score DESC, accuracy_percentage DESC, submitted_at ASC) as rnk
-        FROM public.exam_results
-        WHERE exam_id = p_exam_id
-    )
-    UPDATE public.exam_results er
-    SET air_rank = ranked.rnk
-    FROM ranked
-    WHERE er.id = ranked.id;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
-CREATE OR REPLACE FUNCTION public.get_latest_app_version(p_platform VARCHAR DEFAULT 'android')
-RETURNS TABLE (
-    version_name VARCHAR,
-    version_code INTEGER,
-    apk_url TEXT,
-    release_notes JSONB,
-    is_mandatory BOOLEAN,
-    minimum_supported_version VARCHAR,
-    file_size_bytes BIGINT,
-    checksum_sha256 VARCHAR,
-    released_at TIMESTAMPTZ
-) LANGUAGE sql STABLE SECURITY DEFINER AS $$
-    SELECT 
-        v.version_name,
-        v.version_code,
-        v.apk_url,
-        v.release_notes,
-        v.is_mandatory,
-        v.minimum_supported_version,
-        v.file_size_bytes,
-        v.checksum_sha256,
-        v.released_at
-    FROM public.app_versions v
-    WHERE v.platform = p_platform AND v.is_active = true
-    ORDER BY v.version_code DESC
-    LIMIT 1;
-$$;
-
 -- ------------------------------------------------------------------------------
--- 14. SUPABASE STORAGE BUCKETS & POLICIES
+-- 14. SUPABASE STORAGE BUCKETS & STORAGE POLICIES
 -- ------------------------------------------------------------------------------
 INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 VALUES 
@@ -812,34 +925,12 @@ BEGIN
 END $$;
 
 -- ------------------------------------------------------------------------------
--- 16. PRODUCTION MASTER SEED DATA
+-- 16. PRODUCTION MASTER SEED DATA (PUBLIC CMS & APP RELEASE ONLY)
 -- ------------------------------------------------------------------------------
+-- Note: Operational academic entities (courses, subjects, batches, live classes,
+-- study materials, exams, questions, announcements) are NEVER seeded in production.
+-- They are created through authorized Admin / Faculty operational workflows.
 
--- 16.1 Academic Courses
-INSERT INTO public.courses (id, name, code, category, duration_months, description, is_active)
-VALUES
-    ('c0000000-0000-0000-0000-000000000001', 'SSC CGL & CHSL Master Foundation', 'SSC-CGL-1Y', 'Central Government', 12, 'Comprehensive 1-year program covering Quantitative Aptitude, Reasoning, English, and General Awareness for SSC exams.', true),
-    ('c0000000-0000-0000-0000-000000000002', 'Odisha State Govt Combined (OSSC & OSSSC)', 'ODISHA-GOVT-1Y', 'State Recruitment', 12, 'Targeted coaching for OSSC CGL, OSSSC RI, ARI, Amin, and Odisha Police SI/Constable notifications.', true),
-    ('c0000000-0000-0000-0000-000000000003', 'Railway Recruitment Board (RRB NTPC & Group D)', 'RRB-NTPC-6M', 'Railways', 6, 'Speed-building, conceptual clarity, and CBT test series for non-technical railway posts.', true),
-    ('c0000000-0000-0000-0000-000000000004', 'Banking & Financial Services (IBPS & SBI PO/Clerk)', 'BANK-PO-1Y', 'Banking', 12, 'Intensive banking coaching focusing on high-speed mental math, data interpretation, and English vocabulary.', true)
-ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, code = EXCLUDED.code;
-
--- 16.2 Academic Subjects
-INSERT INTO public.subjects (id, course_id, name, code)
-VALUES
-    ('d0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000001', 'Quantitative Aptitude', 'MATH-01'),
-    ('d0000000-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-000000000001', 'Logical & Analytical Reasoning', 'REAS-01'),
-    ('d0000000-0000-0000-0000-000000000003', 'c0000000-0000-0000-0000-000000000001', 'English Language & Comprehension', 'ENG-01'),
-    ('d0000000-0000-0000-0000-000000000004', 'c0000000-0000-0000-0000-000000000002', 'General Awareness & Odisha GK', 'GK-01')
-ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name;
-
--- 16.3 Academic Batches
-INSERT INTO public.batches (id, course_id, name, schedule, room_name, start_date, end_date, capacity, status)
-VALUES
-    ('b0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000001', 'SSC Pinnacle Morning Super 40', 'Mon-Fri 08:00 AM - 11:30 AM', 'Hall A (Kalinga)', '2026-04-01', '2027-03-31', 40, 'ongoing'),
-    ('b0000000-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-000000000002', 'Odisha State Target Batch B', 'Mon-Fri 02:00 PM - 05:30 PM', 'Hall B (Konark)', '2026-04-01', '2027-03-31', 45, 'ongoing'),
-    ('b0000000-0000-0000-0000-000000000003', 'c0000000-0000-0000-0000-000000000003', 'Railway Express Weekend Batch', 'Sat-Sun 09:00 AM - 04:00 PM', 'Hall C (Barabati)', '2026-05-01', '2026-11-30', 50, 'ongoing')
-ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name;
 
 -- 16.4 Faculty CMS
 INSERT INTO public.website_faculty (id, name, subject, qualification, experience_years, photo_url, biography, display_order, is_published)
@@ -862,58 +953,7 @@ VALUES
     ('db000000-0000-0000-0000-000000000002', 'Manas Kumar Jena', 'SSC CGL (Auditor)', 'All India Rank 142', '2023', '/success/manas.jpg', 'Daily math practice and personal mentorship on error analysis by OCI faculty made the difference.', true, true)
 ON CONFLICT (id) DO UPDATE SET achievement = EXCLUDED.achievement;
 
--- 16.6 CBT Exams & Sample Questions
-INSERT INTO public.exams (id, course_id, title, duration_minutes, total_marks, is_published, scheduled_date)
-VALUES
-    ('e0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000001', 'All India SSC CGL Tier-1 Full Mock Test #01', 60, 200, true, NOW())
-ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title;
 
-INSERT INTO public.questions (id, subject, topic, question, options, correct_option_index, explanation, difficulty, marks, negative_marks)
-VALUES
-    (
-        'dc000000-0000-0000-0000-000000000001',
-        'Quantitative Aptitude',
-        'Percentages & Profit-Loss',
-        'A shopkeeper sells an article at a discount of 20% on the marked price and still earns a profit of 25%. If the marked price is Rs. 500, what is the cost price?',
-        '["Rs. 320", "Rs. 350", "Rs. 300", "Rs. 400"]'::jsonb,
-        0,
-        'Selling Price = 500 * (1 - 0.20) = Rs. 400. Cost Price = 400 / 1.25 = Rs. 320.',
-        'Medium',
-        2,
-        0.5
-    ),
-    (
-        'dc000000-0000-0000-0000-000000000002',
-        'Logical Reasoning',
-        'Syllogisms',
-        'Statements: All rivers are water. Some water is clean. Conclusions: I. Some clean is water. II. All rivers are clean.',
-        '["Only conclusion I follows", "Only conclusion II follows", "Both I and II follow", "Neither follows"]'::jsonb,
-        0,
-        'Since Some water is clean, by converse Some clean is water (Conclusion I is valid). Conclusion II does not necessarily follow.',
-        'Easy',
-        2,
-        0.5
-    ),
-    (
-        'dc000000-0000-0000-0000-000000000003',
-        'General Awareness',
-        'Odisha History & Geography',
-        'In which year was the historic Salt Satyagraha launched at Inchudi in Balasore district of Odisha?',
-        '["1930", "1920", "1942", "1919"]'::jsonb,
-        0,
-        'The Inchudi Salt Satyagraha was launched on April 13, 1930, led by Gopabandhu Choudhury and Acharya Harihar.',
-        'Medium',
-        2,
-        0.5
-    )
-ON CONFLICT (id) DO UPDATE SET question = EXCLUDED.question;
-
--- 16.7 Announcements
-INSERT INTO public.announcements (id, title, content, category, is_urgent)
-VALUES
-    ('a0000000-0000-0000-0000-000000000001', 'OSSC CGL 2026 Batch Admissions Open', 'New morning and weekend batches commence next Monday. Contact admission desk for syllabus roadmap.', 'Admissions', true),
-    ('a0000000-0000-0000-0000-000000000002', 'Weekly Full-Length Mock Test Schedule', 'All registered students must attend the offline and CBT mock test on Sunday at 9:00 AM.', 'Examination', false)
-ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title;
 
 -- 16.8 Official Mobile App Release (v1.0.0, Build 1)
 INSERT INTO public.app_versions (
@@ -927,7 +967,8 @@ INSERT INTO public.app_versions (
     file_size_bytes,
     checksum_sha256,
     is_active
-) VALUES (
+)
+SELECT
     'android',
     '1.0.0',
     1,
@@ -945,8 +986,9 @@ INSERT INTO public.app_versions (
     36700160,
     'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
     true
-)
-ON CONFLICT (platform, version_code) DO NOTHING;
+WHERE NOT EXISTS (
+    SELECT 1 FROM public.app_versions WHERE platform = 'android' AND version_code = 1
+);
 
 -- 16.9 Public Website CMS (Full Baseline Content)
 INSERT INTO public.website_content (key, value) VALUES
@@ -1026,7 +1068,7 @@ INSERT INTO public.website_content (key, value) VALUES
   },
   "directorMessage": {
     "title": "A Message From Our Director",
-    "salutation": "Dear Students and Parents,",
+    "salutation": "Dear Students and Aspirants,",
     "content": [
       "Odisha Competitive Institute (OCI) was founded with a singular focus: to make quality competitive exam preparation structured, transparent, and genuinely student-centric.",
       "We understand that competitive examinations test not only your knowledge, but also your speed, accuracy, and mental endurance. Our faculty and academic systems are designed to support you at every stage of this journey."
@@ -1043,5 +1085,48 @@ INSERT INTO public.website_content (key, value) VALUES
 ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;
 
 -- ==============================================================================
--- END OF OCI PLATFORM MASTER SCHEMA & SEED SCRIPT
+-- 17. BACKFILL & REPAIR FOR USERS CREATED DURING MIGRATIONS
+-- ==============================================================================
+-- Ensures any account created in auth.users has an associated profile, role, and student record
+INSERT INTO public.profiles (id, email, full_name, phone, created_at, updated_at)
+SELECT 
+    u.id, 
+    u.email, 
+    COALESCE(u.raw_user_meta_data->>'full_name', 'Student Aspirant'),
+    u.raw_user_meta_data->>'phone',
+    NOW(),
+    NOW()
+FROM auth.users u
+WHERE NOT EXISTS (
+    SELECT 1 FROM public.profiles p WHERE p.id = u.id
+);
+
+INSERT INTO public.user_roles (id, user_id, role, created_at)
+SELECT 
+    gen_random_uuid(),
+    u.id,
+    'student',
+    NOW()
+FROM auth.users u
+WHERE NOT EXISTS (
+    SELECT 1 FROM public.user_roles r WHERE r.user_id = u.id
+);
+
+INSERT INTO public.students (id, roll_no, status, admission_date, created_at, updated_at)
+SELECT 
+    u.id,
+    'OCI-2026-' || LPAD(FLOOR(1000 + RANDOM() * 8999)::text, 4, '0'),
+    'active',
+    CURRENT_DATE,
+    NOW(),
+    NOW()
+FROM auth.users u
+WHERE NOT EXISTS (
+    SELECT 1 FROM public.students s WHERE s.id = u.id
+) AND NOT EXISTS (
+    SELECT 1 FROM public.teachers t WHERE t.id = u.id
+);
+
+-- ==============================================================================
+-- END OF ALL-IN-ONE MASTER DATABASE SCHEMA
 -- ==============================================================================

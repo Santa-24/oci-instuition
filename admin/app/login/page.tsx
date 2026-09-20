@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Shield, Lock, Mail, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Shield, Lock, Mail, ArrowRight, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -10,8 +10,8 @@ import { supabase } from '@/lib/supabase/client';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('admin@oci.edu.in');
-  const [password, setPassword] = useState('Admin@123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -21,40 +21,44 @@ export default function LoginPage() {
     setErrorMessage('');
 
     try {
-      // 1. Attempt real Supabase Authentication
+      // 1. Authenticate with Supabase Auth
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim().toLowerCase(),
         password,
       });
 
-      if (error) {
-        // Fallback for initial development setup if admin credentials are provided
-        if (email.trim().toLowerCase() === 'admin@oci.edu.in' || email.includes('admin')) {
-          router.push('/admin/dashboard');
-          return;
-        }
-        setErrorMessage(error.message || 'Invalid administrator email or password.');
+      if (error || !data?.user) {
+        setErrorMessage(error?.message || 'Invalid administrator email or password.');
         setIsLoading(false);
         return;
       }
 
-      if (data?.user) {
-        // 2. Query user role from user_roles table if present
-        const { data: roleRow } = await supabase
-          .from('user_roles')
+      // 2. Authoritatively verify admin role
+      const { data: roleRow } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', data.user.id)
+        .maybeSingle();
+
+      let role = roleRow?.role?.toLowerCase();
+
+      if (!role) {
+        const { data: profile } = await supabase
+          .from('profiles')
           .select('role')
-          .eq('user_id', data.user.id)
+          .eq('id', data.user.id)
           .maybeSingle();
-
-        const role = roleRow?.role;
-        if (role && role !== 'admin') {
-          setErrorMessage('Access denied: This console is strictly reserved for Administrators.');
-          setIsLoading(false);
-          return;
-        }
-
-        router.push('/admin/dashboard');
+        role = profile?.role?.toLowerCase();
       }
+
+      if (role !== 'admin' && role !== 'superadmin') {
+        await supabase.auth.signOut();
+        setErrorMessage('Access denied: Account does not have verified administrator privileges.');
+        setIsLoading(false);
+        return;
+      }
+
+      router.push('/admin/dashboard');
     } catch (err: any) {
       setErrorMessage(err.message || 'An unexpected authentication error occurred.');
     } finally {
@@ -118,7 +122,7 @@ export default function LoginPage() {
 
           <div className="mt-6 pt-6 border-t border-slate-800/80 text-center">
             <p className="text-[11px] text-slate-500">
-              Admin console access is monitored and restricted by Role-Based Access Control (RBAC).
+              Admin console access is strictly restricted by Role-Based Access Control (RBAC). Public registration is disabled.
             </p>
           </div>
         </Card>

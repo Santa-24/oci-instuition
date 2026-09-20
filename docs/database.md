@@ -10,7 +10,7 @@ The OCI platform runs on Supabase PostgreSQL (15+) with Row Level Security (RLS)
 
 ### 2.1 Identity & User Profiles
 - `profiles`: Primary user identity referencing `auth.users(id)`. Columns: `id`, `email`, `full_name`, `phone`, `avatar_url`, `created_at`, `updated_at`.
-- `user_roles`: Role assignments enforcing strict RBAC. Columns: `id`, `user_id`, `role` (`student`, `teacher`, `admin`, `parent`), `created_at`. Unique on `(user_id, role)`.
+- `user_roles`: Role assignments enforcing strict RBAC. Columns: `id`, `user_id`, `role` (`student`, `teacher`, `admin`, `superadmin`), `created_at`. Unique on `user_id`.
 
 ### 2.2 Academic Hierarchy
 - `courses`: Academic tracks (JEE, NEET, OSSC, Banking, Railway). Columns: `id`, `name`, `code`, `category`, `duration_months`, `description`, `is_active`.
@@ -18,8 +18,6 @@ The OCI platform runs on Supabase PostgreSQL (15+) with Row Level Security (RLS)
 - `batches`: Cohorts of students. Columns: `id`, `course_id`, `name`, `schedule`, `room_name`, `start_date`, `end_date`, `capacity`, `status`.
 - `students`: Enrolled student profiles. Columns: `id` (references `profiles`), `roll_no`, `batch_id`, `admission_date`, `status`.
 - `teachers`: Faculty member profiles. Columns: `id` (references `profiles`), `employee_id`, `subject`, `qualification`, `experience_years`, `bio`, `status`.
-- `parents`: Guardian accounts. Columns: `id`, `occupation`, `address`.
-- `parent_students`: Many-to-many linking between parents and their children.
 
 ### 2.3 Interactive Classrooms & Attendance
 - `live_classes`: Synchronous Jitsi video classrooms. Columns: `id`, `batch_id`, `teacher_id`, `subject`, `title`, `scheduled_start`, `scheduled_end`, `jitsi_room_name`, `status`.

@@ -116,7 +116,7 @@ export default function AboutPage() {
 
             {/* Salutation */}
             <p className="text-lg sm:text-xl font-serif text-[#0F172A] font-bold italic">
-              Dear Aspirants, Parents, and Well-Wishers,
+              Dear Aspirants and Well-Wishers,
             </p>
 
             {/* Full 3-Paragraph Letter Content */}
