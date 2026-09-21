@@ -2,12 +2,8 @@
 # OCI Platform — Root Git Ignore Configuration
 # ==============================================================================
 
-# Flutter Mobile App Build Artifacts
-app/.dart_tool/
-app/.flutter-plugins
-app/.flutter-plugins-dependencies
-app/.packages
-app/.pub-cache/
+# Flutter Mobile App (Excluded from GitHub repository)
+app/
 app/.pub/
 app/build/
 app/android/.gradle/
