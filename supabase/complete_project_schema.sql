@@ -264,6 +264,11 @@ CREATE TABLE IF NOT EXISTS public.teachers (
 
 ALTER TABLE public.teachers ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
 
+-- Faculty authentication credentials:
+-- Login passwords and identities are stored securely in Supabase Auth (auth.users).
+-- Administrators provision custom or default passwords (Faculty@123) and perform resets
+-- directly via /admin/teachers through the Supabase Admin Auth API.
+
 -- Drop legacy parents portal tables (Parents portal removed from platform)
 DROP TABLE IF EXISTS public.parent_students CASCADE;
 DROP TABLE IF EXISTS public.parents CASCADE;

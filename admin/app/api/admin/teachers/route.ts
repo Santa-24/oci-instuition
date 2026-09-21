@@ -48,7 +48,10 @@ export async function POST(req: NextRequest) {
     }
 
     const teacherEmail = email?.trim().toLowerCase() || `faculty_${Date.now()}@oci.edu.in`;
-    const tempPassword = password || 'Faculty@123';
+    const tempPassword = password?.trim() || 'Faculty@123';
+    if (tempPassword.length < 6) {
+      return NextResponse.json({ success: false, error: 'Password must be at least 6 characters long' }, { status: 400 });
+    }
 
     // 1. Create real Supabase Auth user for faculty
     let teacherUuid: string;
@@ -144,6 +147,42 @@ export async function DELETE(req: NextRequest) {
     }
 
     return NextResponse.json({ success: true, message: 'Teacher deleted successfully' });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { id, password } = body;
+
+    if (!id || !password) {
+      return NextResponse.json({ success: false, error: 'Teacher ID and new password are required' }, { status: 400 });
+    }
+
+    const trimmedPassword = password.trim();
+    if (trimmedPassword.length < 6) {
+      return NextResponse.json({ success: false, error: 'Password must be at least 6 characters long' }, { status: 400 });
+    }
+
+    // 1. Update password in Supabase Auth
+    const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(id, {
+      password: trimmedPassword,
+    });
+
+    if (authError) throw authError;
+
+    // 2. Touch teachers updated_at
+    await supabaseAdmin
+      .from('teachers')
+      .update({ updated_at: new Date().toISOString() })
+      .eq('id', id);
+
+    return NextResponse.json({
+      success: true,
+      message: 'Faculty password updated successfully',
+    });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

@@ -69,6 +69,7 @@ export const AcademicService = {
     qualification: string;
     experienceYears?: number;
     bio?: string;
+    password?: string;
   }) {
     const res = await fetch('/api/admin/teachers', {
       method: 'POST',
@@ -78,6 +79,17 @@ export const AcademicService = {
     const json = await res.json();
     if (!res.ok || !json.success) throw new Error(json.error || 'Failed to create teacher');
     return json.teacher;
+  },
+
+  async updateTeacherPassword(id: string, password: string) {
+    const res = await fetch('/api/admin/teachers', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, password }),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) throw new Error(json.error || 'Failed to update faculty password');
+    return json;
   },
 
   async deleteTeacher(id: string) {

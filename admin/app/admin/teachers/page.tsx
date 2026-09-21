@@ -21,6 +21,10 @@ import {
   Mail,
   Award,
   Search,
+  KeyRound,
+  Eye,
+  EyeOff,
+  Lock,
 } from 'lucide-react';
 
 const OCI_FACULTY_SPECIALIZATIONS = [
@@ -50,6 +54,14 @@ export default function TeachersAdminPage() {
   const [formEmail, setFormEmail] = useState('');
   const [formPhone, setFormPhone] = useState('');
   const [formQualification, setFormQualification] = useState('M.A. / M.Sc / Competitive Mentor');
+  const [formPassword, setFormPassword] = useState('');
+  const [showFormPassword, setShowFormPassword] = useState(false);
+
+  // Update Password Modal State
+  const [teacherForPassword, setTeacherForPassword] = useState<Teacher | null>(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
   const fetchTeachers = async () => {
     setIsLoading(true);
@@ -92,12 +104,14 @@ export default function TeachersAdminPage() {
         phone: formPhone.trim() || '+91 94370 00000',
         subject: formSubject,
         qualification: formQualification.trim(),
+        password: formPassword.trim() || undefined,
       });
       await fetchTeachers();
       setFormName('');
       setFormEmpId('');
       setFormEmail('');
       setFormPhone('');
+      setFormPassword('');
       setIsAddModalOpen(false);
       setFeedback({ type: 'success', message: 'Faculty member registered successfully!' });
     } catch (err: any) {
@@ -105,6 +119,31 @@ export default function TeachersAdminPage() {
       setFeedback({ type: 'error', message: err.message || 'Failed to register faculty' });
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!teacherForPassword) return;
+    if (newPassword.trim().length < 6) {
+      setFeedback({ type: 'error', message: 'Password must be at least 6 characters long.' });
+      return;
+    }
+    setIsUpdatingPassword(true);
+    setFeedback(null);
+    try {
+      await AcademicService.updateTeacherPassword(teacherForPassword.id, newPassword.trim());
+      setFeedback({
+        type: 'success',
+        message: `Login password for "${teacherForPassword.name}" (${teacherForPassword.employeeId}) updated successfully!`,
+      });
+      setTeacherForPassword(null);
+      setNewPassword('');
+    } catch (err: any) {
+      console.error('Failed to update password:', err);
+      setFeedback({ type: 'error', message: err.message || 'Failed to update faculty password' });
+    } finally {
+      setIsUpdatingPassword(false);
     }
   };
 
@@ -216,15 +255,29 @@ export default function TeachersAdminPage() {
                   <StatusBadge status={t.status || 'active'} />
                 </TableCell>
                 <TableCell className="text-right">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => setTeacherToDelete(t)}
-                    title="Remove Faculty Member"
-                    className="h-8 w-8 p-0 text-muted-foreground hover:text-rose-600"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
+                  <div className="flex items-center justify-end gap-1">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        setTeacherForPassword(t);
+                        setNewPassword('');
+                      }}
+                      title="Update Login Password"
+                      className="h-8 w-8 p-0 text-muted-foreground hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40"
+                    >
+                      <KeyRound className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setTeacherToDelete(t)}
+                      title="Remove Faculty Member"
+                      className="h-8 w-8 p-0 text-muted-foreground hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
@@ -313,6 +366,30 @@ export default function TeachersAdminPage() {
             onChange={(e) => setFormEmail(e.target.value)}
           />
 
+          <div className="space-y-1">
+            <Input
+              label="Account Login Password"
+              placeholder="e.g. Faculty@2026 (min 6 characters)"
+              type={showFormPassword ? 'text' : 'password'}
+              value={formPassword}
+              onChange={(e) => setFormPassword(e.target.value)}
+              minLength={6}
+              rightIcon={
+                <button
+                  type="button"
+                  onClick={() => setShowFormPassword(!showFormPassword)}
+                  className="focus:outline-none hover:text-foreground"
+                  tabIndex={-1}
+                >
+                  {showFormPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                </button>
+              }
+            />
+            <p className="text-[11px] text-muted-foreground">
+              Leave blank to automatically assign default institutional password (<code className="font-mono font-semibold text-foreground">Faculty@123</code>).
+            </p>
+          </div>
+
           <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-border">
             <Button
               type="button"
@@ -332,6 +409,97 @@ export default function TeachersAdminPage() {
             </Button>
           </div>
         </form>
+      </Modal>
+
+      {/* Update Faculty Password Modal */}
+      <Modal
+        isOpen={Boolean(teacherForPassword)}
+        onClose={() => {
+          setTeacherForPassword(null);
+          setNewPassword('');
+        }}
+        title="Update Faculty Login Password"
+        description="Reset credentials for faculty mobile app and portal login."
+      >
+        {teacherForPassword && (
+          <form onSubmit={handleUpdatePassword} className="space-y-4">
+            <div className="p-3 bg-muted/40 rounded-lg border border-border text-xs space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-foreground text-sm">{teacherForPassword.name}</span>
+                <span className="font-mono text-[11px] px-2 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 font-semibold border border-blue-200 dark:border-blue-800">
+                  {teacherForPassword.employeeId}
+                </span>
+              </div>
+              <p className="text-muted-foreground font-mono text-[11px]">{teacherForPassword.email}</p>
+              <p className="text-muted-foreground text-[11px]">{teacherForPassword.subject}</p>
+            </div>
+
+            <div className="space-y-1.5">
+              <Input
+                label="New Login Password"
+                placeholder="Minimum 6 characters"
+                type={showNewPassword ? 'text' : 'password'}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+                minLength={6}
+                rightIcon={
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    className="focus:outline-none hover:text-foreground"
+                    tabIndex={-1}
+                  >
+                    {showNewPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                  </button>
+                }
+              />
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setNewPassword('Faculty@123')}
+                  className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                >
+                  Default: Faculty@123
+                </button>
+                <span className="text-muted-foreground text-[10px]">•</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const rand = 'OCI@' + Math.floor(1000 + Math.random() * 9000);
+                    setNewPassword(rand);
+                  }}
+                  className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                >
+                  Generate Random
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-border">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setTeacherForPassword(null);
+                  setNewPassword('');
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="primary"
+                size="sm"
+                isLoading={isUpdatingPassword}
+                leftIcon={<KeyRound className="h-3.5 w-3.5" />}
+              >
+                Save New Password
+              </Button>
+            </div>
+          </form>
+        )}
       </Modal>
 
       {/* Delete Confirmation Modal */}
