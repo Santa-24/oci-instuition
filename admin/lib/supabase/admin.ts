@@ -1,4 +1,9 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+
+// Enforce server-only execution
+if (typeof window !== 'undefined') {
+  throw new Error('Security Violation: supabaseAdmin must never be imported or executed in client-side code.');
+}
 
 const supabaseUrl =
   process.env.SUPABASE_URL ||
@@ -8,16 +13,50 @@ const supabaseUrl =
 const supabaseServiceKey =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
   process.env.SUPABASE_SECRET_KEY ||
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV0cnVzbWx1ZGlreXZ4Ym1waWNnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4OTgxNTk0MiwiZXhwIjoyMTA1MzkxOTQyfQ.SS4mdzmT_3DO4Lz0gVYPRfT6apJEfMVpPpHYVOo3iLc';
+  '';
+
+let _adminClient: SupabaseClient | null = null;
 
 /**
- * Server-only administrative Supabase client.
- * Bypasses RLS to allow full administrative CRUD across all tables.
- * NEVER import this into client components ('use client').
+ * Returns the initialized administrative Supabase client.
+ * Lazily instantiated on first operational call.
  */
-export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    persistSession: false,
-    autoRefreshToken: false,
+export function getSupabaseAdmin(): SupabaseClient {
+  if (_adminClient) return _adminClient;
+
+  if (!supabaseServiceKey) {
+    throw new Error(
+      'Security Exception: SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_SECRET_KEY) environment variable is missing. ' +
+      'Administrative database operations require a valid service role key configured in server environment variables.'
+    );
+  }
+
+  _adminClient = createClient(supabaseUrl, supabaseServiceKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  });
+
+  return _adminClient;
+}
+
+/**
+ * Check if the service role key is configured in current environment.
+ */
+export function isSupabaseAdminConfigured(): boolean {
+  return Boolean(supabaseServiceKey);
+}
+
+/**
+ * Server-only administrative Supabase client proxy.
+ * Bypasses RLS to allow full administrative CRUD across all tables.
+ * Safe for build-time static imports; validates credentials on execution.
+ */
+export const supabaseAdmin = new Proxy({} as SupabaseClient, {
+  get(_target, prop, receiver) {
+    const client = getSupabaseAdmin();
+    const value = Reflect.get(client, prop, receiver);
+    return typeof value === 'function' ? value.bind(client) : value;
   },
 });

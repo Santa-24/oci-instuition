@@ -14,7 +14,7 @@ const BASELINE_VERSION = {
   versionCode: 1,
   minimumSupportedVersion: '1.0.0',
   mandatory: false,
-  apkUrl: 'https://oci-institute.supabase.co/storage/v1/object/public/app-releases/android/OCI-v1.0.0.apk',
+  apkUrl: 'https://utrusmludikyvxbmpicg.supabase.co/storage/v1/object/public/app-releases/android/OCI-v1.0.0.apk',
   releaseNotes: [
     'Official initial launch release of the OCI mobile application',
     'Real-time integration with OCI examination engine',

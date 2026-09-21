@@ -1,3 +1,4 @@
+import './env_loader.mjs';
 import { createClient } from '../admin/node_modules/@supabase/supabase-js/dist/index.mjs';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://utrusmludikyvxbmpicg.supabase.co';

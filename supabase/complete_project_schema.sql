@@ -972,7 +972,7 @@ SELECT
     'android',
     '1.0.0',
     1,
-    'https://oci-institute.supabase.co/storage/v1/object/public/app-releases/android/OCI-v1.0.0.apk',
+    'https://utrusmludikyvxbmpicg.supabase.co/storage/v1/object/public/app-releases/android/OCI-v1.0.0.apk',
     jsonb_build_array(
         'Official initial launch release of the OCI mobile application',
         'Real-time integration with OCI examination engine',
@@ -1078,7 +1078,7 @@ INSERT INTO public.website_content (key, value) VALUES
 }'::jsonb),
 
 ('appSettings', '{
-  "androidUrl": "https://oci-institute.supabase.co/storage/v1/object/public/app-releases/android/OCI-v1.0.0.apk",
+  "androidUrl": "https://utrusmludikyvxbmpicg.supabase.co/storage/v1/object/public/app-releases/android/OCI-v1.0.0.apk",
   "iosUrl": "Coming Soon",
   "qrCodeText": "Scan QR to view app updates & release announcements"
 }'::jsonb)

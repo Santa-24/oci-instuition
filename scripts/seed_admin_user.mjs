@@ -1,15 +1,22 @@
+import './env_loader.mjs';
 import { createClient } from '../admin/node_modules/@supabase/supabase-js/dist/index.mjs';
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || 'https://utrusmludikyvxbmpicg.supabase.co';
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV0cnVzbWx1ZGlreXZ4Ym1waWNnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4OTgxNTk0MiwiZXhwIjoyMTA1MzkxOTQyfQ.SS4mdzmT_3DO4Lz0gVYPRfT6apJEfMVpPpHYVOo3iLc';
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
+  console.error('\n❌ ERROR: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables are required.');
+  console.error('Please configure them in admin/.env.local or pass them directly in the environment.\n');
+  process.exit(1);
+}
 
 const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
   auth: { autoRefreshToken: false, persistSession: false },
 });
 
 async function seedAdmin() {
-  const adminEmail = 'admin@oci.edu.in';
-  const adminPassword = 'Admin@123';
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@oci.edu.in';
+  const adminPassword = process.env.ADMIN_PASSWORD || 'Admin@123';
 
   console.log(`Checking if ${adminEmail} exists...`);
   const { data: userList, error: listErr } = await adminClient.auth.admin.listUsers();

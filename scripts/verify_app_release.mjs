@@ -71,7 +71,7 @@ async function runReleaseVerification() {
     platform: 'android',
     versionName: '1.9.9',
     versionCode: 1, // <= current max code
-    apkUrl: 'https://oci-institute.supabase.co/storage/v1/object/public/app-releases/android/OCI-v1.9.9.apk',
+    apkUrl: 'https://utrusmludikyvxbmpicg.supabase.co/storage/v1/object/public/app-releases/android/OCI-v1.9.9.apk',
     releaseNotes: ['Legacy release'],
     isMandatory: false,
   };
@@ -91,7 +91,7 @@ async function runReleaseVerification() {
     platform: 'android',
     versionName: '2.1.0',
     versionCode: 3,
-    apkUrl: 'https://oci-institute.supabase.co/storage/v1/object/public/app-releases/android/OCI-v2.1.0.apk',
+    apkUrl: 'https://utrusmludikyvxbmpicg.supabase.co/storage/v1/object/public/app-releases/android/OCI-v2.1.0.apk',
     releaseNotes: [
       'Interactive CBT Mock Exam Runner with negative mark calculations',
       'High-definition Jitsi live classroom streaming',
