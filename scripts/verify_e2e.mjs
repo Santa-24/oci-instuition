@@ -1,6 +1,7 @@
+import './env_loader.mjs';
 import assert from 'node:assert';
 
-const BACKEND_URL = process.env.RENDER_BACKEND_URL || 'http://localhost:8080';
+const BACKEND_URL = process.env.RENDER_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'https://oci-instuition.onrender.com';
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
 

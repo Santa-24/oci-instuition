@@ -1,6 +1,7 @@
+import './env_loader.mjs';
 import assert from 'node:assert';
 
-const BACKEND_URL = process.env.RENDER_BACKEND_URL || 'http://localhost:8080';
+const BACKEND_URL = process.env.RENDER_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'https://oci-instuition.onrender.com';
 
 async function request(path, options = {}) {
   const headers = {
