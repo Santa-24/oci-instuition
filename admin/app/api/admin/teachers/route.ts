@@ -63,11 +63,19 @@ export async function POST(req: NextRequest) {
     });
 
     if (authError || !authUser?.user) {
-      // If user already exists in auth, find their ID
+      // If user already exists in auth, find their ID and ensure password/role are set
       const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
       const existing = existingUsers?.users?.find((u) => u.email?.toLowerCase() === teacherEmail.toLowerCase());
       if (existing) {
         teacherUuid = existing.id;
+        await supabaseAdmin.auth.admin.updateUserById(teacherUuid, {
+          password: tempPassword,
+          user_metadata: {
+            full_name: name.trim(),
+            role: 'teacher',
+            employee_id: employeeId.trim(),
+          },
+        });
       } else {
         teacherUuid = crypto.randomUUID();
       }
