@@ -7,6 +7,7 @@ export interface ExamCategory {
   iconName: string
   badgeText: string
   featured?: boolean
+  imageUrl?: string
 }
 
 export const examCategories: ExamCategory[] = [
@@ -15,6 +16,7 @@ export const examCategories: ExamCategory[] = [
     title: 'SSC Exams',
     slug: 'ssc',
     badgeText: 'Staff Selection Commission',
+    imageUrl: '/images/exam-ssc.jpg',
     description:
       'Systematic preparation for Staff Selection Commission recruitment examinations with in-depth coverage of Reasoning, Quantitative Aptitude, English, and General Awareness.',
     examsList: [
@@ -32,6 +34,7 @@ export const examCategories: ExamCategory[] = [
     title: 'Odisha Government Exams',
     slug: 'odisha-govt',
     badgeText: 'State Recruitment',
+    imageUrl: '/images/exam-odisha-govt.jpg',
     description:
       'Dedicated coaching tailored specifically to Odisha state government recruitment notifications, pattern nuances, and regional competitive standards.',
     examsList: [
@@ -49,6 +52,7 @@ export const examCategories: ExamCategory[] = [
     title: 'Railway Exams',
     slug: 'railway',
     badgeText: 'Railway Recruitment Board',
+    imageUrl: '/images/exam-railway.jpg',
     description:
       'Exam-oriented conceptual clarity and speed-building practice for various technical and non-technical post recruitments in Indian Railways.',
     examsList: [
@@ -64,6 +68,7 @@ export const examCategories: ExamCategory[] = [
     title: 'Banking Exams',
     slug: 'banking',
     badgeText: 'Banking & Financial Sector',
+    imageUrl: '/images/exam-banking.jpg',
     description:
       'Smart techniques, time-management methodologies, and rigorous problem-solving practice for public sector banking competitive examinations.',
     examsList: [
@@ -79,6 +84,7 @@ export const examCategories: ExamCategory[] = [
     title: 'Defence & Uniform Services',
     slug: 'defence',
     badgeText: 'Armed & Police Forces',
+    imageUrl: '/images/exam-defence.jpg',
     description:
       'Targeted guidance and disciplined academic groundwork for competitive examinations across eligible Defence and Uniform Services posts.',
     examsList: [
@@ -94,6 +100,7 @@ export const examCategories: ExamCategory[] = [
     title: 'Teaching Exams',
     slug: 'teaching',
     badgeText: 'Education Sector',
+    imageUrl: '/images/exam-teaching.jpg',
     description:
       'Comprehensive syllabus coverage and pedagogy concept building for Odisha state and central teacher eligibility and recruitment tests.',
     examsList: [
@@ -112,6 +119,7 @@ export const examCategories: ExamCategory[] = [
     title: 'Other Government Exams',
     slug: 'other-govt',
     badgeText: 'General Competitive',
+    imageUrl: '/images/student-notes.jpg',
     description:
       'Foundation and exam-oriented preparation for various central and state government recruitment examinations requiring strong fundamental concepts.',
     examsList: [

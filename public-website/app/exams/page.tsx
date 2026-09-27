@@ -273,20 +273,34 @@ export default function ExamsPage() {
                 >
                   {/* Prospectus Main Header Banner */}
                   <div className="p-6 sm:p-8 space-y-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="px-2.5 py-0.5 rounded bg-[#FEF3C7] text-[#92400E] text-[11px] font-bold uppercase tracking-wider">
-                            {cat.badgeText}
-                          </span>
-                          <span className="text-xs text-[#64748B]">• Bhadrak Classroom Batch Available</span>
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                      <div className="flex items-start gap-4">
+                        {/* Authentic Exam Discipline Photo Inset */}
+                        <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden border border-[#E6E2D8] shadow-xs shrink-0">
+                          <img
+                            src={cat.imageUrl || '/images/hero-classroom.jpg'}
+                            alt={`${cat.title} Syllabus`}
+                            className="w-full h-full object-cover"
+                          />
                         </div>
-                        <h2 className="text-2xl sm:text-3xl font-bold font-serif text-[#0F172A]">
-                          {cat.title}
-                        </h2>
+
+                        <div className="space-y-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="px-2.5 py-0.5 rounded bg-[#FEF3C7] text-[#92400E] text-[11px] font-bold uppercase tracking-wider">
+                              {cat.badgeText}
+                            </span>
+                            <span className="text-xs text-[#64748B]">• Bhadrak Classroom Batch Available</span>
+                          </div>
+                          <h2 className="text-xl sm:text-2xl font-bold font-serif text-[#0F172A]">
+                            {cat.title}
+                          </h2>
+                          <p className="text-xs sm:text-sm text-[#475569] leading-relaxed max-w-2xl line-clamp-2">
+                            {cat.description}
+                          </p>
+                        </div>
                       </div>
 
-                      <div className="flex items-center gap-3 shrink-0">
+                      <div className="flex items-center gap-3 shrink-0 self-start lg:self-center">
                         <Button
                           href={`/contact?exam=${encodeURIComponent(cat.title)}`}
                           variant="primary"
@@ -307,10 +321,6 @@ export default function ExamsPage() {
                         </button>
                       </div>
                     </div>
-
-                    <p className="text-sm text-[#475569] leading-relaxed max-w-4xl">
-                      {cat.description}
-                    </p>
 
                     {/* Quick Specs Grid */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-[#F3F0EA] text-xs">

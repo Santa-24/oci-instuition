@@ -189,6 +189,22 @@ export default function HomePage() {
                 {heroData.description}
               </p>
 
+              {/* Key Institutional Authority Badges */}
+              <div className="grid grid-cols-3 gap-2.5 sm:gap-3 py-1">
+                <div className="p-2.5 sm:p-3 rounded-xl bg-white border border-[#E6E2D8] shadow-xs space-y-1">
+                  <span className="text-base sm:text-lg font-extrabold font-serif text-[#0F172A] block leading-none">9+ Years</span>
+                  <span className="text-[10px] sm:text-[11px] text-[#64748B] block font-medium leading-tight">Estd. 2017 in Bhadrak</span>
+                </div>
+                <div className="p-2.5 sm:p-3 rounded-xl bg-white border border-[#E6E2D8] shadow-xs space-y-1">
+                  <span className="text-base sm:text-lg font-extrabold font-serif text-[#1D4ED8] block leading-none">3-Hour Cycle</span>
+                  <span className="text-[10px] sm:text-[11px] text-[#64748B] block font-medium leading-tight">Lecture + Supervised Drill</span>
+                </div>
+                <div className="p-2.5 sm:p-3 rounded-xl bg-white border border-[#E6E2D8] shadow-xs space-y-1">
+                  <span className="text-base sm:text-lg font-extrabold font-serif text-[#059669] block leading-none">TCS iON CBT</span>
+                  <span className="text-[10px] sm:text-[11px] text-[#64748B] block font-medium leading-tight">Lab & Android Engine</span>
+                </div>
+              </div>
+
               {/* Dual Action Group */}
               <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-3.5">
                 <Button
@@ -229,80 +245,107 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Right Column: Physical Center Quick Dossier Card (5 Cols) */}
-            <div className="lg:col-span-5 relative z-10 w-full">
-              <div className="p-5 sm:p-7 rounded-2xl bg-white border border-[#E6E2D8] shadow-sm space-y-5 sm:space-y-6">
-                {/* Authentic Classroom Spotlight Photo */}
-                <div className="relative h-44 sm:h-52 w-full rounded-xl overflow-hidden border border-[#E6E2D8] shadow-xs group">
+            {/* Right Column: Authentic Academy Campus & Classroom Visual Showcase (5 Cols) */}
+            <div className="lg:col-span-5 relative z-10 w-full space-y-4">
+              {/* Main Active Lecture Hall Showcase Card */}
+              <div className="rounded-2xl overflow-hidden border border-[#E6E2D8] shadow-sm bg-white">
+                {/* Large Active Classroom Lecture Photo */}
+                <div className="relative h-52 sm:h-60 w-full overflow-hidden group">
                   <img
-                    src="/images/indian-classroom-study.jpg"
-                    alt="OCI Classroom Lecture & Batch Mentorship"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    src="/images/hero-classroom.jpg"
+                    alt="Odisha Competitive Institute Physical Classroom Batch Lecture"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0C192E]/90 via-[#0C192E]/30 to-transparent" />
-                  <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between gap-2 text-white">
-                    <div className="min-w-0 pr-1">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300 block">Classroom Learning Center</span>
-                      <span className="text-xs font-semibold block truncate">Offline Batch Session • Nayabazar</span>
-                    </div>
-                    <span className="px-2 py-0.5 rounded bg-emerald-500/90 text-white text-[10px] font-bold uppercase shadow-xs shrink-0 whitespace-nowrap">9th Year</span>
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0C192E]/95 via-[#0C192E]/35 to-transparent" />
+                  
+                  {/* Top Floating Badges */}
+                  <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
+                    <span className="px-2.5 py-1 rounded-full bg-[#0C192E]/85 backdrop-blur-md text-amber-300 border border-amber-400/30 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider shadow-sm flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      <span>Active Offline Batches • Nayabazar</span>
+                    </span>
+                    <span className="px-2 py-0.5 rounded bg-white/95 backdrop-blur-sm text-[#0F172A] font-bold text-[10px] uppercase tracking-wide shadow-xs shrink-0">
+                      9th Year
+                    </span>
+                  </div>
+
+                  {/* Bottom Photo Caption */}
+                  <div className="absolute bottom-2.5 left-3 right-3 text-white">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300 block">
+                      PHYSICAL LEARNING CENTER
+                    </span>
+                    <span className="text-sm sm:text-base font-bold font-serif text-white block truncate">
+                      Nayabazar Lecture & Mentorship Hall
+                    </span>
+                    <span className="text-[11px] text-white/80 block mt-0.5 truncate">
+                      Daily Morning & Evening Batches for SSC, Odisha Govt & Railways
+                    </span>
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E6E2D8] pb-4">
+                {/* Dual Supporting Proof Inset: Faculty Mentorship + CBT Lab */}
+                <div className="grid grid-cols-2 divide-x divide-[#E6E2D8] border-t border-[#E6E2D8] bg-[#FAF8F5]">
+                  <div className="p-3 flex items-center gap-2.5">
+                    <div className="w-11 h-11 rounded-lg overflow-hidden shrink-0 border border-[#E6E2D8]">
+                      <img
+                        src="/images/indian-classroom-study.jpg"
+                        alt="Dedicated Faculty Mentorship"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-xs font-bold text-[#0F172A] block truncate">Faculty Mentorship</span>
+                      <span className="text-[10px] text-[#64748B] block truncate">Subject Specialists</span>
+                    </div>
+                  </div>
+
+                  <div className="p-3 flex items-center gap-2.5">
+                    <div className="w-11 h-11 rounded-lg overflow-hidden shrink-0 border border-[#E6E2D8]">
+                      <img
+                        src="/images/cbt-computer-lab.jpg"
+                        alt="Native CBT Simulation Lab"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-xs font-bold text-[#0F172A] block truncate">TCS iON CBT Lab</span>
+                      <span className="text-[10px] text-[#64748B] block truncate">Real Exam Simulator</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Center Dossier Card below */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-white border border-[#E6E2D8] shadow-xs space-y-3.5">
+                <div className="flex items-center justify-between border-b border-[#E6E2D8] pb-2.5">
                   <div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#D97706] block">
-                      OFFLINE ACADEMY DOSSIER
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#D97706] block">
+                      PHYSICAL HEADQUARTERS
                     </span>
-                    <h2 className="text-lg sm:text-xl font-bold text-[#0F172A] font-serif">
+                    <h2 className="text-base sm:text-lg font-bold text-[#0F172A] font-serif">
                       Nayabazar Learning Center
                     </h2>
                   </div>
-                  <span className="self-start sm:self-auto px-2.5 py-1 rounded-md bg-[#F3F0EA] text-xs font-semibold text-[#475569] border border-[#E6E2D8] shrink-0">
+                  <span className="px-2 py-0.5 rounded-md bg-[#F3F0EA] text-[11px] font-semibold text-[#475569] border border-[#E6E2D8] shrink-0">
                     Classroom + Lab
                   </span>
                 </div>
 
-                <div className="space-y-4 text-sm text-[#475569]">
-                  <div className="flex items-start gap-3">
-                    <MapPin className="w-5 h-5 text-[#1D4ED8] shrink-0 mt-0.5" />
-                    <div>
-                      <span className="font-bold text-[#0F172A] block">Physical Location:</span>
-                      <span className="text-xs leading-relaxed block text-[#475569]">
-                        {siteConfig.locationFull}
-                      </span>
-                    </div>
+                <div className="space-y-2 text-xs text-[#475569]">
+                  <div className="flex items-start gap-2.5">
+                    <MapPin className="w-4 h-4 text-[#1D4ED8] shrink-0 mt-0.5" />
+                    <span className="leading-snug text-[#334155]">{siteConfig.locationFull}</span>
                   </div>
-
-                  <div className="flex items-start gap-3">
-                    <Clock className="w-5 h-5 text-[#D97706] shrink-0 mt-0.5" />
-                    <div>
-                      <span className="font-bold text-[#0F172A] block">Batch Sessions:</span>
-                      <span className="text-xs leading-relaxed block text-[#475569]">
-                        Morning Batches (8:00 AM – 11:30 AM) <br />
-                        Evening Batches (4:30 PM – 8:00 PM)
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <BookOpen className="w-5 h-5 text-[#059669] shrink-0 mt-0.5" />
-                    <div>
-                      <span className="font-bold text-[#0F172A] block">Academic Methodology:</span>
-                      <span className="text-xs leading-relaxed block text-[#475569]">
-                        2-Hour Conceptual Lecture + 1-Hour Supervised Daily Practice Set + Weekly Full CBT Mocks.
-                      </span>
-                    </div>
+                  <div className="flex items-center gap-2.5">
+                    <Clock className="w-4 h-4 text-[#D97706] shrink-0" />
+                    <span className="leading-snug text-[#334155]">Morning (8:00 AM – 11:30 AM) • Evening (4:30 PM – 8:00 PM)</span>
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-[#E6E2D8] space-y-2.5">
-                  <div className="flex flex-wrap items-center justify-between gap-1 text-xs">
-                    <span className="text-[#64748B]">Direct Admissions Desk:</span>
-                    <a
-                      href={`tel:${siteConfig.contact.phonePrimary}`}
-                      className="font-bold text-[#1D4ED8] hover:underline"
-                    >
+                <div className="pt-2 border-t border-[#E6E2D8] flex flex-wrap items-center justify-between gap-2">
+                  <div className="text-xs">
+                    <span className="text-[#64748B] block text-[10px] uppercase font-semibold">Admissions Desk</span>
+                    <a href={`tel:${siteConfig.contact.phonePrimary}`} className="font-bold text-[#1D4ED8] hover:underline">
                       +91 {siteConfig.contact.phonePrimary}
                     </a>
                   </div>
@@ -310,11 +353,11 @@ export default function HomePage() {
                   <Button
                     href="/contact"
                     variant="primary"
-                    size="default"
-                    className="w-full justify-center bg-[#0C192E] hover:bg-[#15253F] text-white"
+                    size="sm"
+                    className="bg-[#0C192E] hover:bg-[#15253F] text-white"
                   >
-                    <PhoneCall className="w-4 h-4" />
-                    <span>Schedule Center Visit & Consultation</span>
+                    <PhoneCall className="w-3.5 h-3.5" />
+                    <span>Visit Center</span>
                   </Button>
                 </div>
               </div>
@@ -457,23 +500,39 @@ export default function HomePage() {
             {filteredExams.map((cat) => (
               <div
                 key={cat.id}
-                className="p-5 sm:p-7 rounded-2xl bg-white border border-[#E6E2D8] shadow-xs flex flex-col justify-between space-y-6 hover:border-[#CBD5E1] transition-all h-full"
+                className="p-5 sm:p-6 rounded-2xl bg-white border border-[#E6E2D8] shadow-xs flex flex-col justify-between space-y-5 hover:border-[#CBD5E1] transition-all h-full group"
               >
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="px-2.5 py-1 rounded bg-[#FEF3C7] text-[#92400E] text-[11px] font-bold uppercase tracking-wider truncate">
-                      {cat.badgeText}
-                    </span>
-                    <span className="text-xs text-[#64748B] shrink-0">Bhadrak Center</span>
+                  {/* Authentic Discipline Photo Header */}
+                  <div className="relative h-44 sm:h-48 w-full rounded-xl overflow-hidden border border-[#E6E2D8] shadow-xs">
+                    <img
+                      src={cat.imageUrl || '/images/hero-classroom.jpg'}
+                      alt={`${cat.title} Preparation Batch`}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0C192E]/90 via-[#0C192E]/25 to-transparent" />
+                    <div className="absolute top-2.5 left-2.5">
+                      <span className="px-2.5 py-1 rounded-md bg-[#0C192E]/85 backdrop-blur-xs text-amber-300 font-bold text-[10px] uppercase tracking-wide shadow-xs border border-white/10">
+                        {cat.badgeText}
+                      </span>
+                    </div>
+                    <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-white">
+                      <span className="text-xs font-semibold text-white/90">Nayabazar Classroom Batch</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/90 text-white font-bold uppercase shadow-xs">
+                        Enrolment Open
+                      </span>
+                    </div>
                   </div>
 
-                  <h3 className="text-lg sm:text-xl font-bold font-serif text-[#0F172A] leading-snug">
-                    {cat.title}
-                  </h3>
+                  <div className="space-y-2">
+                    <h3 className="text-lg sm:text-xl font-bold font-serif text-[#0F172A] leading-snug">
+                      {cat.title}
+                    </h3>
 
-                  <p className="text-xs sm:text-sm text-[#475569] leading-relaxed line-clamp-3">
-                    {cat.description}
-                  </p>
+                    <p className="text-xs sm:text-sm text-[#475569] leading-relaxed line-clamp-3">
+                      {cat.description}
+                    </p>
+                  </div>
 
                   <div className="pt-2 border-t border-[#F3F0EA] space-y-1.5">
                     <span className="text-[11px] font-bold uppercase text-[#64748B] block">
