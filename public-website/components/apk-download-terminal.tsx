@@ -122,8 +122,8 @@ export function ApkDownloadTerminal({ release }: ApkTerminalProps) {
       )}
 
       {/* Primary Terminal Card */}
-      <div className="p-8 sm:p-12 rounded-2xl bg-[#0C192E] text-white border border-[#1E2D4A] shadow-xl">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <div className="p-5 sm:p-8 lg:p-12 rounded-2xl bg-[#0C192E] text-white border border-[#1E2D4A] shadow-xl">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
           {/* Left: Download CTA & Specs (7 Cols) */}
           <div className="lg:col-span-7 space-y-6">
             <div className="flex flex-wrap items-center gap-2.5">
@@ -137,7 +137,7 @@ export function ApkDownloadTerminal({ release }: ApkTerminalProps) {
             </div>
 
             <div className="space-y-2">
-              <h2 className="text-3xl sm:text-4xl font-extrabold font-serif tracking-tight text-white">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold font-serif tracking-tight text-white break-words">
                 OCI Mobile v{release.latestVersion}
               </h2>
               <p className="text-xs sm:text-sm text-[#94A3B8] leading-relaxed">
@@ -146,7 +146,7 @@ export function ApkDownloadTerminal({ release }: ApkTerminalProps) {
             </div>
 
             {/* Technical Specs Grid */}
-            <div className="grid grid-cols-3 gap-3 p-4 rounded-xl bg-[#15253F] border border-[#1E2D4A] text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 sm:p-4 rounded-xl bg-[#15253F] border border-[#1E2D4A] text-xs">
               <div>
                 <span className="text-[#94A3B8] block text-[11px]">Build Number</span>
                 <span className="font-bold text-white font-mono">Build {release.versionCode}</span>
@@ -225,12 +225,12 @@ export function ApkDownloadTerminal({ release }: ApkTerminalProps) {
       </div>
 
       {/* Visual 4-Step Android Installation Walkthrough */}
-      <div className="p-8 sm:p-10 rounded-2xl bg-white border border-[#E6E2D8] shadow-sm space-y-8">
+      <div className="p-5 sm:p-8 lg:p-10 rounded-2xl bg-white border border-[#E6E2D8] shadow-sm space-y-8">
         <div className="space-y-2">
           <span className="text-xs font-bold uppercase tracking-wider text-[#D97706]">
             INSTALLATION GUIDE
           </span>
-          <h3 className="text-2xl font-bold font-serif text-[#0F172A]">
+          <h3 className="text-xl sm:text-2xl font-bold font-serif text-[#0F172A]">
             How to Install OCI on Your Android Device
           </h3>
           <p className="text-xs sm:text-sm text-[#475569] leading-relaxed max-w-2xl">
@@ -238,7 +238,7 @@ export function ApkDownloadTerminal({ release }: ApkTerminalProps) {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           <div className="p-5 rounded-xl bg-[#FAF8F5] border border-[#E6E2D8] space-y-2.5">
             <span className="w-8 h-8 rounded-lg bg-[#F3F0EA] text-[#0F172A] font-bold font-serif flex items-center justify-center text-sm border border-[#CBD5E1]">
               01

@@ -168,7 +168,7 @@ export default function ContactPage() {
 
             {/* Right Column: Streamlined Enquiry Form (7 Cols) */}
             <div className="lg:col-span-7">
-              <div className="p-8 sm:p-10 rounded-2xl bg-white border border-[#E6E2D8] shadow-sm space-y-6">
+              <div className="p-5 sm:p-8 lg:p-10 rounded-2xl bg-white border border-[#E6E2D8] shadow-sm space-y-6">
                 <div>
                   <h2 className="text-2xl font-bold font-serif text-[#0F172A]">
                     Send an Admission Enquiry
@@ -179,7 +179,7 @@ export default function ContactPage() {
                 </div>
 
                 {formState === 'success' ? (
-                  <div className="p-8 rounded-xl bg-[#ECFDF5] border border-[#A7F3D0] text-center space-y-3">
+                  <div className="p-6 sm:p-8 rounded-xl bg-[#ECFDF5] border border-[#A7F3D0] text-center space-y-3">
                     <CheckCircle2 className="w-12 h-12 text-[#059669] mx-auto" />
                     <h3 className="text-xl font-bold text-[#064E3B] font-serif">Enquiry Submitted Successfully!</h3>
                     <p className="text-xs sm:text-sm text-[#065F46] max-w-sm mx-auto">
@@ -338,7 +338,7 @@ export default function ContactPage() {
             </Button>
           </div>
 
-          <div className="rounded-2xl overflow-hidden border border-[#E6E2D8] h-96 shadow-sm bg-white relative">
+          <div className="rounded-2xl overflow-hidden border border-[#E6E2D8] h-80 sm:h-96 shadow-sm bg-white relative">
             <iframe
               title="Odisha Competitive Institute Location Map"
               src={siteConfig.address.googleMapsEmbedUrl}

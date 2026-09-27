@@ -93,7 +93,7 @@ export default function AboutPage() {
           ───────────────────────────────────────────────────────────── */}
       <section className="py-16 lg:py-24 border-b border-[#E6E2D8]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="p-8 sm:p-12 lg:p-16 rounded-2xl bg-white border border-[#E6E2D8] shadow-sm space-y-8 relative">
+          <div className="p-5 sm:p-8 lg:p-16 rounded-2xl bg-white border border-[#E6E2D8] shadow-sm space-y-6 sm:space-y-8 relative">
             {/* Letterhead Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E6E2D8] pb-6">
               <div className="flex items-center gap-3.5">
@@ -171,14 +171,14 @@ export default function AboutPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
             {/* English Vision */}
-            <div className="p-8 sm:p-10 rounded-2xl bg-white border border-[#E6E2D8] space-y-4 shadow-sm flex flex-col justify-between">
+            <div className="p-5 sm:p-8 lg:p-10 rounded-2xl bg-white border border-[#E6E2D8] space-y-4 shadow-sm flex flex-col justify-between">
               <div className="space-y-3">
                 <span className="text-xs font-bold tracking-widest text-[#1D4ED8] uppercase block">
                   ENGLISH VISION STATEMENT
                 </span>
-                <p className="text-lg sm:text-xl font-serif text-[#0F172A] leading-relaxed italic">
+                <p className="text-base sm:text-lg lg:text-xl font-serif text-[#0F172A] leading-relaxed italic">
                   &ldquo;To empower competitive exam aspirants with strong concepts, systematic guidance, and exam-oriented preparation—building confidence, discipline, and success in every student.&rdquo;
                 </p>
               </div>
@@ -189,12 +189,12 @@ export default function AboutPage() {
             </div>
 
             {/* Odia Vision */}
-            <div className="p-8 sm:p-10 rounded-2xl bg-white border border-[#E6E2D8] space-y-4 shadow-sm flex flex-col justify-between">
+            <div className="p-5 sm:p-8 lg:p-10 rounded-2xl bg-white border border-[#E6E2D8] space-y-4 shadow-sm flex flex-col justify-between">
               <div className="space-y-3">
                 <span className="text-xs font-bold tracking-widest text-[#D97706] uppercase block">
                   ଓଡ଼ିଆ ଭିଜନ ବୟାନ (ODIA VISION)
                 </span>
-                <p className="text-lg sm:text-xl font-serif text-[#0F172A] leading-relaxed">
+                <p className="text-base sm:text-lg lg:text-xl font-serif text-[#0F172A] leading-relaxed">
                   &ldquo;ପ୍ରତିଯୋଗିତାମୂଳକ ପରୀକ୍ଷା ଦେଉଥିବା ଛାତ୍ରଛାତ୍ରୀମାନଙ୍କୁ ସୁଦୃଢ଼ ମୌଳିକ ଜ୍ଞାନ, କ୍ରମାନ୍ୱୟ ମାର୍ଗଦର୍ଶନ ଏବଂ ପରୀକ୍ଷା-ଉପଯୋଗୀ ପ୍ରସ୍ତୁତି ମାଧ୍ୟମରେ ସଶକ୍ତ କରିବା—ପ୍ରତ୍ୟେକ ଛାତ୍ରଛାତ୍ରୀଙ୍କଠାରେ ଆତ୍ମବିଶ୍ୱାସ, ଅନୁଶାସନ ଏବଂ ସଫଳତା ସୃଷ୍ଟି କରିବା।&rdquo;
                 </p>
               </div>
@@ -275,7 +275,7 @@ export default function AboutPage() {
             {CORE_TENETS.map((tenet, i) => (
               <div
                 key={i}
-                className="p-8 rounded-2xl bg-white border border-[#E6E2D8] space-y-3"
+                className="p-5 sm:p-7 rounded-2xl bg-white border border-[#E6E2D8] space-y-3"
               >
                 <div className="flex items-center justify-between">
                   <span className="text-2xl font-extrabold font-serif text-[#D97706]">
@@ -300,7 +300,7 @@ export default function AboutPage() {
           ───────────────────────────────────────────────────────────── */}
       <section className="py-16 bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="p-8 sm:p-12 rounded-2xl bg-[#0C192E] text-white border border-[#1E2D4A] flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="p-5 sm:p-8 lg:p-12 rounded-2xl bg-[#0C192E] text-white border border-[#1E2D4A] flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="space-y-2 text-center md:text-left">
               <span className="text-xs font-bold uppercase tracking-wider text-[#D97706]">
                 DISCOVER OUR COURSES

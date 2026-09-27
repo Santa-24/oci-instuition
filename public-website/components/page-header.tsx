@@ -27,7 +27,7 @@ export function PageHeader({ eyebrow, title, description, breadcrumbLabel }: Pag
         </div>
 
         {/* Page Title */}
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#0F172A] tracking-tight font-serif leading-tight max-w-4xl">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#0F172A] tracking-tight font-serif leading-tight max-w-4xl break-words">
           {title}
         </h1>
 

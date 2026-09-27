@@ -173,92 +173,92 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-b from-[#FAF8F5]/80 via-[#FAF8F5]/95 to-[#FAF8F5] pointer-events-none z-0" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
             {/* Left Column: Academic Manifesto (7 Cols) */}
-            <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FEF3C7] border border-[#FDE68A] text-[#92400E] text-xs font-semibold tracking-wide">
-                <span className="w-2 h-2 rounded-full bg-[#D97706]" />
-                <span>{heroData.eyebrow}</span>
+            <div className="lg:col-span-7 space-y-5 sm:space-y-6">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FEF3C7] border border-[#FDE68A] text-[#92400E] text-[11px] sm:text-xs font-semibold tracking-wide max-w-full">
+                <span className="w-2 h-2 rounded-full bg-[#D97706] shrink-0" />
+                <span className="truncate">{heroData.eyebrow}</span>
               </div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-[#0F172A] tracking-tight font-serif leading-[1.12] whitespace-pre-line">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-[#0F172A] tracking-tight font-serif leading-[1.18] sm:leading-[1.12] break-words whitespace-normal sm:whitespace-pre-line">
                 {heroData.heading}
               </h1>
 
-              <p className="text-base sm:text-lg text-[#475569] leading-relaxed max-w-2xl">
+              <p className="text-sm sm:text-base lg:text-lg text-[#475569] leading-relaxed max-w-2xl">
                 {heroData.description}
               </p>
 
               {/* Dual Action Group */}
-              <div className="pt-2 flex flex-wrap items-center gap-3.5">
+              <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-3.5">
                 <Button
                   href="/exams"
                   variant="primary"
                   size="lg"
-                  className="shadow-md"
+                  className="shadow-md justify-center w-full sm:w-auto text-center"
                 >
                   <span>Explore Examination Batches</span>
-                  <ArrowRight className="w-4 h-4 ml-1" />
+                  <ArrowRight className="w-4 h-4 ml-1 shrink-0" />
                 </Button>
 
                 <Button
                   href="/download"
                   variant="secondary"
                   size="lg"
-                  className="border-[#CBD5E1]"
+                  className="border-[#CBD5E1] justify-center w-full sm:w-auto text-center"
                 >
-                  <Download className="w-4 h-4 text-[#D97706]" />
+                  <Download className="w-4 h-4 text-[#D97706] shrink-0" />
                   <span>Download OCI App (v{appVersion})</span>
                 </Button>
               </div>
 
               {/* Verified Trust Strip under hero */}
-              <div className="pt-6 border-t border-[#E6E2D8] grid grid-cols-3 gap-4 text-xs">
-                <div>
-                  <span className="text-[#64748B] block">Admissions Status</span>
-                  <span className="font-bold text-[#0F172A]">Active Batch Enrolment</span>
+              <div className="pt-6 border-t border-[#E6E2D8] grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-xs">
+                <div className="p-3 sm:p-0 rounded-xl bg-white/60 sm:bg-transparent border border-[#E6E2D8] sm:border-0">
+                  <span className="text-[#64748B] block text-[11px] uppercase tracking-wider font-semibold">Admissions Status</span>
+                  <span className="font-bold text-[#0F172A] text-xs sm:text-sm mt-0.5 block">Active Batch Enrolment</span>
                 </div>
-                <div>
-                  <span className="text-[#64748B] block">Instruction Mode</span>
-                  <span className="font-bold text-[#0F172A]">Classroom + Digital CBT</span>
+                <div className="p-3 sm:p-0 rounded-xl bg-white/60 sm:bg-transparent border border-[#E6E2D8] sm:border-0">
+                  <span className="text-[#64748B] block text-[11px] uppercase tracking-wider font-semibold">Instruction Mode</span>
+                  <span className="font-bold text-[#0F172A] text-xs sm:text-sm mt-0.5 block">Classroom + Digital CBT</span>
                 </div>
-                <div>
-                  <span className="text-[#64748B] block">Headquarters</span>
-                  <span className="font-bold text-[#0F172A]">Nayabazar, Bhadrak</span>
+                <div className="p-3 sm:p-0 rounded-xl bg-white/60 sm:bg-transparent border border-[#E6E2D8] sm:border-0">
+                  <span className="text-[#64748B] block text-[11px] uppercase tracking-wider font-semibold">Headquarters</span>
+                  <span className="font-bold text-[#0F172A] text-xs sm:text-sm mt-0.5 block">Nayabazar, Bhadrak</span>
                 </div>
               </div>
             </div>
 
             {/* Right Column: Physical Center Quick Dossier Card (5 Cols) */}
-            <div className="lg:col-span-5 relative z-10">
-              <div className="p-7 sm:p-8 rounded-2xl bg-white border border-[#E6E2D8] shadow-sm space-y-6">
+            <div className="lg:col-span-5 relative z-10 w-full">
+              <div className="p-5 sm:p-7 rounded-2xl bg-white border border-[#E6E2D8] shadow-sm space-y-5 sm:space-y-6">
                 {/* Authentic Classroom Spotlight Photo */}
-                <div className="relative h-48 sm:h-52 w-full rounded-xl overflow-hidden border border-[#E6E2D8] shadow-xs group">
+                <div className="relative h-44 sm:h-52 w-full rounded-xl overflow-hidden border border-[#E6E2D8] shadow-xs group">
                   <img
                     src="/images/indian-classroom-study.jpg"
                     alt="OCI Classroom Lecture & Batch Mentorship"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0C192E]/85 via-[#0C192E]/25 to-transparent" />
-                  <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white">
-                    <div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0C192E]/90 via-[#0C192E]/30 to-transparent" />
+                  <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between gap-2 text-white">
+                    <div className="min-w-0 pr-1">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300 block">Classroom Learning Center</span>
-                      <span className="text-xs font-semibold">Offline Batch Session • Nayabazar, Bhadrak</span>
+                      <span className="text-xs font-semibold block truncate">Offline Batch Session • Nayabazar</span>
                     </div>
-                    <span className="px-2.5 py-0.5 rounded bg-emerald-500/90 text-white text-[10px] font-bold uppercase shadow-xs">9th Year</span>
+                    <span className="px-2 py-0.5 rounded bg-emerald-500/90 text-white text-[10px] font-bold uppercase shadow-xs shrink-0 whitespace-nowrap">9th Year</span>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between border-b border-[#E6E2D8] pb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E6E2D8] pb-4">
                   <div>
                     <span className="text-[11px] font-bold uppercase tracking-wider text-[#D97706] block">
                       OFFLINE ACADEMY DOSSIER
                     </span>
-                    <h2 className="text-xl font-bold text-[#0F172A] font-serif">
+                    <h2 className="text-lg sm:text-xl font-bold text-[#0F172A] font-serif">
                       Nayabazar Learning Center
                     </h2>
                   </div>
-                  <span className="px-2.5 py-1 rounded-md bg-[#F3F0EA] text-xs font-semibold text-[#475569] border border-[#E6E2D8]">
+                  <span className="self-start sm:self-auto px-2.5 py-1 rounded-md bg-[#F3F0EA] text-xs font-semibold text-[#475569] border border-[#E6E2D8] shrink-0">
                     Classroom + Lab
                   </span>
                 </div>
@@ -297,7 +297,7 @@ export default function HomePage() {
                 </div>
 
                 <div className="pt-4 border-t border-[#E6E2D8] space-y-2.5">
-                  <div className="flex items-center justify-between text-xs">
+                  <div className="flex flex-wrap items-center justify-between gap-1 text-xs">
                     <span className="text-[#64748B]">Direct Admissions Desk:</span>
                     <a
                       href={`tel:${siteConfig.contact.phonePrimary}`}
@@ -326,78 +326,84 @@ export default function HomePage() {
       {/* ─────────────────────────────────────────────────────────────
           2. METHODOLOGICAL PROMISE BANNER (High Rigor)
           ───────────────────────────────────────────────────────────── */}
-      <section className="py-14 bg-white border-b border-[#E6E2D8]">
+      <section className="py-12 sm:py-16 bg-white border-b border-[#E6E2D8]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="space-y-4 rounded-2xl p-5 bg-[#FAF8F5] border border-[#E6E2D8] transition-all hover:border-[#CBD5E1]">
-              <div className="h-36 w-full rounded-xl overflow-hidden border border-[#E6E2D8] shadow-xs relative">
-                <img
-                  src="/images/student-notes.jpg"
-                  alt="Conceptual Grounding in Mathematics & Logical Reasoning"
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                />
-                <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-[#0C192E]/80 backdrop-blur-xs text-amber-300 font-bold text-[10px] uppercase tracking-wide">
-                  Theory First
-                </span>
-              </div>
-              <div className="space-y-1.5 border-l-2 border-[#D97706] pl-3">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#D97706]">
-                  PRINCIPLE 01
-                </span>
-                <h3 className="text-base font-bold text-[#0F172A]">
-                  Conceptual Depth First
-                </h3>
-                <p className="text-xs text-[#475569] leading-relaxed">
-                  Shortcuts without theory fail when exam patterns shift. We teach derivations, underlying logic, and grammatical rules before speed drills.
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-4 rounded-2xl p-5 bg-[#FAF8F5] border border-[#E6E2D8] transition-all hover:border-[#CBD5E1]">
-              <div className="h-36 w-full rounded-xl overflow-hidden border border-[#E6E2D8] shadow-xs relative">
-                <img
-                  src="/images/mentorship-guidance.jpg"
-                  alt="Faculty Supervising Classroom Practice Drills"
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                />
-                <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-[#0C192E]/80 backdrop-blur-xs text-blue-300 font-bold text-[10px] uppercase tracking-wide">
-                  Daily Supervision
-                </span>
-              </div>
-              <div className="space-y-1.5 border-l-2 border-[#1D4ED8] pl-3">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#1D4ED8]">
-                  PRINCIPLE 02
-                </span>
-                <h3 className="text-base font-bold text-[#0F172A]">
-                  Daily Supervised Practice
-                </h3>
-                <p className="text-xs text-[#475569] leading-relaxed">
-                  Lectures are followed by mandatory 1-hour problem sets. Our faculty stay in the classroom to clear doubts on the spot.
-                </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+            <div className="flex flex-col justify-between rounded-2xl p-5 bg-[#FAF8F5] border border-[#E6E2D8] transition-all hover:border-[#CBD5E1] shadow-xs h-full">
+              <div className="space-y-3.5">
+                <div className="h-44 sm:h-48 w-full rounded-xl overflow-hidden border border-[#E6E2D8] shadow-xs relative">
+                  <img
+                    src="/images/student-notes.jpg"
+                    alt="Conceptual Grounding in Mathematics & Logical Reasoning"
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                  />
+                  <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-md bg-[#0C192E]/85 backdrop-blur-xs text-amber-300 font-bold text-[10px] uppercase tracking-wide shadow-xs">
+                    Theory First
+                  </span>
+                </div>
+                <div className="space-y-1.5 border-l-2 border-[#D97706] pl-3.5">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#D97706] block">
+                    PRINCIPLE 01
+                  </span>
+                  <h3 className="text-base sm:text-lg font-bold text-[#0F172A] leading-snug">
+                    Conceptual Depth First
+                  </h3>
+                  <p className="text-xs sm:text-sm text-[#475569] leading-relaxed">
+                    Shortcuts without theory fail when exam patterns shift. We teach derivations, underlying logic, and grammatical rules before speed drills.
+                  </p>
+                </div>
               </div>
             </div>
 
-            <div className="space-y-4 rounded-2xl p-5 bg-[#FAF8F5] border border-[#E6E2D8] transition-all hover:border-[#CBD5E1]">
-              <div className="h-36 w-full rounded-xl overflow-hidden border border-[#E6E2D8] shadow-xs relative">
-                <img
-                  src="/images/cbt-computer-lab.jpg"
-                  alt="Real Computer-Based Test Simulation Lab"
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                />
-                <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-[#0C192E]/80 backdrop-blur-xs text-emerald-300 font-bold text-[10px] uppercase tracking-wide">
-                  TCS iON Pattern
-                </span>
+            <div className="flex flex-col justify-between rounded-2xl p-5 bg-[#FAF8F5] border border-[#E6E2D8] transition-all hover:border-[#CBD5E1] shadow-xs h-full">
+              <div className="space-y-3.5">
+                <div className="h-44 sm:h-48 w-full rounded-xl overflow-hidden border border-[#E6E2D8] shadow-xs relative">
+                  <img
+                    src="/images/mentorship-guidance.jpg"
+                    alt="Faculty Supervising Classroom Practice Drills"
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                  />
+                  <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-md bg-[#0C192E]/85 backdrop-blur-xs text-blue-300 font-bold text-[10px] uppercase tracking-wide shadow-xs">
+                    Daily Supervision
+                  </span>
+                </div>
+                <div className="space-y-1.5 border-l-2 border-[#1D4ED8] pl-3.5">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#1D4ED8] block">
+                    PRINCIPLE 02
+                  </span>
+                  <h3 className="text-base sm:text-lg font-bold text-[#0F172A] leading-snug">
+                    Daily Supervised Practice
+                  </h3>
+                  <p className="text-xs sm:text-sm text-[#475569] leading-relaxed">
+                    Lectures are followed by mandatory 1-hour problem sets. Our faculty stay in the classroom to clear doubts on the spot.
+                  </p>
+                </div>
               </div>
-              <div className="space-y-1.5 border-l-2 border-[#059669] pl-3">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#059669]">
-                  PRINCIPLE 03
-                </span>
-                <h3 className="text-base font-bold text-[#0F172A]">
-                  Exact CBT Examination Interface
-                </h3>
-                <p className="text-xs text-[#475569] leading-relaxed">
-                  Students practice on the OCI native test engine mirroring the exact screen layout, sectional timers, and negative scoring of TCS iON.
-                </p>
+            </div>
+
+            <div className="flex flex-col justify-between rounded-2xl p-5 bg-[#FAF8F5] border border-[#E6E2D8] transition-all hover:border-[#CBD5E1] shadow-xs h-full">
+              <div className="space-y-3.5">
+                <div className="h-44 sm:h-48 w-full rounded-xl overflow-hidden border border-[#E6E2D8] shadow-xs relative">
+                  <img
+                    src="/images/cbt-computer-lab.jpg"
+                    alt="Real Computer-Based Test Simulation Lab"
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                  />
+                  <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-md bg-[#0C192E]/85 backdrop-blur-xs text-emerald-300 font-bold text-[10px] uppercase tracking-wide shadow-xs">
+                    TCS iON Pattern
+                  </span>
+                </div>
+                <div className="space-y-1.5 border-l-2 border-[#059669] pl-3.5">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#059669] block">
+                    PRINCIPLE 03
+                  </span>
+                  <h3 className="text-base sm:text-lg font-bold text-[#0F172A] leading-snug">
+                    Exact CBT Examination Interface
+                  </h3>
+                  <p className="text-xs sm:text-sm text-[#475569] leading-relaxed">
+                    Students practice on the OCI native test engine mirroring the exact screen layout, sectional timers, and negative scoring of TCS iON.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -429,13 +435,13 @@ export default function HomePage() {
             </Button>
           </div>
 
-          {/* Filter Tabs */}
-          <div className="flex flex-wrap gap-2">
+          {/* Filter Tabs - Smooth horizontal scroll on mobile, wrap on tablet/desktop */}
+          <div className="flex overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap gap-2 scrollbar-none">
             {EXAM_FILTER_TABS.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer whitespace-nowrap shrink-0 sm:shrink ${
                   activeTab === tab.id
                     ? 'bg-[#0C192E] text-white shadow-xs'
                     : 'bg-[#F3F0EA] text-[#475569] hover:bg-[#E6E2D8]'
@@ -451,17 +457,17 @@ export default function HomePage() {
             {filteredExams.map((cat) => (
               <div
                 key={cat.id}
-                className="p-6 sm:p-7 rounded-2xl bg-white border border-[#E6E2D8] shadow-xs flex flex-col justify-between space-y-6 hover:border-[#CBD5E1] transition-all"
+                className="p-5 sm:p-7 rounded-2xl bg-white border border-[#E6E2D8] shadow-xs flex flex-col justify-between space-y-6 hover:border-[#CBD5E1] transition-all h-full"
               >
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="px-2.5 py-1 rounded bg-[#FEF3C7] text-[#92400E] text-[11px] font-bold uppercase tracking-wider">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="px-2.5 py-1 rounded bg-[#FEF3C7] text-[#92400E] text-[11px] font-bold uppercase tracking-wider truncate">
                       {cat.badgeText}
                     </span>
-                    <span className="text-xs text-[#64748B]">Bhadrak Center</span>
+                    <span className="text-xs text-[#64748B] shrink-0">Bhadrak Center</span>
                   </div>
 
-                  <h3 className="text-xl font-bold font-serif text-[#0F172A]">
+                  <h3 className="text-lg sm:text-xl font-bold font-serif text-[#0F172A] leading-snug">
                     {cat.title}
                   </h3>
 
@@ -477,17 +483,17 @@ export default function HomePage() {
                       {cat.examsList.slice(0, 3).map((ex, idx) => (
                         <li key={idx} className="flex items-center gap-2">
                           <CheckCircle2 className="w-3.5 h-3.5 text-[#D97706] shrink-0" />
-                          <span>{ex}</span>
+                          <span className="truncate">{ex}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-[#E6E2D8] flex items-center justify-between">
+                <div className="pt-3 border-t border-[#E6E2D8] flex flex-wrap items-center justify-between gap-2">
                   <Link
                     href={`/contact?exam=${encodeURIComponent(cat.title)}`}
-                    className="text-xs font-bold text-[#1D4ED8] hover:underline inline-flex items-center gap-1"
+                    className="text-xs font-bold text-[#1D4ED8] hover:underline inline-flex items-center gap-1 shrink-0"
                   >
                     <span>Enquire About Batch</span>
                     <ArrowRight className="w-3 h-3" />
@@ -495,7 +501,7 @@ export default function HomePage() {
 
                   <Link
                     href={`/exams#${cat.id}`}
-                    className="text-xs font-semibold text-[#64748B] hover:text-[#0F172A]"
+                    className="text-xs font-semibold text-[#64748B] hover:text-[#0F172A] shrink-0"
                   >
                     Syllabus Details →
                   </Link>
@@ -523,77 +529,85 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
-            <div className="p-5 rounded-2xl bg-white border border-[#E6E2D8] space-y-3 relative overflow-hidden group shadow-xs">
-              <div className="h-28 w-full rounded-xl overflow-hidden border border-[#E6E2D8] relative">
-                <img
-                  src="/images/library-study.jpg"
-                  alt="Stage 1 Concept Grounding"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <span className="absolute bottom-1.5 left-2 text-[10px] font-bold text-amber-300 uppercase">Stage 01</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 relative">
+            <div className="p-5 rounded-2xl bg-white border border-[#E6E2D8] flex flex-col justify-between space-y-3 relative overflow-hidden group shadow-xs h-full">
+              <div className="space-y-3">
+                <div className="h-36 sm:h-32 w-full rounded-xl overflow-hidden border border-[#E6E2D8] relative">
+                  <img
+                    src="/images/library-study.jpg"
+                    alt="Stage 1 Concept Grounding"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                  <span className="absolute bottom-2 left-2.5 text-[10px] font-bold text-amber-300 uppercase tracking-wide">Stage 01</span>
+                </div>
+                <h3 className="text-base font-bold text-[#0F172A] font-serif leading-snug">
+                  Concept Grounding
+                </h3>
+                <p className="text-xs text-[#475569] leading-relaxed">
+                  Fundamental mastery of core mathematical principles, logical reasoning rules, and language grammars before touching shortcuts.
+                </p>
               </div>
-              <h3 className="text-base font-bold text-[#0F172A] font-serif">
-                Concept Grounding
-              </h3>
-              <p className="text-xs text-[#475569] leading-relaxed">
-                Fundamental mastery of core mathematical principles, logical reasoning rules, and language grammars before touching shortcuts.
-              </p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-white border border-[#E6E2D8] space-y-3 relative overflow-hidden group shadow-xs">
-              <div className="h-28 w-full rounded-xl overflow-hidden border border-[#E6E2D8] relative">
-                <img
-                  src="/images/student-notes.jpg"
-                  alt="Stage 2 Structured Drills"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <span className="absolute bottom-1.5 left-2 text-[10px] font-bold text-blue-300 uppercase">Stage 02</span>
+            <div className="p-5 rounded-2xl bg-white border border-[#E6E2D8] flex flex-col justify-between space-y-3 relative overflow-hidden group shadow-xs h-full">
+              <div className="space-y-3">
+                <div className="h-36 sm:h-32 w-full rounded-xl overflow-hidden border border-[#E6E2D8] relative">
+                  <img
+                    src="/images/student-notes.jpg"
+                    alt="Stage 2 Structured Drills"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                  <span className="absolute bottom-2 left-2.5 text-[10px] font-bold text-blue-300 uppercase tracking-wide">Stage 02</span>
+                </div>
+                <h3 className="text-base font-bold text-[#0F172A] font-serif leading-snug">
+                  Structured Drills
+                </h3>
+                <p className="text-xs text-[#475569] leading-relaxed">
+                  Supervised daily 50-question section-wise speed drills to build mental calculation speed and elimination reflexes.
+                </p>
               </div>
-              <h3 className="text-base font-bold text-[#0F172A] font-serif">
-                Structured Drills
-              </h3>
-              <p className="text-xs text-[#475569] leading-relaxed">
-                Supervised daily 50-question section-wise speed drills to build mental calculation speed and elimination reflexes.
-              </p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-white border border-[#E6E2D8] space-y-3 relative overflow-hidden group shadow-xs">
-              <div className="h-28 w-full rounded-xl overflow-hidden border border-[#E6E2D8] relative">
-                <img
-                  src="/images/mentorship-guidance.jpg"
-                  alt="Stage 3 Mentored Doubt Clearance"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <span className="absolute bottom-1.5 left-2 text-[10px] font-bold text-purple-300 uppercase">Stage 03</span>
+            <div className="p-5 rounded-2xl bg-white border border-[#E6E2D8] flex flex-col justify-between space-y-3 relative overflow-hidden group shadow-xs h-full">
+              <div className="space-y-3">
+                <div className="h-36 sm:h-32 w-full rounded-xl overflow-hidden border border-[#E6E2D8] relative">
+                  <img
+                    src="/images/mentorship-guidance.jpg"
+                    alt="Stage 3 Mentored Doubt Clearance"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                  <span className="absolute bottom-2 left-2.5 text-[10px] font-bold text-purple-300 uppercase tracking-wide">Stage 03</span>
+                </div>
+                <h3 className="text-base font-bold text-[#0F172A] font-serif leading-snug">
+                  Mentored Doubt Clearance
+                </h3>
+                <p className="text-xs text-[#475569] leading-relaxed">
+                  One-on-one faculty sessions after class to deconstruct wrong answers, analyze error patterns, and correct misunderstandings.
+                </p>
               </div>
-              <h3 className="text-base font-bold text-[#0F172A] font-serif">
-                Mentored Doubt Clearance
-              </h3>
-              <p className="text-xs text-[#475569] leading-relaxed">
-                One-on-one faculty sessions after class to deconstruct wrong answers, analyze error patterns, and correct misunderstandings.
-              </p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-white border border-[#E6E2D8] space-y-3 relative overflow-hidden group shadow-xs">
-              <div className="h-28 w-full rounded-xl overflow-hidden border border-[#E6E2D8] relative">
-                <img
-                  src="/images/cbt-computer-lab.jpg"
-                  alt="Stage 4 Full CBT Simulation"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <span className="absolute bottom-1.5 left-2 text-[10px] font-bold text-emerald-300 uppercase">Stage 04</span>
+            <div className="p-5 rounded-2xl bg-white border border-[#E6E2D8] flex flex-col justify-between space-y-3 relative overflow-hidden group shadow-xs h-full">
+              <div className="space-y-3">
+                <div className="h-36 sm:h-32 w-full rounded-xl overflow-hidden border border-[#E6E2D8] relative">
+                  <img
+                    src="/images/cbt-computer-lab.jpg"
+                    alt="Stage 4 Full CBT Simulation"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                  <span className="absolute bottom-2 left-2.5 text-[10px] font-bold text-emerald-300 uppercase tracking-wide">Stage 04</span>
+                </div>
+                <h3 className="text-base font-bold text-[#0F172A] font-serif leading-snug">
+                  Full CBT Simulation
+                </h3>
+                <p className="text-xs text-[#475569] leading-relaxed">
+                  Timed, computer-based mock tests on the OCI app and center lab mirroring the exact interface of SSC, Railway, and Odisha Govt portals.
+                </p>
               </div>
-              <h3 className="text-base font-bold text-[#0F172A] font-serif">
-                Full CBT Simulation
-              </h3>
-              <p className="text-xs text-[#475569] leading-relaxed">
-                Timed, computer-based mock tests on the OCI app and center lab mirroring the exact interface of SSC, Railway, and Odisha Govt portals.
-              </p>
             </div>
           </div>
         </div>
@@ -671,68 +685,68 @@ export default function HomePage() {
             {/* Right: Concrete App Interface Dossier */}
             <div className="lg:col-span-6 space-y-4">
               {/* Split Classroom & CBT Lab Visual Anchor */}
-              <div className="grid grid-cols-2 gap-3.5">
-                <div className="relative h-36 rounded-xl overflow-hidden border border-[#E6E2D8] shadow-xs group">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div className="relative h-40 sm:h-36 rounded-xl overflow-hidden border border-[#E6E2D8] shadow-xs group">
                   <img
                     src="/images/hero-classroom.jpg"
                     alt="Physical Classroom Mentorship"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0C192E]/90 via-[#0C192E]/30 to-transparent" />
-                  <div className="absolute bottom-2 left-2.5 right-2">
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0C192E]/90 via-[#0C192E]/35 to-transparent" />
+                  <div className="absolute bottom-2.5 left-3 right-3">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300 block">Classroom Mentorship</span>
-                    <span className="text-xs font-bold text-white">Daily Face-to-Face Lectures</span>
+                    <span className="text-xs sm:text-sm font-bold text-white block truncate">Daily Face-to-Face Lectures</span>
                   </div>
                 </div>
 
-                <div className="relative h-36 rounded-xl overflow-hidden border border-[#E6E2D8] shadow-xs group">
+                <div className="relative h-40 sm:h-36 rounded-xl overflow-hidden border border-[#E6E2D8] shadow-xs group">
                   <img
                     src="/images/cbt-computer-lab.jpg"
                     alt="Digital CBT Simulation Lab"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0C192E]/90 via-[#0C192E]/30 to-transparent" />
-                  <div className="absolute bottom-2 left-2.5 right-2">
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0C192E]/90 via-[#0C192E]/35 to-transparent" />
+                  <div className="absolute bottom-2.5 left-3 right-3">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-300 block">Digital CBT Testing</span>
-                    <span className="text-xs font-bold text-white">Mobile + Lab Test Engine</span>
+                    <span className="text-xs sm:text-sm font-bold text-white block truncate">Mobile + Lab Test Engine</span>
                   </div>
                 </div>
               </div>
 
-              <div className="p-8 rounded-2xl bg-[#0C192E] text-white border border-[#1E2D4A] space-y-6 shadow-xl">
-                <div className="flex items-center justify-between border-b border-[#1E2D4A] pb-4">
+              <div className="p-5 sm:p-8 rounded-2xl bg-[#0C192E] text-white border border-[#1E2D4A] space-y-5 sm:space-y-6 shadow-xl">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#1E2D4A] pb-4">
                   <div>
                     <span className="text-xs font-bold text-[#D97706] tracking-wider uppercase block">
                       OFFICIAL APPLICATION
                     </span>
-                    <span className="text-xl font-bold font-serif text-white">
+                    <span className="text-lg sm:text-xl font-bold font-serif text-white">
                       OCI Mobile v{appVersion}
                     </span>
                   </div>
-                  <span className="px-2.5 py-1 rounded-md bg-[#15253F] text-xs font-semibold text-emerald-400 border border-emerald-500/20">
+                  <span className="self-start sm:self-auto px-2.5 py-1 rounded-md bg-[#15253F] text-xs font-semibold text-emerald-400 border border-emerald-500/20 shrink-0">
                     Production Release
                   </span>
                 </div>
 
                 <div className="space-y-3 text-xs text-[#CBD5E1]">
-                  <div className="p-3.5 rounded-xl bg-[#15253F] border border-[#1E2D4A] flex items-center justify-between">
-                    <div>
+                  <div className="p-3.5 rounded-xl bg-[#15253F] border border-[#1E2D4A] flex items-center justify-between gap-3">
+                    <div className="min-w-0">
                       <span className="font-bold text-white block">CBT Examination Simulator</span>
                       <span className="text-[11px] text-[#94A3B8]">Timed sections, question palette, review tags</span>
                     </div>
                     <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                   </div>
 
-                  <div className="p-3.5 rounded-xl bg-[#15253F] border border-[#1E2D4A] flex items-center justify-between">
-                    <div>
+                  <div className="p-3.5 rounded-xl bg-[#15253F] border border-[#1E2D4A] flex items-center justify-between gap-3">
+                    <div className="min-w-0">
                       <span className="font-bold text-white block">Subject-wise Accuracy Analysis</span>
                       <span className="text-[11px] text-[#94A3B8]">Pinpoint weak chapters in Quant, Reasoning, Odia & GK</span>
                     </div>
                     <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                   </div>
 
-                  <div className="p-3.5 rounded-xl bg-[#15253F] border border-[#1E2D4A] flex items-center justify-between">
-                    <div>
+                  <div className="p-3.5 rounded-xl bg-[#15253F] border border-[#1E2D4A] flex items-center justify-between gap-3">
+                    <div className="min-w-0">
                       <span className="font-bold text-white block">Offline Notes & Syllabus Repository</span>
                       <span className="text-[11px] text-[#94A3B8]">Comprehensive exam PDFs available without internet</span>
                     </div>
@@ -783,55 +797,57 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            <div className="lg:col-span-5 p-8 rounded-2xl bg-white border border-[#E6E2D8] space-y-6">
-              {/* Campus Hall Photo */}
-              <div className="relative h-44 w-full rounded-xl overflow-hidden border border-[#E6E2D8] shadow-xs group">
-                <img
-                  src="/images/classroom-hall.jpg"
-                  alt="Nayabazar Learning Center Lecture Hall"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0C192E]/80 via-transparent to-transparent" />
-                <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-white">
-                  <span className="text-xs font-bold font-serif">Nayabazar Academic Hall</span>
-                  <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500 text-[#0C192E] font-bold uppercase">
-                    Free Counseling
-                  </span>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+            <div className="lg:col-span-5 p-5 sm:p-8 rounded-2xl bg-white border border-[#E6E2D8] flex flex-col justify-between space-y-6 shadow-xs">
+              <div className="space-y-5">
+                {/* Campus Hall Photo */}
+                <div className="relative h-44 sm:h-48 w-full rounded-xl overflow-hidden border border-[#E6E2D8] shadow-xs group">
+                  <img
+                    src="/images/classroom-hall.jpg"
+                    alt="Nayabazar Learning Center Lecture Hall"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0C192E]/85 via-transparent to-transparent" />
+                  <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-white">
+                    <span className="text-xs sm:text-sm font-bold font-serif">Nayabazar Academic Hall</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500 text-[#0C192E] font-bold uppercase shadow-xs">
+                      Free Counseling
+                    </span>
+                  </div>
+                </div>
+
+                <h3 className="text-lg sm:text-xl font-bold text-[#0F172A] font-serif border-b border-[#E6E2D8] pb-3">
+                  Center Contact Information
+                </h3>
+
+                <div className="space-y-3.5 text-xs sm:text-sm text-[#475569]">
+                  <div>
+                    <span className="font-bold text-[#0F172A] block text-xs uppercase tracking-wider text-[#64748B]">Full Address</span>
+                    <span className="text-xs sm:text-sm text-[#334155] leading-relaxed block mt-0.5">{siteConfig.locationFull}</span>
+                  </div>
+
+                  <div>
+                    <span className="font-bold text-[#0F172A] block text-xs uppercase tracking-wider text-[#64748B]">Office & Counseling Hours</span>
+                    <span className="text-xs sm:text-sm text-[#334155] leading-relaxed block mt-0.5">{siteConfig.contact.officeHours}</span>
+                  </div>
+
+                  <div>
+                    <span className="font-bold text-[#0F172A] block text-xs uppercase tracking-wider text-[#64748B]">Telephone Helpline</span>
+                    <a href={`tel:${siteConfig.contact.phonePrimary}`} className="text-[#1D4ED8] font-bold hover:underline block text-xs sm:text-sm mt-0.5">
+                      +91 {siteConfig.contact.phonePrimary}
+                    </a>
+                  </div>
+
+                  <div>
+                    <span className="font-bold text-[#0F172A] block text-xs uppercase tracking-wider text-[#64748B]">WhatsApp Enquiries</span>
+                    <a href={`https://wa.me/91${siteConfig.contact.whatsapp}`} className="text-[#059669] font-bold hover:underline block text-xs sm:text-sm mt-0.5">
+                      +91 {siteConfig.contact.whatsapp}
+                    </a>
+                  </div>
                 </div>
               </div>
 
-              <h3 className="text-xl font-bold text-[#0F172A] font-serif border-b border-[#E6E2D8] pb-3">
-                Center Contact Information
-              </h3>
-
-              <div className="space-y-4 text-xs sm:text-sm text-[#475569]">
-                <div>
-                  <span className="font-bold text-[#0F172A] block">Full Address:</span>
-                  <span>{siteConfig.locationFull}</span>
-                </div>
-
-                <div>
-                  <span className="font-bold text-[#0F172A] block">Office & Counseling Hours:</span>
-                  <span>{siteConfig.contact.officeHours}</span>
-                </div>
-
-                <div>
-                  <span className="font-bold text-[#0F172A] block">Telephone Helpline:</span>
-                  <a href={`tel:${siteConfig.contact.phonePrimary}`} className="text-[#1D4ED8] font-bold hover:underline">
-                    +91 {siteConfig.contact.phonePrimary}
-                  </a>
-                </div>
-
-                <div>
-                  <span className="font-bold text-[#0F172A] block">WhatsApp Enquiries:</span>
-                  <a href={`https://wa.me/91${siteConfig.contact.whatsapp}`} className="text-[#059669] font-bold hover:underline">
-                    +91 {siteConfig.contact.whatsapp}
-                  </a>
-                </div>
-              </div>
-
-              <div className="pt-2">
+              <div className="pt-2 border-t border-[#E6E2D8]">
                 <Button href="/contact" variant="primary" size="default" className="w-full justify-center">
                   <span>Open Contact & Enquiry Form</span>
                   <ArrowRight className="w-4 h-4 ml-1" />
@@ -839,14 +855,15 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Google Maps Viewport */}
-            <div className="lg:col-span-7 rounded-2xl overflow-hidden border border-[#E6E2D8] shadow-sm bg-white h-96 relative">
+            {/* Google Maps Viewport with responsive height matching contact card */}
+            <div className="lg:col-span-7 rounded-2xl overflow-hidden border border-[#E6E2D8] shadow-sm bg-white min-h-[350px] sm:min-h-[420px] h-full relative">
               <iframe
                 title="Odisha Competitive Institute Location Map"
                 src={siteConfig.address.googleMapsEmbedUrl}
                 width="100%"
                 height="100%"
-                style={{ border: 0 }}
+                style={{ border: 0, minHeight: '100%' }}
+                className="w-full h-full min-h-[350px] sm:min-h-[420px]"
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"

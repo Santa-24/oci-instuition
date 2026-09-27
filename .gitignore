@@ -3,14 +3,14 @@
 # ==============================================================================
 
 # Flutter Mobile App (Excluded from GitHub repository)
-app/
-app/.pub/
-app/build/
-app/android/.gradle/
-app/android/local.properties
-app/android/app/build/
-app/ios/.symlinks/
-app/ios/Pods/
+/app/
+/app/.pub/
+/app/build/
+/app/android/.gradle/
+/app/android/local.properties
+/app/android/app/build/
+/app/ios/.symlinks/
+/app/ios/Pods/
 
 # Environment Files & Secrets (Never commit secrets to GitHub)
 .env
