@@ -33,6 +33,7 @@ const EXAM_FILTER_TABS = [
   { id: 'railway', label: 'Railways (RRB)' },
   { id: 'banking', label: 'Banking (IBPS/SBI)' },
   { id: 'teaching', label: 'Teaching (CT/B.Ed/OTET)' },
+  { id: 'defence', label: 'Defence & Police' },
 ]
 
 export default function HomePage() {
@@ -41,10 +42,10 @@ export default function HomePage() {
   const [activeNotice, setActiveNotice] = useState<{ title: string; content?: string } | null>(null)
   const [appVersion, setAppVersion] = useState<string>('1.0.0')
   const [heroData, setHeroData] = useState({
-    eyebrow: 'ODISHA COMPETITIVE INSTITUTE • BHADRAK • ESTD. 2017',
-    heading: 'Building Conceptual Rigor. \nSecuring Government Careers.',
+    eyebrow: 'ESTABLISHED 2017 • BHADRAK, ODISHA',
+    heading: 'Your Goal. Our Guidance. Your Success.',
     description:
-      'Since 2017, OCI has provided structured classroom mentorship and comprehensive CBT mock test series for competitive aspirants across coastal Odisha—transforming fundamental understanding into selection merit.',
+      'Odisha Competitive Institute (OCI) is committed to providing quality, systematic, easy-to-understand and exam-oriented education while helping students build strong concepts, practice consistently and approach competitive examinations with confidence.',
   })
 
   useEffect(() => {
@@ -72,8 +73,8 @@ export default function HomePage() {
         if (cmsData?.value?.hero) {
           const h = cmsData.value.hero
           setHeroData({
-            eyebrow: h.eyebrow || 'ODISHA COMPETITIVE INSTITUTE • BHADRAK • ESTD. 2017',
-            heading: h.heading || 'Building Conceptual Rigor. \nSecuring Government Careers.',
+            eyebrow: h.eyebrow || 'ESTABLISHED 2017 • BHADRAK, ODISHA',
+            heading: h.heading || 'Your Goal. Our Guidance. Your Success.',
             description: h.description || heroData.description,
           })
         }
@@ -107,6 +108,7 @@ export default function HomePage() {
             else if (catName.includes('rail')) targetCatId = 'railway'
             else if (catName.includes('bank')) targetCatId = 'banking'
             else if (catName.includes('teach')) targetCatId = 'teaching'
+            else if (catName.includes('defence') || catName.includes('police')) targetCatId = 'defence'
 
             const idx = updated.findIndex((c) => c.id === targetCatId)
             if (idx >= 0) {
@@ -159,49 +161,52 @@ export default function HomePage() {
       )}
 
       {/* ─────────────────────────────────────────────────────────────
-          1. EDITORIAL ACADEMIC HERO SECTION
+          1. EDITORIAL ACADEMIC HERO SECTION WITH VISIBLE CLASSROOM BG
           ───────────────────────────────────────────────────────────── */}
-      <section className="relative pt-12 pb-20 lg:pt-20 lg:pb-28 border-b border-[#E6E2D8] overflow-hidden">
-        {/* Subtle Ambient Academic Background */}
-        <div className="absolute inset-0 z-0 opacity-[0.06] pointer-events-none mix-blend-multiply">
+      <section className="relative pt-12 pb-16 lg:pt-16 lg:pb-24 border-b border-[#1E2D4A] overflow-hidden bg-[#0C192E] text-white">
+        {/* Prominent Authentic Academic Classroom Background Photo */}
+        <div className="absolute inset-0 z-0">
           <img
-            src="/images/hero-ambient.jpg"
-            alt="OCI Academic Campus Atmosphere"
-            className="w-full h-full object-cover object-center"
+            src="/images/hero-classroom.jpg"
+            alt="Odisha Competitive Institute Classroom & Lecture Sessions"
+            className="w-full h-full object-cover object-center brightness-[0.32] contrast-[1.10]"
           />
+          {/* Multi-layered academic dark navy gradient for pristine readability & high-contrast authority */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0C192E] via-[#0C192E]/92 to-[#0C192E]/70" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0C192E] via-transparent to-[#0C192E]/75" />
+          <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none" />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-[#FAF8F5]/80 via-[#FAF8F5]/95 to-[#FAF8F5] pointer-events-none z-0" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
             {/* Left Column: Academic Manifesto (7 Cols) */}
-            <div className="lg:col-span-7 space-y-5 sm:space-y-6">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FEF3C7] border border-[#FDE68A] text-[#92400E] text-[11px] sm:text-xs font-semibold tracking-wide max-w-full">
-                <span className="w-2 h-2 rounded-full bg-[#D97706] shrink-0" />
+            <div className="lg:col-span-7 space-y-6">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/15 border border-amber-400/30 text-amber-300 text-[11px] sm:text-xs font-semibold tracking-wide max-w-full">
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0" />
                 <span className="truncate">{heroData.eyebrow}</span>
               </div>
 
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-[#0F172A] tracking-tight font-serif leading-[1.18] sm:leading-[1.12] break-words whitespace-normal sm:whitespace-pre-line">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight font-serif leading-[1.15] break-words">
                 {heroData.heading}
               </h1>
 
-              <p className="text-sm sm:text-base lg:text-lg text-[#475569] leading-relaxed max-w-2xl">
+              <p className="text-sm sm:text-base lg:text-lg text-slate-200 leading-relaxed max-w-2xl font-normal">
                 {heroData.description}
               </p>
 
               {/* Key Institutional Authority Badges */}
               <div className="grid grid-cols-3 gap-2.5 sm:gap-3 py-1">
-                <div className="p-2.5 sm:p-3 rounded-xl bg-white border border-[#E6E2D8] shadow-xs space-y-1">
-                  <span className="text-base sm:text-lg font-extrabold font-serif text-[#0F172A] block leading-none">9+ Years</span>
-                  <span className="text-[10px] sm:text-[11px] text-[#64748B] block font-medium leading-tight">Estd. 2017 in Bhadrak</span>
+                <div className="p-2.5 sm:p-3.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 shadow-sm space-y-1">
+                  <span className="text-base sm:text-lg font-extrabold font-serif text-white block leading-none">9+ Years</span>
+                  <span className="text-[10px] sm:text-[11px] text-slate-300 block font-medium leading-tight">Estd. 2017 in Bhadrak</span>
                 </div>
-                <div className="p-2.5 sm:p-3 rounded-xl bg-white border border-[#E6E2D8] shadow-xs space-y-1">
-                  <span className="text-base sm:text-lg font-extrabold font-serif text-[#1D4ED8] block leading-none">3-Hour Cycle</span>
-                  <span className="text-[10px] sm:text-[11px] text-[#64748B] block font-medium leading-tight">Lecture + Supervised Drill</span>
+                <div className="p-2.5 sm:p-3.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 shadow-sm space-y-1">
+                  <span className="text-base sm:text-lg font-extrabold font-serif text-amber-400 block leading-none">3-Hour Cycle</span>
+                  <span className="text-[10px] sm:text-[11px] text-slate-300 block font-medium leading-tight">Lecture + Supervised Drill</span>
                 </div>
-                <div className="p-2.5 sm:p-3 rounded-xl bg-white border border-[#E6E2D8] shadow-xs space-y-1">
-                  <span className="text-base sm:text-lg font-extrabold font-serif text-[#059669] block leading-none">TCS iON CBT</span>
-                  <span className="text-[10px] sm:text-[11px] text-[#64748B] block font-medium leading-tight">Lab & Android Engine</span>
+                <div className="p-2.5 sm:p-3.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 shadow-sm space-y-1">
+                  <span className="text-base sm:text-lg font-extrabold font-serif text-emerald-400 block leading-none">Full CBT Mocks</span>
+                  <span className="text-[10px] sm:text-[11px] text-slate-300 block font-medium leading-tight">Computer Lab & Mobile App</span>
                 </div>
               </div>
 
@@ -209,9 +214,9 @@ export default function HomePage() {
               <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-3.5">
                 <Button
                   href="/exams"
-                  variant="primary"
+                  variant="amber"
                   size="lg"
-                  className="shadow-md justify-center w-full sm:w-auto text-center"
+                  className="shadow-md justify-center w-full sm:w-auto text-center font-bold"
                 >
                   <span>Explore Examination Batches</span>
                   <ArrowRight className="w-4 h-4 ml-1 shrink-0" />
@@ -221,38 +226,37 @@ export default function HomePage() {
                   href="/download"
                   variant="secondary"
                   size="lg"
-                  className="border-[#CBD5E1] justify-center w-full sm:w-auto text-center"
+                  className="bg-white/10 hover:bg-white/15 text-white border-white/20 backdrop-blur-sm justify-center w-full sm:w-auto text-center"
                 >
-                  <Download className="w-4 h-4 text-[#D97706] shrink-0" />
+                  <Download className="w-4 h-4 text-amber-400 shrink-0" />
                   <span>Download OCI App (v{appVersion})</span>
                 </Button>
               </div>
 
-              {/* Verified Trust Strip under hero */}
-              <div className="pt-6 border-t border-[#E6E2D8] grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-xs">
-                <div className="p-3 sm:p-0 rounded-xl bg-white/60 sm:bg-transparent border border-[#E6E2D8] sm:border-0">
-                  <span className="text-[#64748B] block text-[11px] uppercase tracking-wider font-semibold">Admissions Status</span>
-                  <span className="font-bold text-[#0F172A] text-xs sm:text-sm mt-0.5 block">Active Batch Enrolment</span>
+              {/* Verified Institutional Strip under hero */}
+              <div className="pt-6 border-t border-white/15 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-xs">
+                <div className="p-3 sm:p-0 rounded-xl bg-white/5 sm:bg-transparent border border-white/10 sm:border-0">
+                  <span className="text-slate-400 block text-[11px] uppercase tracking-wider font-semibold">Admissions Status</span>
+                  <span className="font-bold text-white text-xs sm:text-sm mt-0.5 block">Active Batch Enrolment</span>
                 </div>
-                <div className="p-3 sm:p-0 rounded-xl bg-white/60 sm:bg-transparent border border-[#E6E2D8] sm:border-0">
-                  <span className="text-[#64748B] block text-[11px] uppercase tracking-wider font-semibold">Instruction Mode</span>
-                  <span className="font-bold text-[#0F172A] text-xs sm:text-sm mt-0.5 block">Classroom + Digital CBT</span>
+                <div className="p-3 sm:p-0 rounded-xl bg-white/5 sm:bg-transparent border border-white/10 sm:border-0">
+                  <span className="text-slate-400 block text-[11px] uppercase tracking-wider font-semibold">Instruction Mode</span>
+                  <span className="font-bold text-white text-xs sm:text-sm mt-0.5 block">Classroom + Digital CBT</span>
                 </div>
-                <div className="p-3 sm:p-0 rounded-xl bg-white/60 sm:bg-transparent border border-[#E6E2D8] sm:border-0">
-                  <span className="text-[#64748B] block text-[11px] uppercase tracking-wider font-semibold">Headquarters</span>
-                  <span className="font-bold text-[#0F172A] text-xs sm:text-sm mt-0.5 block">Nayabazar, Bhadrak</span>
+                <div className="p-3 sm:p-0 rounded-xl bg-white/5 sm:bg-transparent border border-white/10 sm:border-0">
+                  <span className="text-slate-400 block text-[11px] uppercase tracking-wider font-semibold">Headquarters</span>
+                  <span className="font-bold text-white text-xs sm:text-sm mt-0.5 block">Nayabazar, Bhadrak</span>
                 </div>
               </div>
             </div>
 
-            {/* Right Column: Authentic Academy Campus & Classroom Visual Showcase (5 Cols) */}
-            <div className="lg:col-span-5 relative z-10 w-full space-y-4">
-              {/* Main Active Lecture Hall Showcase Card */}
-              <div className="rounded-2xl overflow-hidden border border-[#E6E2D8] shadow-sm bg-white">
-                {/* Large Active Classroom Lecture Photo */}
-                <div className="relative h-52 sm:h-60 w-full overflow-hidden group">
+            {/* Right Column: Physical Academy Dossier Card (5 Cols) */}
+            <div className="lg:col-span-5 relative z-10 w-full">
+              <div className="rounded-2xl overflow-hidden border border-[#E6E2D8] shadow-2xl bg-white text-[#0F172A]">
+                {/* Active Classroom Lecture Photo */}
+                <div className="relative h-48 sm:h-52 w-full overflow-hidden group">
                   <img
-                    src="/images/hero-classroom.jpg"
+                    src="/images/classroom-hall.jpg"
                     alt="Odisha Competitive Institute Physical Classroom Batch Lecture"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
@@ -262,7 +266,7 @@ export default function HomePage() {
                   <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
                     <span className="px-2.5 py-1 rounded-full bg-[#0C192E]/85 backdrop-blur-md text-amber-300 border border-amber-400/30 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider shadow-sm flex items-center gap-1.5">
                       <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                      <span>Active Offline Batches • Nayabazar</span>
+                      <span>Active Offline Batches</span>
                     </span>
                     <span className="px-2 py-0.5 rounded bg-white/95 backdrop-blur-sm text-[#0F172A] font-bold text-[10px] uppercase tracking-wide shadow-xs shrink-0">
                       9th Year
@@ -272,93 +276,75 @@ export default function HomePage() {
                   {/* Bottom Photo Caption */}
                   <div className="absolute bottom-2.5 left-3 right-3 text-white">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300 block">
-                      PHYSICAL LEARNING CENTER
+                      OFFLINE CLASSROOM CENTER
                     </span>
                     <span className="text-sm sm:text-base font-bold font-serif text-white block truncate">
-                      Nayabazar Lecture & Mentorship Hall
+                      Nayabazar Learning Center
                     </span>
                     <span className="text-[11px] text-white/80 block mt-0.5 truncate">
-                      Daily Morning & Evening Batches for SSC, Odisha Govt & Railways
+                      Nayabazar, near Old Rajghat Bridge, Bhadrak
                     </span>
                   </div>
                 </div>
 
-                {/* Dual Supporting Proof Inset: Faculty Mentorship + CBT Lab */}
-                <div className="grid grid-cols-2 divide-x divide-[#E6E2D8] border-t border-[#E6E2D8] bg-[#FAF8F5]">
-                  <div className="p-3 flex items-center gap-2.5">
-                    <div className="w-11 h-11 rounded-lg overflow-hidden shrink-0 border border-[#E6E2D8]">
-                      <img
-                        src="/images/indian-classroom-study.jpg"
-                        alt="Dedicated Faculty Mentorship"
-                        className="w-full h-full object-cover"
-                      />
+                {/* Dossier Content */}
+                <div className="p-4 sm:p-5 space-y-3.5">
+                  <div className="flex items-center justify-between border-b border-[#E6E2D8] pb-2.5">
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#D97706] block">
+                        OFFLINE ACADEMY DOSSIER
+                      </span>
+                      <h2 className="text-base sm:text-lg font-bold text-[#0F172A] font-serif">
+                        Nayabazar Learning Center
+                      </h2>
                     </div>
-                    <div className="min-w-0">
-                      <span className="text-xs font-bold text-[#0F172A] block truncate">Faculty Mentorship</span>
-                      <span className="text-[10px] text-[#64748B] block truncate">Subject Specialists</span>
-                    </div>
-                  </div>
-
-                  <div className="p-3 flex items-center gap-2.5">
-                    <div className="w-11 h-11 rounded-lg overflow-hidden shrink-0 border border-[#E6E2D8]">
-                      <img
-                        src="/images/cbt-computer-lab.jpg"
-                        alt="Native CBT Simulation Lab"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="min-w-0">
-                      <span className="text-xs font-bold text-[#0F172A] block truncate">TCS iON CBT Lab</span>
-                      <span className="text-[10px] text-[#64748B] block truncate">Real Exam Simulator</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Quick Center Dossier Card below */}
-              <div className="p-4 sm:p-5 rounded-2xl bg-white border border-[#E6E2D8] shadow-xs space-y-3.5">
-                <div className="flex items-center justify-between border-b border-[#E6E2D8] pb-2.5">
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#D97706] block">
-                      PHYSICAL HEADQUARTERS
+                    <span className="px-2 py-0.5 rounded-md bg-[#F3F0EA] text-[11px] font-semibold text-[#475569] border border-[#E6E2D8] shrink-0">
+                      Classroom + Lab
                     </span>
-                    <h2 className="text-base sm:text-lg font-bold text-[#0F172A] font-serif">
-                      Nayabazar Learning Center
-                    </h2>
-                  </div>
-                  <span className="px-2 py-0.5 rounded-md bg-[#F3F0EA] text-[11px] font-semibold text-[#475569] border border-[#E6E2D8] shrink-0">
-                    Classroom + Lab
-                  </span>
-                </div>
-
-                <div className="space-y-2 text-xs text-[#475569]">
-                  <div className="flex items-start gap-2.5">
-                    <MapPin className="w-4 h-4 text-[#1D4ED8] shrink-0 mt-0.5" />
-                    <span className="leading-snug text-[#334155]">{siteConfig.locationFull}</span>
-                  </div>
-                  <div className="flex items-center gap-2.5">
-                    <Clock className="w-4 h-4 text-[#D97706] shrink-0" />
-                    <span className="leading-snug text-[#334155]">Morning (8:00 AM – 11:30 AM) • Evening (4:30 PM – 8:00 PM)</span>
-                  </div>
-                </div>
-
-                <div className="pt-2 border-t border-[#E6E2D8] flex flex-wrap items-center justify-between gap-2">
-                  <div className="text-xs">
-                    <span className="text-[#64748B] block text-[10px] uppercase font-semibold">Admissions Desk</span>
-                    <a href={`tel:${siteConfig.contact.phonePrimary}`} className="font-bold text-[#1D4ED8] hover:underline">
-                      +91 {siteConfig.contact.phonePrimary}
-                    </a>
                   </div>
 
-                  <Button
-                    href="/contact"
-                    variant="primary"
-                    size="sm"
-                    className="bg-[#0C192E] hover:bg-[#15253F] text-white"
-                  >
-                    <PhoneCall className="w-3.5 h-3.5" />
-                    <span>Visit Center</span>
-                  </Button>
+                  <div className="space-y-2.5 text-xs text-[#475569]">
+                    <div className="flex items-start gap-2.5">
+                      <MapPin className="w-4 h-4 text-[#1D4ED8] shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-semibold text-[#0F172A] block">Physical Location:</span>
+                        <span className="leading-snug text-[#334155]">{siteConfig.locationFull}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2.5">
+                      <Clock className="w-4 h-4 text-[#D97706] shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-semibold text-[#0F172A] block">Batch Sessions:</span>
+                        <span className="leading-snug text-[#334155]">Morning Batches (8:00 AM – 11:30 AM)<br />Evening Batches (4:30 PM – 8:00 PM)</span>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2.5">
+                      <BookOpen className="w-4 h-4 text-[#059669] shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-semibold text-[#0F172A] block">Academic Methodology:</span>
+                        <span className="leading-snug text-[#334155]">2-Hour Conceptual Lecture + 1-Hour Supervised Daily Practice Set + Weekly Full CBT Mocks</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-[#E6E2D8] space-y-2.5">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-[#64748B] text-[11px]">Direct Admissions Desk:</span>
+                      <a href={`tel:${siteConfig.contact.phonePrimary}`} className="font-bold text-[#1D4ED8] hover:underline">
+                        +91 {siteConfig.contact.phonePrimary}
+                      </a>
+                    </div>
+
+                    <Button
+                      href="/contact"
+                      variant="primary"
+                      size="default"
+                      className="w-full bg-[#0C192E] hover:bg-[#15253F] text-white justify-center text-xs sm:text-sm font-semibold py-2.5"
+                    >
+                      <PhoneCall className="w-3.5 h-3.5 mr-1.5" />
+                      <span>Schedule Center Visit & Consultation</span>
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -433,7 +419,7 @@ export default function HomePage() {
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                   />
                   <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-md bg-[#0C192E]/85 backdrop-blur-xs text-emerald-300 font-bold text-[10px] uppercase tracking-wide shadow-xs">
-                    TCS iON Pattern
+                    Exact CBT Pattern
                   </span>
                 </div>
                 <div className="space-y-1.5 border-l-2 border-[#059669] pl-3.5">
@@ -444,7 +430,7 @@ export default function HomePage() {
                     Exact CBT Examination Interface
                   </h3>
                   <p className="text-xs sm:text-sm text-[#475569] leading-relaxed">
-                    Students practice on the OCI native test engine mirroring the exact screen layout, sectional timers, and negative scoring of TCS iON.
+                    Students practice on the OCI native test engine mirroring the exact screen layout, sectional timers, question palette, and negative marking of actual competitive examinations.
                   </p>
                 </div>
               </div>

@@ -86,14 +86,15 @@ export const examCategories: ExamCategory[] = [
     badgeText: 'Armed & Police Forces',
     imageUrl: '/images/exam-defence.jpg',
     description:
-      'Targeted guidance and disciplined academic groundwork for competitive examinations across eligible Defence and Uniform Services posts.',
+      'Targeted guidance, disciplined physical endurance orientation, and academic groundwork for competitive examinations across Police and Armed Forces posts.',
     examsList: [
-      'Defence Services Competitive Exams',
-      'Paramilitary & Uniform Posts',
-      'State Police Services Written Exams',
+      'Odisha Police Sub-Inspector (SI)',
+      'Odisha Police Constable',
+      'SSC GD (General Duty) Constable',
+      'Paramilitary & Defence Recruitment Exams',
     ],
     iconName: 'ShieldCheck',
-    featured: false,
+    featured: true,
   },
   {
     id: 'teaching',
