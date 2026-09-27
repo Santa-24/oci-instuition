@@ -264,6 +264,12 @@ router.patch('/admin/app-releases/:id', async (req, res) => {
     const { id } = req.params;
     const { isActive, performedBy } = req.body;
 
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id)) {
+      return res.status(400).json({ error: 'Invalid release ID format. Expected a valid UUID.' });
+    }
+
     const supabase = getSupabaseClient();
     if (!supabase) {
       await CacheManager.del(REDIS_KEY_LATEST_ANDROID);

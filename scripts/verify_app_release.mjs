@@ -66,12 +66,14 @@ async function runReleaseVerification() {
   assert.ok(Array.isArray(releasesRes.data.releases), 'releases must be an array');
   console.log(`   ✅ Release History fetched: ${releasesRes.data.releases.length} releases available`);
 
+  const currentMaxCode = releasesRes.data.releases[0]?.version_code || versionData.versionCode || 1;
+
   // STEP 5: Safety Check - Reject Outdated / Identical versionCode
   console.log('\n🧪 [TEST 5] Safety Check: Attempting to publish release with versionCode <= current...');
   const invalidPayload = {
     platform: 'android',
     versionName: '1.9.9',
-    versionCode: 1, // <= current max code
+    versionCode: currentMaxCode, // <= current max code
     apkUrl: 'https://utrusmludikyvxbmpicg.supabase.co/storage/v1/object/public/app-releases/android/OCI-v1.9.9.apk',
     releaseNotes: ['Legacy release'],
     isMandatory: false,
@@ -87,12 +89,13 @@ async function runReleaseVerification() {
   console.log('   ✅ Safety Enforcement Verified: Rejected with error:', rejectRes.data.error);
 
   // STEP 6: Publish Valid New Release
-  console.log('\n🧪 [TEST 6] Admin publishes valid higher release (v2.1.0, Build 3)...');
+  const nextCode = currentMaxCode + 1;
+  console.log(`\n🧪 [TEST 6] Admin publishes valid higher release (v2.${nextCode}.0, Build ${nextCode})...`);
   const validPayload = {
     platform: 'android',
-    versionName: '2.1.0',
-    versionCode: 3,
-    apkUrl: 'https://utrusmludikyvxbmpicg.supabase.co/storage/v1/object/public/app-releases/android/OCI-v2.1.0.apk',
+    versionName: `2.${nextCode}.0`,
+    versionCode: nextCode,
+    apkUrl: `https://utrusmludikyvxbmpicg.supabase.co/storage/v1/object/public/app-releases/android/OCI-v2.${nextCode}.0.apk`,
     releaseNotes: [
       'Interactive CBT Mock Exam Runner with negative mark calculations',
       'High-definition Jitsi live classroom streaming',
@@ -111,7 +114,7 @@ async function runReleaseVerification() {
 
   assert.strictEqual(publishRes.status, 201, `Failed to publish valid release: ${JSON.stringify(publishRes.data)}`);
   assert.ok(publishRes.data.success, 'Publish success flag is not true');
-  console.log('   ✅ Release Published Successfully: v2.1.0 (Build 3)');
+  console.log(`   ✅ Release Published Successfully: v2.${nextCode}.0 (Build ${nextCode})`);
 
   // STEP 7: Verify Cache Invalidation & Propagation
   console.log('\n🧪 [TEST 7] Verifying new release propagated to public version endpoint...');
@@ -122,11 +125,12 @@ async function runReleaseVerification() {
 
   // STEP 8: Rollback Support Verification
   console.log('\n🧪 [TEST 8] Rollback / Deactivation Verification (PATCH /api/admin/app-releases/:id)...');
-  const rollbackRes = await request('/api/admin/app-releases/mock_id_or_created', {
+  const targetReleaseId = publishRes.data.release?.id || '00000000-0000-0000-0000-000000000001';
+  const rollbackRes = await request(`/api/admin/app-releases/${targetReleaseId}`, {
     method: 'PATCH',
     body: JSON.stringify({ isActive: false }),
   });
-  assert.strictEqual(rollbackRes.status, 200, 'Rollback patch failed');
+  assert.strictEqual(rollbackRes.status, 200, `Rollback patch failed: ${JSON.stringify(rollbackRes.data)}`);
   console.log('   ✅ Rollback mechanism executed and cache invalidated.');
 
   console.log('\n===============================================================');

@@ -9,6 +9,20 @@ import {
   EnquiryLead,
   AuditLog,
 } from '@/lib/types/admin';
+import { supabase } from '@/lib/supabase/client';
+
+/**
+ * Internal authenticated fetch helper.
+ * Attaches the verified Supabase administrator bearer token to request headers.
+ */
+async function authFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+  const { data: { session } } = await supabase.auth.getSession();
+  const headers = new Headers(init?.headers || {});
+  if (session?.access_token) {
+    headers.set('Authorization', `Bearer ${session.access_token}`);
+  }
+  return fetch(input, { ...init, headers });
+}
 
 /**
  * AcademicService for OCI Master Admin Panel.
@@ -18,7 +32,7 @@ import {
 export const AcademicService = {
   // --- DASHBOARD METRICS ---
   async getDashboardMetrics() {
-    const res = await fetch('/api/admin/dashboard', { cache: 'no-store' });
+    const res = await authFetch('/api/admin/dashboard', { cache: 'no-store' });
     if (!res.ok) throw new Error('Failed to fetch dashboard metrics');
     const json = await res.json();
     return json;
@@ -26,14 +40,14 @@ export const AcademicService = {
 
   // --- STUDENTS ---
   async getStudents(): Promise<Student[]> {
-    const res = await fetch('/api/admin/students', { cache: 'no-store' });
+    const res = await authFetch('/api/admin/students', { cache: 'no-store' });
     if (!res.ok) return [];
     const json = await res.json();
     return json.students || [];
   },
 
   async createStudent(student: { name: string; rollNo: string; email: string; phone: string; batchId?: string }) {
-    const res = await fetch('/api/admin/students', {
+    const res = await authFetch('/api/admin/students', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(student),
@@ -44,7 +58,7 @@ export const AcademicService = {
   },
 
   async deleteStudent(id: string) {
-    const res = await fetch(`/api/admin/students?id=${encodeURIComponent(id)}`, {
+    const res = await authFetch(`/api/admin/students?id=${encodeURIComponent(id)}`, {
       method: 'DELETE',
     });
     const json = await res.json();
@@ -54,7 +68,7 @@ export const AcademicService = {
 
   // --- TEACHERS ---
   async getTeachers(): Promise<Teacher[]> {
-    const res = await fetch('/api/admin/teachers', { cache: 'no-store' });
+    const res = await authFetch('/api/admin/teachers', { cache: 'no-store' });
     if (!res.ok) return [];
     const json = await res.json();
     return json.teachers || [];
@@ -71,7 +85,7 @@ export const AcademicService = {
     bio?: string;
     password?: string;
   }) {
-    const res = await fetch('/api/admin/teachers', {
+    const res = await authFetch('/api/admin/teachers', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(teacher),
@@ -82,7 +96,7 @@ export const AcademicService = {
   },
 
   async updateTeacherPassword(id: string, password: string) {
-    const res = await fetch('/api/admin/teachers', {
+    const res = await authFetch('/api/admin/teachers', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, password }),
@@ -93,7 +107,7 @@ export const AcademicService = {
   },
 
   async deleteTeacher(id: string) {
-    const res = await fetch(`/api/admin/teachers?id=${encodeURIComponent(id)}`, {
+    const res = await authFetch(`/api/admin/teachers?id=${encodeURIComponent(id)}`, {
       method: 'DELETE',
     });
     const json = await res.json();
@@ -103,7 +117,7 @@ export const AcademicService = {
 
   // --- COURSES ---
   async getCourses(): Promise<Course[]> {
-    const res = await fetch('/api/admin/courses', { cache: 'no-store' });
+    const res = await authFetch('/api/admin/courses', { cache: 'no-store' });
     if (!res.ok) return [];
     const json = await res.json();
     return json.courses || [];
@@ -116,7 +130,7 @@ export const AcademicService = {
     durationMonths: number;
     description: string;
   }) {
-    const res = await fetch('/api/admin/courses', {
+    const res = await authFetch('/api/admin/courses', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(course),
@@ -127,7 +141,7 @@ export const AcademicService = {
   },
 
   async updateCourse(course: Partial<Course> & { id: string }) {
-    const res = await fetch('/api/admin/courses', {
+    const res = await authFetch('/api/admin/courses', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(course),
@@ -138,7 +152,7 @@ export const AcademicService = {
   },
 
   async deleteCourse(id: string) {
-    const res = await fetch(`/api/admin/courses?id=${encodeURIComponent(id)}`, {
+    const res = await authFetch(`/api/admin/courses?id=${encodeURIComponent(id)}`, {
       method: 'DELETE',
     });
     const json = await res.json();
@@ -148,7 +162,7 @@ export const AcademicService = {
 
   // --- BATCHES ---
   async getBatches(): Promise<Batch[]> {
-    const res = await fetch('/api/admin/batches', { cache: 'no-store' });
+    const res = await authFetch('/api/admin/batches', { cache: 'no-store' });
     if (!res.ok) return [];
     const json = await res.json();
     return json.batches || [];
@@ -163,7 +177,7 @@ export const AcademicService = {
     startDate?: string;
     endDate?: string;
   }) {
-    const res = await fetch('/api/admin/batches', {
+    const res = await authFetch('/api/admin/batches', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(batch),
@@ -174,7 +188,7 @@ export const AcademicService = {
   },
 
   async deleteBatch(id: string) {
-    const res = await fetch(`/api/admin/batches?id=${encodeURIComponent(id)}`, {
+    const res = await authFetch(`/api/admin/batches?id=${encodeURIComponent(id)}`, {
       method: 'DELETE',
     });
     const json = await res.json();
@@ -184,7 +198,7 @@ export const AcademicService = {
 
   // --- EXAMS ---
   async getExams(): Promise<MockExam[]> {
-    const res = await fetch('/api/admin/exams', { cache: 'no-store' });
+    const res = await authFetch('/api/admin/exams', { cache: 'no-store' });
     if (!res.ok) return [];
     const json = await res.json();
     return json.exams || [];
@@ -195,7 +209,7 @@ export const AcademicService = {
   },
 
   async createExam(exam: { title: string; courseId?: string; durationMinutes: number; totalMarks: number }) {
-    const res = await fetch('/api/admin/exams', {
+    const res = await authFetch('/api/admin/exams', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(exam),
@@ -206,7 +220,7 @@ export const AcademicService = {
   },
 
   async deleteExam(id: string) {
-    const res = await fetch(`/api/admin/exams?id=${encodeURIComponent(id)}`, {
+    const res = await authFetch(`/api/admin/exams?id=${encodeURIComponent(id)}`, {
       method: 'DELETE',
     });
     const json = await res.json();
@@ -216,7 +230,7 @@ export const AcademicService = {
 
   // --- ENQUIRIES ---
   async getEnquiries(): Promise<EnquiryLead[]> {
-    const res = await fetch('/api/admin/enquiries', { cache: 'no-store' });
+    const res = await authFetch('/api/admin/enquiries', { cache: 'no-store' });
     if (!res.ok) return [];
     const json = await res.json();
     return (json.enquiries || []).map((e: any) => ({
@@ -234,7 +248,7 @@ export const AcademicService = {
   },
 
   async updateEnquiryStatus(id: string, status: string, internalNotes?: string) {
-    const res = await fetch('/api/admin/enquiries', {
+    const res = await authFetch('/api/admin/enquiries', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, status, internalNotes }),
@@ -245,7 +259,7 @@ export const AcademicService = {
   },
 
   async deleteEnquiry(id: string) {
-    const res = await fetch(`/api/admin/enquiries?id=${encodeURIComponent(id)}`, {
+    const res = await authFetch(`/api/admin/enquiries?id=${encodeURIComponent(id)}`, {
       method: 'DELETE',
     });
     const json = await res.json();
@@ -255,14 +269,14 @@ export const AcademicService = {
 
   // --- ANNOUNCEMENTS ---
   async getAnnouncements() {
-    const res = await fetch('/api/admin/announcements', { cache: 'no-store' });
+    const res = await authFetch('/api/admin/announcements', { cache: 'no-store' });
     if (!res.ok) return [];
     const json = await res.json();
     return json.announcements || [];
   },
 
   async createAnnouncement(announcement: { title: string; content: string; category?: string; isUrgent?: boolean }) {
-    const res = await fetch('/api/admin/announcements', {
+    const res = await authFetch('/api/admin/announcements', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(announcement),
@@ -273,7 +287,7 @@ export const AcademicService = {
   },
 
   async deleteAnnouncement(id: string) {
-    const res = await fetch(`/api/admin/announcements?id=${encodeURIComponent(id)}`, {
+    const res = await authFetch(`/api/admin/announcements?id=${encodeURIComponent(id)}`, {
       method: 'DELETE',
     });
     const json = await res.json();
@@ -283,14 +297,14 @@ export const AcademicService = {
 
   // --- SUBJECTS ---
   async getSubjects() {
-    const res = await fetch('/api/admin/subjects', { cache: 'no-store' });
+    const res = await authFetch('/api/admin/subjects', { cache: 'no-store' });
     if (!res.ok) return [];
     const json = await res.json();
     return json.subjects || [];
   },
 
   async createSubject(subject: { name: string; code: string; courseId?: string }) {
-    const res = await fetch('/api/admin/subjects', {
+    const res = await authFetch('/api/admin/subjects', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(subject),
@@ -301,7 +315,7 @@ export const AcademicService = {
   },
 
   async deleteSubject(id: string) {
-    const res = await fetch(`/api/admin/subjects?id=${encodeURIComponent(id)}`, {
+    const res = await authFetch(`/api/admin/subjects?id=${encodeURIComponent(id)}`, {
       method: 'DELETE',
     });
     const json = await res.json();
@@ -311,14 +325,14 @@ export const AcademicService = {
 
   // --- STUDY MATERIALS ---
   async getMaterials() {
-    const res = await fetch('/api/admin/materials', { cache: 'no-store' });
+    const res = await authFetch('/api/admin/materials', { cache: 'no-store' });
     if (!res.ok) return [];
     const json = await res.json();
     return json.materials || [];
   },
 
   async createMaterial(material: { title: string; subject: string; batchId?: string; fileUrl?: string; fileSize?: string; type?: string }) {
-    const res = await fetch('/api/admin/materials', {
+    const res = await authFetch('/api/admin/materials', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(material),
@@ -329,7 +343,7 @@ export const AcademicService = {
   },
 
   async deleteMaterial(id: string) {
-    const res = await fetch(`/api/admin/materials?id=${encodeURIComponent(id)}`, {
+    const res = await authFetch(`/api/admin/materials?id=${encodeURIComponent(id)}`, {
       method: 'DELETE',
     });
     const json = await res.json();
@@ -339,14 +353,14 @@ export const AcademicService = {
 
   // --- RECORDED CLASSES ---
   async getRecordedClasses() {
-    const res = await fetch('/api/admin/recorded-classes', { cache: 'no-store' });
+    const res = await authFetch('/api/admin/recorded-classes', { cache: 'no-store' });
     if (!res.ok) return [];
     const json = await res.json();
     return json.recordings || [];
   },
 
   async createRecordedClass(recording: { title: string; subject: string; batchId?: string; videoUrl: string; durationMinutes?: number }) {
-    const res = await fetch('/api/admin/recorded-classes', {
+    const res = await authFetch('/api/admin/recorded-classes', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(recording),
@@ -357,7 +371,7 @@ export const AcademicService = {
   },
 
   async deleteRecordedClass(id: string) {
-    const res = await fetch(`/api/admin/recorded-classes?id=${encodeURIComponent(id)}`, {
+    const res = await authFetch(`/api/admin/recorded-classes?id=${encodeURIComponent(id)}`, {
       method: 'DELETE',
     });
     const json = await res.json();
@@ -367,14 +381,14 @@ export const AcademicService = {
 
   // --- ASSIGNMENTS ---
   async getAssignments() {
-    const res = await fetch('/api/admin/assignments', { cache: 'no-store' });
+    const res = await authFetch('/api/admin/assignments', { cache: 'no-store' });
     if (!res.ok) return [];
     const json = await res.json();
     return json.assignments || [];
   },
 
   async createAssignment(assignment: { title: string; subject: string; batchId?: string; description?: string; dueDate?: string }) {
-    const res = await fetch('/api/admin/assignments', {
+    const res = await authFetch('/api/admin/assignments', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(assignment),
@@ -385,7 +399,7 @@ export const AcademicService = {
   },
 
   async deleteAssignment(id: string) {
-    const res = await fetch(`/api/admin/assignments?id=${encodeURIComponent(id)}`, {
+    const res = await authFetch(`/api/admin/assignments?id=${encodeURIComponent(id)}`, {
       method: 'DELETE',
     });
     const json = await res.json();
@@ -395,7 +409,7 @@ export const AcademicService = {
 
   // --- LIVE CLASSES ---
   async getLiveClasses(): Promise<LiveClass[]> {
-    const res = await fetch('/api/admin/live-classes', { cache: 'no-store' });
+    const res = await authFetch('/api/admin/live-classes', { cache: 'no-store' });
     if (!res.ok) return [];
     const json = await res.json();
     return json.liveClasses || [];
@@ -408,7 +422,7 @@ export const AcademicService = {
     scheduledStart?: string;
     scheduledEnd?: string;
   }): Promise<LiveClass> {
-    const res = await fetch('/api/admin/live-classes', {
+    const res = await authFetch('/api/admin/live-classes', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(liveClass),
@@ -419,7 +433,7 @@ export const AcademicService = {
   },
 
   async deleteLiveClass(id: string) {
-    const res = await fetch(`/api/admin/live-classes?id=${encodeURIComponent(id)}`, {
+    const res = await authFetch(`/api/admin/live-classes?id=${encodeURIComponent(id)}`, {
       method: 'DELETE',
     });
     const json = await res.json();
@@ -429,14 +443,14 @@ export const AcademicService = {
 
   // --- NOTIFICATIONS ---
   async getNotifications() {
-    const res = await fetch('/api/admin/notifications', { cache: 'no-store' });
+    const res = await authFetch('/api/admin/notifications', { cache: 'no-store' });
     if (!res.ok) return [];
     const json = await res.json();
     return json.notifications || [];
   },
 
   async createNotification(notif: { title: string; body: string; target?: string }) {
-    const res = await fetch('/api/admin/notifications', {
+    const res = await authFetch('/api/admin/notifications', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(notif),
@@ -448,7 +462,7 @@ export const AcademicService = {
 
   // --- RESULTS ---
   async getResults() {
-    const res = await fetch('/api/admin/results', { cache: 'no-store' });
+    const res = await authFetch('/api/admin/results', { cache: 'no-store' });
     if (!res.ok) return [];
     const json = await res.json();
     return json.results || [];
@@ -463,7 +477,7 @@ export const AcademicService = {
     airRank?: number;
     percentile?: number;
   }) {
-    const res = await fetch('/api/admin/results', {
+    const res = await authFetch('/api/admin/results', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(result),
@@ -474,7 +488,7 @@ export const AcademicService = {
   },
 
   async deleteResult(id: string) {
-    const res = await fetch(`/api/admin/results?id=${encodeURIComponent(id)}`, {
+    const res = await authFetch(`/api/admin/results?id=${encodeURIComponent(id)}`, {
       method: 'DELETE',
     });
     const json = await res.json();
@@ -485,7 +499,7 @@ export const AcademicService = {
   // --- QUESTION BANK ---
   async getQuestions(): Promise<QuestionBankItem[]> {
     try {
-      const res = await fetch('/api/admin/exams', { cache: 'no-store' });
+      const res = await authFetch('/api/admin/exams', { cache: 'no-store' });
       if (!res.ok) return [];
       const json = await res.json();
       return json.questions || [];
@@ -521,14 +535,14 @@ export const AcademicService = {
     const query = new URLSearchParams();
     if (params?.liveClassId) query.set('liveClassId', params.liveClassId);
     if (params?.batchId) query.set('batchId', params.batchId);
-    const res = await fetch(`/api/admin/attendance?${query.toString()}`, { cache: 'no-store' });
+    const res = await authFetch(`/api/admin/attendance?${query.toString()}`, { cache: 'no-store' });
     if (!res.ok) return [];
     const json = await res.json();
     return json.attendance || [];
   },
 
   async markAttendance(data: { studentId: string; liveClassId?: string; status: 'present' | 'absent' | 'late' }) {
-    const res = await fetch('/api/admin/attendance', {
+    const res = await authFetch('/api/admin/attendance', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
@@ -539,7 +553,7 @@ export const AcademicService = {
   },
 
   async deleteAttendance(id: string) {
-    const res = await fetch(`/api/admin/attendance?id=${encodeURIComponent(id)}`, {
+    const res = await authFetch(`/api/admin/attendance?id=${encodeURIComponent(id)}`, {
       method: 'DELETE',
     });
     const json = await res.json();
@@ -550,7 +564,7 @@ export const AcademicService = {
   // --- SETTINGS ---
   async getSettings(key: string, defaultFallback: any = null) {
     try {
-      const res = await fetch(`/api/admin/settings?key=${encodeURIComponent(key)}`, { cache: 'no-store' });
+      const res = await authFetch(`/api/admin/settings?key=${encodeURIComponent(key)}`, { cache: 'no-store' });
       if (!res.ok) return defaultFallback;
       const json = await res.json();
       return json.data || defaultFallback;
@@ -560,7 +574,7 @@ export const AcademicService = {
   },
 
   async saveSettings(key: string, content: any) {
-    const res = await fetch('/api/admin/settings', {
+    const res = await authFetch('/api/admin/settings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ key, content }),

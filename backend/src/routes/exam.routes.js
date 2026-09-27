@@ -12,24 +12,30 @@ router.post('/submit', async (req, res) => {
       return res.status(400).json({ error: 'examId and studentId are required' });
     }
 
-    // IDOR Protection: If an authorization token is provided, enforce that caller matches studentId
+    // Authoritative Identity & IDOR Protection
     const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
+    const isServiceKey = (req.headers['x-service-key'] === ENV.SUPABASE_SECRET_KEY) ||
+                         (authHeader?.startsWith('Bearer ') && authHeader.substring(7) === ENV.SUPABASE_SECRET_KEY);
+
+    if (ENV.NODE_ENV === 'production' && ENV.SUPABASE_SECRET_KEY && !isServiceKey) {
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Unauthorized: Valid student authorization Bearer token required.' });
+      }
+
       const token = authHeader.substring(7);
-      if (ENV.SUPABASE_URL && ENV.SUPABASE_SECRET_KEY) {
-        try {
-          const { createClient } = await import('@supabase/supabase-js');
-          const supabase = createClient(ENV.SUPABASE_URL, ENV.SUPABASE_SECRET_KEY);
-          const { data: { user }, error } = await supabase.auth.getUser(token);
-          if (error || !user) {
-            return res.status(401).json({ error: 'Unauthorized: Invalid token' });
-          }
-          if (user.id !== studentId) {
-            return res.status(403).json({ error: 'Forbidden: Cannot submit exam answers for another student' });
-          }
-        } catch (e) {
-          console.warn('[Exam Submit Auth Check Failed]:', e.message);
+      try {
+        const { createClient } = await import('@supabase/supabase-js');
+        const supabase = createClient(ENV.SUPABASE_URL, ENV.SUPABASE_SECRET_KEY);
+        const { data: { user }, error } = await supabase.auth.getUser(token);
+        if (error || !user) {
+          return res.status(401).json({ error: 'Unauthorized: Invalid or expired student session token.' });
         }
+        if (user.id !== studentId) {
+          return res.status(403).json({ error: 'Forbidden: Cannot submit exam answers for another student.' });
+        }
+      } catch (e) {
+        console.error('[Exam Submit Auth Verification Failed]:', e.message);
+        return res.status(401).json({ error: 'Authentication verification failure.' });
       }
     }
 

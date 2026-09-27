@@ -679,14 +679,24 @@ CREATE POLICY "Allow admin manage students" ON public.students
     FOR ALL USING (public.is_admin() OR auth.role() = 'service_role');
 
 DROP POLICY IF EXISTS "Allow read teachers" ON public.teachers;
-CREATE POLICY "Allow read teachers" ON public.teachers FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Allow authenticated read teachers" ON public.teachers;
+CREATE POLICY "Allow authenticated read teachers" ON public.teachers
+    FOR SELECT USING (auth.role() = 'authenticated' OR public.is_admin() OR auth.role() = 'service_role');
 DROP POLICY IF EXISTS "Allow admin manage teachers" ON public.teachers;
 CREATE POLICY "Allow admin manage teachers" ON public.teachers
     FOR ALL USING (public.is_admin() OR auth.role() = 'service_role');
 
 -- 12.5 Live Classes & Attendance
 DROP POLICY IF EXISTS "Allow read live_classes" ON public.live_classes;
-CREATE POLICY "Allow read live_classes" ON public.live_classes FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Allow student read live_classes" ON public.live_classes;
+CREATE POLICY "Allow student read live_classes" ON public.live_classes
+    FOR SELECT USING (
+        batch_id IS NULL
+        OR batch_id IN (SELECT batch_id FROM public.students WHERE id = auth.uid())
+        OR public.is_teacher()
+        OR public.is_admin()
+        OR auth.role() = 'service_role'
+    );
 DROP POLICY IF EXISTS "Allow teacher and admin manage live_classes" ON public.live_classes;
 CREATE POLICY "Allow teacher and admin manage live_classes" ON public.live_classes
     FOR ALL USING (public.is_teacher() OR public.is_admin() OR auth.role() = 'service_role');
@@ -700,13 +710,29 @@ CREATE POLICY "Allow teacher and admin manage attendance" ON public.attendance
 
 -- 12.6 Study Materials & Recorded Classes
 DROP POLICY IF EXISTS "Allow read study_materials" ON public.study_materials;
-CREATE POLICY "Allow read study_materials" ON public.study_materials FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Allow student read study_materials" ON public.study_materials;
+CREATE POLICY "Allow student read study_materials" ON public.study_materials
+    FOR SELECT USING (
+        batch_id IS NULL
+        OR batch_id IN (SELECT batch_id FROM public.students WHERE id = auth.uid())
+        OR public.is_teacher()
+        OR public.is_admin()
+        OR auth.role() = 'service_role'
+    );
 DROP POLICY IF EXISTS "Allow teacher and admin manage study_materials" ON public.study_materials;
 CREATE POLICY "Allow teacher and admin manage study_materials" ON public.study_materials
     FOR ALL USING (public.is_teacher() OR public.is_admin() OR auth.role() = 'service_role');
 
 DROP POLICY IF EXISTS "Allow read recorded_classes" ON public.recorded_classes;
-CREATE POLICY "Allow read recorded_classes" ON public.recorded_classes FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Allow student read recorded_classes" ON public.recorded_classes;
+CREATE POLICY "Allow student read recorded_classes" ON public.recorded_classes
+    FOR SELECT USING (
+        batch_id IS NULL
+        OR batch_id IN (SELECT batch_id FROM public.students WHERE id = auth.uid())
+        OR public.is_teacher()
+        OR public.is_admin()
+        OR auth.role() = 'service_role'
+    );
 DROP POLICY IF EXISTS "Allow teacher and admin manage recorded_classes" ON public.recorded_classes;
 CREATE POLICY "Allow teacher and admin manage recorded_classes" ON public.recorded_classes
     FOR ALL USING (public.is_teacher() OR public.is_admin() OR auth.role() = 'service_role');
@@ -737,7 +763,15 @@ CREATE POLICY "Allow admin manage results" ON public.exam_results
 
 -- 12.8 Assignments & Anti-IDOR Submissions Isolation
 DROP POLICY IF EXISTS "Allow read assignments" ON public.assignments;
-CREATE POLICY "Allow read assignments" ON public.assignments FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Allow student read assignments" ON public.assignments;
+CREATE POLICY "Allow student read assignments" ON public.assignments
+    FOR SELECT USING (
+        batch_id IS NULL
+        OR batch_id IN (SELECT batch_id FROM public.students WHERE id = auth.uid())
+        OR public.is_teacher()
+        OR public.is_admin()
+        OR auth.role() = 'service_role'
+    );
 DROP POLICY IF EXISTS "Allow teacher and admin manage assignments" ON public.assignments;
 CREATE POLICY "Allow teacher and admin manage assignments" ON public.assignments
     FOR ALL USING (public.is_teacher() OR public.is_admin() OR auth.role() = 'service_role');

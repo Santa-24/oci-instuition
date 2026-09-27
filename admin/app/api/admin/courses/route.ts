@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import { verifyAdminRequest } from '@/lib/auth/api-auth';
 import crypto from 'crypto';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const auth = await verifyAdminRequest(req);
+    if (!auth.authorized) return auth.response!;
+
     const { data: courses, error } = await supabaseAdmin
       .from('courses')
       .select('*')
@@ -36,6 +40,9 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await verifyAdminRequest(req);
+    if (!auth.authorized) return auth.response!;
+
     const body = await req.json();
     const { name, code, category, durationMonths, description, isActive } = body;
 
@@ -67,6 +74,9 @@ export async function POST(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
   try {
+    const auth = await verifyAdminRequest(req);
+    if (!auth.authorized) return auth.response!;
+
     const body = await req.json();
     const { id, name, code, category, durationMonths, description, isActive } = body;
 
@@ -98,6 +108,9 @@ export async function PUT(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
+    const auth = await verifyAdminRequest(req);
+    if (!auth.authorized) return auth.response!;
+
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
 

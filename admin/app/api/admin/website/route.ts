@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import { verifyAdminRequest } from '@/lib/auth/api-auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   try {
+    const auth = await verifyAdminRequest(req);
+    if (!auth.authorized) return auth.response!;
+
     const { searchParams } = new URL(req.url);
     const section = searchParams.get('section'); // e.g. 'homepage', 'about', 'appSettings', 'testimonials', 'faculty', 'stories'
 
@@ -62,6 +66,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await verifyAdminRequest(req);
+    if (!auth.authorized) return auth.response!;
+
     const body = await req.json();
     const { key, value } = body;
 

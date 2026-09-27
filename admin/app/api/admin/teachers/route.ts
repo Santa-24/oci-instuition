@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import crypto from 'crypto';
+import { verifyAdminRequest } from '@/lib/auth/api-auth';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const auth = await verifyAdminRequest(req);
+    if (!auth.authorized) return auth.response!;
+
     const { data: teachers, error } = await supabaseAdmin
       .from('teachers')
       .select('*')
@@ -40,8 +43,11 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await verifyAdminRequest(req);
+    if (!auth.authorized) return auth.response!;
+
     const body = await req.json();
-    const { name, employeeId, email, phone, subject, qualification, experienceYears, bio, publishToWebsite, password } = body;
+    const { name, employeeId, email, phone, subject, qualification, experienceYears, bio, password } = body;
 
     if (!name || !employeeId || !subject) {
       return NextResponse.json({ success: false, error: 'Name, Employee ID, and Subject are required' }, { status: 400 });
@@ -80,7 +86,10 @@ export async function POST(req: NextRequest) {
           },
         });
       } else {
-        teacherUuid = crypto.randomUUID();
+        return NextResponse.json(
+          { success: false, error: authError?.message || 'Failed to provision faculty authentication identity.' },
+          { status: 400 }
+        );
       }
     } else {
       teacherUuid = authUser.user.id;
@@ -129,6 +138,9 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
+    const auth = await verifyAdminRequest(req);
+    if (!auth.authorized) return auth.response!;
+
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
 
@@ -154,6 +166,9 @@ export async function DELETE(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   try {
+    const auth = await verifyAdminRequest(req);
+    if (!auth.authorized) return auth.response!;
+
     const body = await req.json();
     const { id, password } = body;
 

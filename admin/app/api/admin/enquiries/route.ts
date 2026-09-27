@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import { verifyAdminRequest } from '@/lib/auth/api-auth';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const auth = await verifyAdminRequest(req);
+    if (!auth.authorized) return auth.response!;
+
     const { data: enquiries, error } = await supabaseAdmin
       .from('enquiries')
       .select('*')
@@ -20,6 +24,9 @@ export async function GET() {
 
 export async function PATCH(req: NextRequest) {
   try {
+    const auth = await verifyAdminRequest(req);
+    if (!auth.authorized) return auth.response!;
+
     const body = await req.json();
     const { id, status, internalNotes } = body;
 
@@ -49,6 +56,9 @@ export async function PATCH(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
+    const auth = await verifyAdminRequest(req);
+    if (!auth.authorized) return auth.response!;
+
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
 

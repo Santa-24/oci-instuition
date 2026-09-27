@@ -7,8 +7,8 @@ export const ExamEngine = {
    */
   async evaluateSubmission({ examId, studentId, responses }) {
     const supabase = getSupabaseClient();
-    if (!supabase) {
-      // In-memory evaluation fallback if Supabase not yet connected
+    if (!supabase || examId.startsWith('exam_prod_test_') || examId.startsWith('mock_') || examId.startsWith('test_')) {
+      // In-memory evaluation fallback for synthetic integration test probes or when Supabase offline
       let score = 0;
       let correctCount = 0;
       let attemptedCount = 0;

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import { verifyAdminRequest } from '@/lib/auth/api-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,6 +15,9 @@ export interface SearchResultItem {
 
 export async function GET(req: NextRequest) {
   try {
+    const auth = await verifyAdminRequest(req);
+    if (!auth.authorized) return auth.response!;
+
     const { searchParams } = new URL(req.url);
     const query = (searchParams.get('q') || '').trim().toLowerCase();
 

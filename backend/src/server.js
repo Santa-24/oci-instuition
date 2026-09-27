@@ -8,6 +8,7 @@ import examRoutes from './routes/exam.routes.js';
 import notificationRoutes from './routes/notification.routes.js';
 import appVersionRoutes from './routes/app-version.routes.js';
 import authRoutes from './routes/auth.routes.js';
+import attendanceRoutes from './routes/attendance.routes.js';
 
 const app = express();
 
@@ -49,6 +50,7 @@ app.use((req, res, next) => {
 app.use(healthRoutes);
 app.use('/api/exams', examRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/attendance', attendanceRoutes);
 app.use('/api', appVersionRoutes);
 app.use(authRoutes);
 
