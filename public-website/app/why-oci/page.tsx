@@ -153,49 +153,88 @@ export default function WhyOciPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-6 rounded-2xl bg-white border border-[#E6E2D8] shadow-xs space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-[#1D4ED8]">
-                  Hour 01 – 02
+            <div className="p-6 rounded-2xl bg-white border border-[#E6E2D8] shadow-xs space-y-4 group">
+              <div className="h-36 w-full rounded-xl overflow-hidden border border-[#E6E2D8] relative">
+                <img
+                  src="/images/hero-classroom.jpg"
+                  alt="Hour 01-02 Conceptual Lecture"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <span className="absolute bottom-2 left-2 text-[10px] font-bold text-amber-300 uppercase">
+                  Classroom Session
                 </span>
-                <Clock className="w-4 h-4 text-[#1D4ED8]" />
               </div>
-              <h3 className="text-lg font-bold font-serif text-[#0F172A]">
-                Conceptual Lecture
-              </h3>
-              <p className="text-xs text-[#475569] leading-relaxed">
-                Faculty-led breakdown of theory, formula derivations, grammatical nuances, and step-by-step problem modeling across targeted exam chapters.
-              </p>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#1D4ED8]">
+                    Hour 01 – 02
+                  </span>
+                  <Clock className="w-4 h-4 text-[#1D4ED8]" />
+                </div>
+                <h3 className="text-lg font-bold font-serif text-[#0F172A]">
+                  Conceptual Lecture
+                </h3>
+                <p className="text-xs text-[#475569] leading-relaxed">
+                  Faculty-led breakdown of theory, formula derivations, grammatical nuances, and step-by-step problem modeling across targeted exam chapters.
+                </p>
+              </div>
             </div>
 
-            <div className="p-6 rounded-2xl bg-white border border-[#E6E2D8] shadow-xs space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-[#D97706]">
-                  Hour 02 – 03
+            <div className="p-6 rounded-2xl bg-white border border-[#E6E2D8] shadow-xs space-y-4 group">
+              <div className="h-36 w-full rounded-xl overflow-hidden border border-[#E6E2D8] relative">
+                <img
+                  src="/images/student-notes.jpg"
+                  alt="Hour 02-03 Supervised Practice Drill"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <span className="absolute bottom-2 left-2 text-[10px] font-bold text-blue-300 uppercase">
+                  50-Question Daily Drill
                 </span>
-                <FileCheck className="w-4 h-4 text-[#D97706]" />
               </div>
-              <h3 className="text-lg font-bold font-serif text-[#0F172A]">
-                Supervised Practice Drill
-              </h3>
-              <p className="text-xs text-[#475569] leading-relaxed">
-                A timed 50-question printed worksheet solved in silent exam conditions. Real-time invigilation trains speed control and pressure management.
-              </p>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#D97706]">
+                    Hour 02 – 03
+                  </span>
+                  <FileCheck className="w-4 h-4 text-[#D97706]" />
+                </div>
+                <h3 className="text-lg font-bold font-serif text-[#0F172A]">
+                  Supervised Practice Drill
+                </h3>
+                <p className="text-xs text-[#475569] leading-relaxed">
+                  A timed 50-question printed worksheet solved in silent exam conditions. Real-time invigilation trains speed control and pressure management.
+                </p>
+              </div>
             </div>
 
-            <div className="p-6 rounded-2xl bg-white border border-[#E6E2D8] shadow-xs space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-[#059669]">
-                  Post-Class Hour
+            <div className="p-6 rounded-2xl bg-white border border-[#E6E2D8] shadow-xs space-y-4 group">
+              <div className="h-36 w-full rounded-xl overflow-hidden border border-[#E6E2D8] relative">
+                <img
+                  src="/images/mentorship-guidance.jpg"
+                  alt="Post-Class Dedicated Doubt Room"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <span className="absolute bottom-2 left-2 text-[10px] font-bold text-emerald-300 uppercase">
+                  1-on-1 Mentorship
                 </span>
-                <HelpCircle className="w-4 h-4 text-[#059669]" />
               </div>
-              <h3 className="text-lg font-bold font-serif text-[#0F172A]">
-                Dedicated Doubt Room
-              </h3>
-              <p className="text-xs text-[#475569] leading-relaxed">
-                Direct one-on-one session with teachers. Students analyze wrong answers, discuss alternative solving angles, and clear all ambiguities before leaving.
-              </p>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#059669]">
+                    Post-Class Hour
+                  </span>
+                  <HelpCircle className="w-4 h-4 text-[#059669]" />
+                </div>
+                <h3 className="text-lg font-bold font-serif text-[#0F172A]">
+                  Dedicated Doubt Room
+                </h3>
+                <p className="text-xs text-[#475569] leading-relaxed">
+                  Direct one-on-one session with teachers. Students analyze wrong answers, discuss alternative solving angles, and clear all ambiguities before leaving.
+                </p>
+              </div>
             </div>
           </div>
         </div>

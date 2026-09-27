@@ -162,7 +162,17 @@ export default function HomePage() {
           1. EDITORIAL ACADEMIC HERO SECTION
           ───────────────────────────────────────────────────────────── */}
       <section className="relative pt-12 pb-20 lg:pt-20 lg:pb-28 border-b border-[#E6E2D8] overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Subtle Ambient Academic Background */}
+        <div className="absolute inset-0 z-0 opacity-[0.06] pointer-events-none mix-blend-multiply">
+          <img
+            src="/images/hero-ambient.jpg"
+            alt="OCI Academic Campus Atmosphere"
+            className="w-full h-full object-cover object-center"
+          />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-b from-[#FAF8F5]/80 via-[#FAF8F5]/95 to-[#FAF8F5] pointer-events-none z-0" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
             {/* Left Column: Academic Manifesto (7 Cols) */}
             <div className="lg:col-span-7 space-y-6">
@@ -220,8 +230,25 @@ export default function HomePage() {
             </div>
 
             {/* Right Column: Physical Center Quick Dossier Card (5 Cols) */}
-            <div className="lg:col-span-5">
+            <div className="lg:col-span-5 relative z-10">
               <div className="p-7 sm:p-8 rounded-2xl bg-white border border-[#E6E2D8] shadow-sm space-y-6">
+                {/* Authentic Classroom Spotlight Photo */}
+                <div className="relative h-48 sm:h-52 w-full rounded-xl overflow-hidden border border-[#E6E2D8] shadow-xs group">
+                  <img
+                    src="/images/indian-classroom-study.jpg"
+                    alt="OCI Classroom Lecture & Batch Mentorship"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0C192E]/85 via-[#0C192E]/25 to-transparent" />
+                  <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white">
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300 block">Classroom Learning Center</span>
+                      <span className="text-xs font-semibold">Offline Batch Session • Nayabazar, Bhadrak</span>
+                    </div>
+                    <span className="px-2.5 py-0.5 rounded bg-emerald-500/90 text-white text-[10px] font-bold uppercase shadow-xs">9th Year</span>
+                  </div>
+                </div>
+
                 <div className="flex items-center justify-between border-b border-[#E6E2D8] pb-4">
                   <div>
                     <span className="text-[11px] font-bold uppercase tracking-wider text-[#D97706] block">
@@ -232,7 +259,7 @@ export default function HomePage() {
                     </h2>
                   </div>
                   <span className="px-2.5 py-1 rounded-md bg-[#F3F0EA] text-xs font-semibold text-[#475569] border border-[#E6E2D8]">
-                    9th Year
+                    Classroom + Lab
                   </span>
                 </div>
 
@@ -299,43 +326,79 @@ export default function HomePage() {
       {/* ─────────────────────────────────────────────────────────────
           2. METHODOLOGICAL PROMISE BANNER (High Rigor)
           ───────────────────────────────────────────────────────────── */}
-      <section className="py-12 bg-white border-b border-[#E6E2D8]">
+      <section className="py-14 bg-white border-b border-[#E6E2D8]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="space-y-2 border-l-2 border-[#D97706] pl-4">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#D97706]">
-                PRINCIPLE 01
-              </span>
-              <h3 className="text-base font-bold text-[#0F172A]">
-                Conceptual Depth First
-              </h3>
-              <p className="text-xs text-[#475569] leading-relaxed">
-                Shortcuts without theory fail when exam patterns shift. We teach derivations, underlying logic, and grammatical rules before speed drills.
-              </p>
+            <div className="space-y-4 rounded-2xl p-5 bg-[#FAF8F5] border border-[#E6E2D8] transition-all hover:border-[#CBD5E1]">
+              <div className="h-36 w-full rounded-xl overflow-hidden border border-[#E6E2D8] shadow-xs relative">
+                <img
+                  src="/images/student-notes.jpg"
+                  alt="Conceptual Grounding in Mathematics & Logical Reasoning"
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                />
+                <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-[#0C192E]/80 backdrop-blur-xs text-amber-300 font-bold text-[10px] uppercase tracking-wide">
+                  Theory First
+                </span>
+              </div>
+              <div className="space-y-1.5 border-l-2 border-[#D97706] pl-3">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#D97706]">
+                  PRINCIPLE 01
+                </span>
+                <h3 className="text-base font-bold text-[#0F172A]">
+                  Conceptual Depth First
+                </h3>
+                <p className="text-xs text-[#475569] leading-relaxed">
+                  Shortcuts without theory fail when exam patterns shift. We teach derivations, underlying logic, and grammatical rules before speed drills.
+                </p>
+              </div>
             </div>
 
-            <div className="space-y-2 border-l-2 border-[#1D4ED8] pl-4">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#1D4ED8]">
-                PRINCIPLE 02
-              </span>
-              <h3 className="text-base font-bold text-[#0F172A]">
-                Daily Supervised Practice
-              </h3>
-              <p className="text-xs text-[#475569] leading-relaxed">
-                Lectures are followed by mandatory 1-hour problem sets. Our faculty stay in the classroom to clear doubts on the spot.
-              </p>
+            <div className="space-y-4 rounded-2xl p-5 bg-[#FAF8F5] border border-[#E6E2D8] transition-all hover:border-[#CBD5E1]">
+              <div className="h-36 w-full rounded-xl overflow-hidden border border-[#E6E2D8] shadow-xs relative">
+                <img
+                  src="/images/mentorship-guidance.jpg"
+                  alt="Faculty Supervising Classroom Practice Drills"
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                />
+                <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-[#0C192E]/80 backdrop-blur-xs text-blue-300 font-bold text-[10px] uppercase tracking-wide">
+                  Daily Supervision
+                </span>
+              </div>
+              <div className="space-y-1.5 border-l-2 border-[#1D4ED8] pl-3">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#1D4ED8]">
+                  PRINCIPLE 02
+                </span>
+                <h3 className="text-base font-bold text-[#0F172A]">
+                  Daily Supervised Practice
+                </h3>
+                <p className="text-xs text-[#475569] leading-relaxed">
+                  Lectures are followed by mandatory 1-hour problem sets. Our faculty stay in the classroom to clear doubts on the spot.
+                </p>
+              </div>
             </div>
 
-            <div className="space-y-2 border-l-2 border-[#059669] pl-4">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#059669]">
-                PRINCIPLE 03
-              </span>
-              <h3 className="text-base font-bold text-[#0F172A]">
-                Exact CBT Examination Interface
-              </h3>
-              <p className="text-xs text-[#475569] leading-relaxed">
-                Students practice on the OCI native test engine mirroring the exact screen layout, sectional timers, and negative scoring of TCS iON.
-              </p>
+            <div className="space-y-4 rounded-2xl p-5 bg-[#FAF8F5] border border-[#E6E2D8] transition-all hover:border-[#CBD5E1]">
+              <div className="h-36 w-full rounded-xl overflow-hidden border border-[#E6E2D8] shadow-xs relative">
+                <img
+                  src="/images/cbt-computer-lab.jpg"
+                  alt="Real Computer-Based Test Simulation Lab"
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                />
+                <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-[#0C192E]/80 backdrop-blur-xs text-emerald-300 font-bold text-[10px] uppercase tracking-wide">
+                  TCS iON Pattern
+                </span>
+              </div>
+              <div className="space-y-1.5 border-l-2 border-[#059669] pl-3">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#059669]">
+                  PRINCIPLE 03
+                </span>
+                <h3 className="text-base font-bold text-[#0F172A]">
+                  Exact CBT Examination Interface
+                </h3>
+                <p className="text-xs text-[#475569] leading-relaxed">
+                  Students practice on the OCI native test engine mirroring the exact screen layout, sectional timers, and negative scoring of TCS iON.
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -461,11 +524,17 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
-            <div className="p-6 rounded-2xl bg-white border border-[#E6E2D8] space-y-3 relative">
-              <span className="text-4xl font-extrabold font-serif text-[#CBD5E1] block">
-                01
-              </span>
-              <h3 className="text-lg font-bold text-[#0F172A] font-serif">
+            <div className="p-5 rounded-2xl bg-white border border-[#E6E2D8] space-y-3 relative overflow-hidden group shadow-xs">
+              <div className="h-28 w-full rounded-xl overflow-hidden border border-[#E6E2D8] relative">
+                <img
+                  src="/images/library-study.jpg"
+                  alt="Stage 1 Concept Grounding"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <span className="absolute bottom-1.5 left-2 text-[10px] font-bold text-amber-300 uppercase">Stage 01</span>
+              </div>
+              <h3 className="text-base font-bold text-[#0F172A] font-serif">
                 Concept Grounding
               </h3>
               <p className="text-xs text-[#475569] leading-relaxed">
@@ -473,11 +542,17 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-white border border-[#E6E2D8] space-y-3 relative">
-              <span className="text-4xl font-extrabold font-serif text-[#CBD5E1] block">
-                02
-              </span>
-              <h3 className="text-lg font-bold text-[#0F172A] font-serif">
+            <div className="p-5 rounded-2xl bg-white border border-[#E6E2D8] space-y-3 relative overflow-hidden group shadow-xs">
+              <div className="h-28 w-full rounded-xl overflow-hidden border border-[#E6E2D8] relative">
+                <img
+                  src="/images/student-notes.jpg"
+                  alt="Stage 2 Structured Drills"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <span className="absolute bottom-1.5 left-2 text-[10px] font-bold text-blue-300 uppercase">Stage 02</span>
+              </div>
+              <h3 className="text-base font-bold text-[#0F172A] font-serif">
                 Structured Drills
               </h3>
               <p className="text-xs text-[#475569] leading-relaxed">
@@ -485,11 +560,17 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-white border border-[#E6E2D8] space-y-3 relative">
-              <span className="text-4xl font-extrabold font-serif text-[#CBD5E1] block">
-                03
-              </span>
-              <h3 className="text-lg font-bold text-[#0F172A] font-serif">
+            <div className="p-5 rounded-2xl bg-white border border-[#E6E2D8] space-y-3 relative overflow-hidden group shadow-xs">
+              <div className="h-28 w-full rounded-xl overflow-hidden border border-[#E6E2D8] relative">
+                <img
+                  src="/images/mentorship-guidance.jpg"
+                  alt="Stage 3 Mentored Doubt Clearance"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <span className="absolute bottom-1.5 left-2 text-[10px] font-bold text-purple-300 uppercase">Stage 03</span>
+              </div>
+              <h3 className="text-base font-bold text-[#0F172A] font-serif">
                 Mentored Doubt Clearance
               </h3>
               <p className="text-xs text-[#475569] leading-relaxed">
@@ -497,11 +578,17 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-white border border-[#E6E2D8] space-y-3 relative">
-              <span className="text-4xl font-extrabold font-serif text-[#D97706] block">
-                04
-              </span>
-              <h3 className="text-lg font-bold text-[#0F172A] font-serif">
+            <div className="p-5 rounded-2xl bg-white border border-[#E6E2D8] space-y-3 relative overflow-hidden group shadow-xs">
+              <div className="h-28 w-full rounded-xl overflow-hidden border border-[#E6E2D8] relative">
+                <img
+                  src="/images/cbt-computer-lab.jpg"
+                  alt="Stage 4 Full CBT Simulation"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <span className="absolute bottom-1.5 left-2 text-[10px] font-bold text-emerald-300 uppercase">Stage 04</span>
+              </div>
+              <h3 className="text-base font-bold text-[#0F172A] font-serif">
                 Full CBT Simulation
               </h3>
               <p className="text-xs text-[#475569] leading-relaxed">
@@ -582,7 +669,36 @@ export default function HomePage() {
             </div>
 
             {/* Right: Concrete App Interface Dossier */}
-            <div className="lg:col-span-6">
+            <div className="lg:col-span-6 space-y-4">
+              {/* Split Classroom & CBT Lab Visual Anchor */}
+              <div className="grid grid-cols-2 gap-3.5">
+                <div className="relative h-36 rounded-xl overflow-hidden border border-[#E6E2D8] shadow-xs group">
+                  <img
+                    src="/images/hero-classroom.jpg"
+                    alt="Physical Classroom Mentorship"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0C192E]/90 via-[#0C192E]/30 to-transparent" />
+                  <div className="absolute bottom-2 left-2.5 right-2">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300 block">Classroom Mentorship</span>
+                    <span className="text-xs font-bold text-white">Daily Face-to-Face Lectures</span>
+                  </div>
+                </div>
+
+                <div className="relative h-36 rounded-xl overflow-hidden border border-[#E6E2D8] shadow-xs group">
+                  <img
+                    src="/images/cbt-computer-lab.jpg"
+                    alt="Digital CBT Simulation Lab"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0C192E]/90 via-[#0C192E]/30 to-transparent" />
+                  <div className="absolute bottom-2 left-2.5 right-2">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-300 block">Digital CBT Testing</span>
+                    <span className="text-xs font-bold text-white">Mobile + Lab Test Engine</span>
+                  </div>
+                </div>
+              </div>
+
               <div className="p-8 rounded-2xl bg-[#0C192E] text-white border border-[#1E2D4A] space-y-6 shadow-xl">
                 <div className="flex items-center justify-between border-b border-[#1E2D4A] pb-4">
                   <div>
@@ -669,6 +785,22 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             <div className="lg:col-span-5 p-8 rounded-2xl bg-white border border-[#E6E2D8] space-y-6">
+              {/* Campus Hall Photo */}
+              <div className="relative h-44 w-full rounded-xl overflow-hidden border border-[#E6E2D8] shadow-xs group">
+                <img
+                  src="/images/classroom-hall.jpg"
+                  alt="Nayabazar Learning Center Lecture Hall"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0C192E]/80 via-transparent to-transparent" />
+                <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-white">
+                  <span className="text-xs font-bold font-serif">Nayabazar Academic Hall</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500 text-[#0C192E] font-bold uppercase">
+                    Free Counseling
+                  </span>
+                </div>
+              </div>
+
               <h3 className="text-xl font-bold text-[#0F172A] font-serif border-b border-[#E6E2D8] pb-3">
                 Center Contact Information
               </h3>
